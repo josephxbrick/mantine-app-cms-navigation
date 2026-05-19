@@ -80,7 +80,7 @@ export function ProductToolbar({
       px="xl"
       align="center"
       justify="space-between"
-      bg="asxBlue.9"
+      bg="asxBlue.8"
       c="asxGray.0"
     >
       <Stack gap={0}>
@@ -97,7 +97,7 @@ export function ProductToolbar({
         radius="xl"
         px={10}
         py={4}
-        bg="asxBlue.7"
+        bg="asxBlue.6"
         shadow="xs"
         style={{
           border: "1px solid var(--mantine-color-asxBlue-4)",
@@ -154,7 +154,7 @@ export function ProductToolbar({
                   rightSection={
                     <ActionIcon
                       variant="transparent"
-                      color="asxBlue"
+                      color="asxBlue.0"
                       size="sm"
                       onClick={handleClose}
                     >

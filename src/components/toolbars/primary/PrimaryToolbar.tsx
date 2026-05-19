@@ -155,9 +155,9 @@ export function PrimaryToolbar() {
       >
         <Group gap="md">
           <Text
-            size="xs"
+            fz={13}
             fw={500}
-            c="asxIndigo.4"
+            c="asxIndigo.8"
             tt="uppercase"
           >
             Content Tools
