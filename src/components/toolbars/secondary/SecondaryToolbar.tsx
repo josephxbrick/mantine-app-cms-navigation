@@ -142,7 +142,7 @@ export default function SecondaryToolbar() {
                     ? "2px solid var(--mantine-color-indigo-6)"
                     : "2px solid transparent",
                   color:
-                    "var(--mantine-color-asxGray-7)",
+                    "var(--mantine-color-gray-7)",
                   fontWeight: active ? 700 : 500,
                 }}
               >
@@ -181,7 +181,7 @@ export default function SecondaryToolbar() {
           radius={0}
           px="xl"
           py="lg"
-          bg="asxGray.0"
+          bg="gray.0"
           style={{
             borderBottom:
               "1px solid var(--mantine-color-indigo-2)",

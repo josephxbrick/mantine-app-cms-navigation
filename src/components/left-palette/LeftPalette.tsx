@@ -62,8 +62,8 @@ export const LeftPalette = () => {
   return (
     <Box
       pos="absolute"
-      top={50}
-      left={16}
+      top={82}
+      left={12}
       px={8}
       py={12}
       bg={paletteBackground}

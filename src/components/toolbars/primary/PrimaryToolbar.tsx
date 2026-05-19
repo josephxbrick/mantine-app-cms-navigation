@@ -43,49 +43,49 @@ const tools: {
   label: ToolKey;
   icon: ReactNode;
 }[] = [
-  {
-    label: "Edit",
-    icon: <IconFileText               size={28}
-              stroke={1} />,
-  },
-  {
-    label: "Preview",
-    icon: <IconEye               size={28}
-              stroke={1} />,
-  },
-  {
-    label: "Categorize",
-    icon: <IconTags               size={28}
-              stroke={1} />,
-  },
-  {
-    label: "History",
-    icon: <IconHistory               size={28}
-              stroke={1} />,
-  },
-  {
-    label: "XML",
-    icon: <IconCode               size={28}
-              stroke={1} />,
-  },
-  {
-    label: "Properties",
-    icon: <IconSettings               size={28}
-              stroke={1} />,
-  },
-  {
-    label: "Analytics",
-    icon: <IconChartBar               size={28}
-              stroke={1} />,
-  },
-  {
-    label: "Accessibility",
-    icon: (
-      <IconAccessible               size={28}
-              stroke={1} />
-    ),
-  },
-];
+    {
+      label: "Edit",
+      icon: <IconFileText size={28}
+        stroke={1} />,
+    },
+    {
+      label: "Preview",
+      icon: <IconEye size={28}
+        stroke={1} />,
+    },
+    {
+      label: "Categorize",
+      icon: <IconTags size={28}
+        stroke={1} />,
+    },
+    {
+      label: "History",
+      icon: <IconHistory size={28}
+        stroke={1} />,
+    },
+    {
+      label: "XML",
+      icon: <IconCode size={28}
+        stroke={1} />,
+    },
+    {
+      label: "Properties",
+      icon: <IconSettings size={28}
+        stroke={1} />,
+    },
+    {
+      label: "Analytics",
+      icon: <IconChartBar size={28}
+        stroke={1} />,
+    },
+    {
+      label: "Accessibility",
+      icon: (
+        <IconAccessible size={28}
+          stroke={1} />
+      ),
+    },
+  ];
 
 export function PrimaryToolbar() {
   const [selectedTool, setSelectedTool] =
@@ -121,6 +121,8 @@ export function PrimaryToolbar() {
       bg="asxIndigo.1"
       style={{
         position: "relative",
+        borderBottom:
+          "1px solid var(--mantine-color-asxIndigo-3)",
       }}
     >
       <Box>
@@ -208,9 +210,9 @@ export function PrimaryToolbar() {
                 </Group>
 
                 <IconChevronDown
-  size={20}
-  style={{ flexShrink: 0 }}
-/>
+                  size={20}
+                  style={{ flexShrink: 0 }}
+                />
               </UnstyledButton>
             </Menu.Target>
 
@@ -258,11 +260,11 @@ export function PrimaryToolbar() {
                 }}
               >
 
-                  <IconLayoutSidebarRight
-                    size={28}
-                    stroke={1.3}
-                    color="var(--mantine-color-asxGray-7)"
-                  />
+                <IconLayoutSidebarRight
+                  size={28}
+                  stroke={1.3}
+                  color="var(--mantine-color-asxGray-7)"
+                />
 
                 <IconChevronDown
                   size={20}
@@ -273,8 +275,8 @@ export function PrimaryToolbar() {
             <Menu.Dropdown>
               <Menu.Item
                 leftSection={
-                  <IconEye               size={28}
-              stroke={1} />
+                  <IconEye size={28}
+                    stroke={1} />
                 }
               >
                 View Site in Staging
@@ -282,8 +284,8 @@ export function PrimaryToolbar() {
 
               <Menu.Item
                 leftSection={
-                  <IconEye               size={28}
-              stroke={1} />
+                  <IconEye size={28}
+                    stroke={1} />
                 }
               >
                 View Site in Production

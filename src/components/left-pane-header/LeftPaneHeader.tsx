@@ -2,22 +2,37 @@ import { Box, Group, Text } from "@mantine/core";
 import { IconSitemap } from "@tabler/icons-react";
 
 export const LeftPaneHeader = () => {
-  return (
-    <Box
-      h={40}
-      px="sm"
-      bg="white"
-      style={{
-        borderBottom: "1px solid var(--mantine-color-asxGray-3)",
-      }}
-    >
-      <Group h="100%" gap={8} wrap="nowrap">
-        <IconSitemap size={16} stroke={1.5} />
+    return (
+        <Box
+            h={72}
+            bg="asxIndigo.1"
+            style={{
+                flexShrink: 0,
+                borderRight: "1px solid var(--mantine-color-asxIndigo-3)",
+                borderBottom: "1px solid var(--mantine-color-asxIndigo-3)",
+            }}
+        >
+            <Group
+                h="100%"
+                gap={12}
+                wrap="nowrap"
+                ml={36}
+            >
+                <IconSitemap
+                    size={28}
+                    stroke={1.5}
+                    color="var(--mantine-color-asxIndigo-9)"
+                />
 
-        <Text size="sm" fw={600} c="asxGray.8" truncate>
-          Site
-        </Text>
-      </Group>
-    </Box>
-  );
+                <Text
+                    size="lg"
+                    fw={600}
+                    c="asxIndigo.9"
+                    truncate
+                >
+                    Site Tree
+                </Text>
+            </Group>
+        </Box>
+    );
 };
