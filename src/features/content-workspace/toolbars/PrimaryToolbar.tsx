@@ -94,7 +94,13 @@ const tools: {
     },
   ];
 
-export function PrimaryToolbar() {
+type PrimaryToolbarProps = {
+  selectedNodeLabel: string;
+};
+
+export function PrimaryToolbar({
+  selectedNodeLabel,
+}: PrimaryToolbarProps) {
   const [selectedTool, setSelectedTool] =
     useState<ToolKey>("Edit");
 
@@ -139,7 +145,7 @@ export function PrimaryToolbar() {
             fw={500}
             c="asxIndigo.9"
           >
-            Central University
+            {selectedNodeLabel}
           </Text>
 
           <IconInfoCircle

@@ -6,9 +6,15 @@ import { SiteTree } from "./site-tree/SiteTree";
 
 type LeftPanelProps = {
   width: number;
+  selectedNodeId: string | null;
+  onSelectNode: (nodeId: string) => void;
 };
 
-export function LeftPanel({ width }: LeftPanelProps) {
+export function LeftPanel({
+  width,
+  selectedNodeId,
+  onSelectNode,
+}: LeftPanelProps) {
   return (
     <Box
       w={width}
@@ -58,7 +64,10 @@ export function LeftPanel({ width }: LeftPanelProps) {
               overflow: "hidden",
             }}
           >
-            <SiteTree />
+            <SiteTree
+              selectedNodeId={selectedNodeId}
+              onSelectNode={onSelectNode}
+            />
           </Box>
         </Box>
       </Box>

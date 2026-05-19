@@ -23,7 +23,7 @@ const paletteBackground = "rgba(255,255,255,0.72)";
 const paletteBorder =
   "1px solid var(--mantine-color-asxGray-4)";
 const paletteShadow =
-  "0 8px 32px rgba(0,0,0,0.08)";
+  "0 2px 8px rgba(61,68,109,0.08)";
 
 const unselectedIconColor = "asxGray.6";
 

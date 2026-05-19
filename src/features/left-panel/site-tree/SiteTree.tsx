@@ -1,13 +1,17 @@
 import { Box, ScrollArea } from "@mantine/core";
-import { useState } from "react";
 
 import { siteTreeData } from "./siteTreeData";
 import { SiteTreeItem } from "./SiteTreeItem";
 
-export const SiteTree = () => {
-  const [selectedNodeId, setSelectedNodeId] =
-    useState<string | null>("central-university");
+type SiteTreeProps = {
+  selectedNodeId: string | null;
+  onSelectNode: (nodeId: string) => void;
+};
 
+export const SiteTree = ({
+  selectedNodeId,
+  onSelectNode,
+}: SiteTreeProps) => {
   return (
     <Box
       h="100%"
@@ -22,7 +26,7 @@ export const SiteTree = () => {
             node={node}
             level={0}
             selectedNodeId={selectedNodeId}
-            onSelectNode={setSelectedNodeId}
+            onSelectNode={onSelectNode}
           />
         ))}
       </ScrollArea>

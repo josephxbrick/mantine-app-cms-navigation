@@ -1,12 +1,18 @@
-import { Box, Flex } from "@mantine/core";
+import { Box, Flex, Text } from "@mantine/core";
 
 import { PrimaryToolbar } from "./toolbars/PrimaryToolbar";
 import SecondaryToolbar from "./toolbars/SecondaryToolbar";
 
-export function ContentWorkspace() {
+type ContentWorkspaceProps = {
+  selectedNodeLabel: string;
+};
+
+export function ContentWorkspace({
+  selectedNodeLabel,
+}: ContentWorkspaceProps) {
   return (
     <Flex direction="column" flex={1}>
-      <PrimaryToolbar />
+      <PrimaryToolbar selectedNodeLabel={selectedNodeLabel} />
 
       <SecondaryToolbar />
 
@@ -14,9 +20,17 @@ export function ContentWorkspace() {
         bg="gray.1"
         style={{
           flex: 1,
+          display: "grid",
+          placeItems: "center",
         }}
       >
-        {/* Current content tool workspace */}
+        <Text
+          c="asxGray.6"
+          fw={500}
+          size="xl"
+        >
+          {selectedNodeLabel}
+        </Text>
       </Box>
     </Flex>
   );

@@ -126,3 +126,29 @@ export const siteTreeData: SiteTreeNode[] = [
     ],
   },
 ];
+
+export function findSiteTreeNodeById(
+  nodeId: string | null,
+  nodes: SiteTreeNode[] = siteTreeData
+): SiteTreeNode | null {
+  if (!nodeId) {
+    return null;
+  }
+
+  for (const node of nodes) {
+    if (node.id === nodeId) {
+      return node;
+    }
+
+    const childMatch = findSiteTreeNodeById(
+      nodeId,
+      node.children ?? []
+    );
+
+    if (childMatch) {
+      return childMatch;
+    }
+  }
+
+  return null;
+}

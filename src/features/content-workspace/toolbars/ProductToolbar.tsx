@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 import {
   ActionIcon,
@@ -159,13 +160,20 @@ export function ProductToolbar({
                       onClick={handleClose}
                     >
                       <IconX size={28}
-                        stroke={1.3} />  
+                        stroke={1.3}
+                        color="var(--mantine-color-asxGray-7)" />
                     </ActionIcon>
                   }
                   placeholder="Enter name or xID"
                   size="sm"
                   w={FIELD_FULL_WIDTH}
                   radius="xl"
+                  styles={{
+                    input: {
+                      "--input-placeholder-color":
+                        "var(--mantine-color-asxGray-7)",
+                    } as CSSProperties,
+                  }}
                 />
               </Box>
             </Group>

@@ -89,9 +89,13 @@ export default function SecondaryToolbar() {
               <UnstyledButton
                 key={menu}
                 onClick={() => {
-                  setActiveMenu((current) =>
-                    current === menu ? null : menu
-                  );
+                  if (hoverTimeoutRef.current) {
+                    window.clearTimeout(
+                      hoverTimeoutRef.current
+                    );
+                  }
+
+                  setActiveMenu(menu);
                 }}
                 onMouseEnter={() => {
                   if (hoverTimeoutRef.current) {
