@@ -8,7 +8,6 @@ export const LeftPanelHeader = () => {
             bg="asxIndigo.1"
             style={{
                 flexShrink: 0,
-                borderRight: "1px solid var(--mantine-color-asxIndigo-3)",
                 borderBottom: "1px solid var(--mantine-color-asxIndigo-3)",
             }}
         >
@@ -16,7 +15,7 @@ export const LeftPanelHeader = () => {
                 h="100%"
                 gap={12}
                 wrap="nowrap"
-                ml={36}
+                px="lg"
             >
                 <IconSitemap
                     size={28}

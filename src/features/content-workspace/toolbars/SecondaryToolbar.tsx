@@ -50,6 +50,9 @@ export default function SecondaryToolbar() {
     setShowInContextIndex,
   ] = useState(false);
 
+  const [showPath, setShowPath] =
+    useState(false);
+
   return (
     <Box
       bg="white"
@@ -174,6 +177,12 @@ export default function SecondaryToolbar() {
                 showInContextIndex={showInContextIndex}
                 onToggleInContextIndex={() =>
                   setShowInContextIndex(
+                    (current) => !current
+                  )
+                }
+                showPath={showPath}
+                onToggleShowPath={() =>
+                  setShowPath(
                     (current) => !current
                   )
                 }

@@ -5,30 +5,18 @@ import { Box, Flex } from "@mantine/core";
 import { ContentWorkspace } from "../content-workspace/ContentWorkspace";
 import { LeftPanel } from "../left-panel/LeftPanel";
 import { ProductToolbar } from "../content-workspace/toolbars/ProductToolbar";
+import { WorkspaceSplitter } from "./WorkspaceSplitter";
+
+const LEFT_PANEL_INITIAL_WIDTH = 414;
+const LEFT_PANEL_MIN_WIDTH = 348;
 
 export function AppShell() {
   const [productToolbarMode, setProductToolbarMode] =
     useState<"default" | "search">("default");
 
-  const [leftPaneWidth, setLeftPaneWidth] = useState(328);
-
-  const startResize = (event: React.MouseEvent<HTMLDivElement>) => {
-    const startX = event.clientX;
-    const startWidth = leftPaneWidth;
-
-    const resize = (moveEvent: MouseEvent) => {
-      const nextWidth = startWidth + moveEvent.clientX - startX;
-      setLeftPaneWidth(Math.min(Math.max(nextWidth, 260), 100000));
-    };
-
-    const stopResize = () => {
-      window.removeEventListener("mousemove", resize);
-      window.removeEventListener("mouseup", stopResize);
-    };
-
-    window.addEventListener("mousemove", resize);
-    window.addEventListener("mouseup", stopResize);
-  };
+  const [leftPaneWidth, setLeftPaneWidth] = useState(
+    LEFT_PANEL_INITIAL_WIDTH
+  );
 
   return (
     <Box
@@ -48,15 +36,10 @@ export function AppShell() {
       <Flex h="calc(100vh - 64px)">
         <LeftPanel width={leftPaneWidth} />
 
-        <Box
-          w={10}
-          ml={-5}
-          mr={-5}
-          style={{
-            cursor: "ew-resize",
-            zIndex: 10,
-          }}
-          onMouseDown={startResize}
+        <WorkspaceSplitter
+          value={leftPaneWidth}
+          onChange={setLeftPaneWidth}
+          min={LEFT_PANEL_MIN_WIDTH}
         />
 
         <ContentWorkspace />

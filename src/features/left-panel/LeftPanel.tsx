@@ -14,23 +14,54 @@ export function LeftPanel({ width }: LeftPanelProps) {
       w={width}
       bg="white"
       pos="relative"
+      h="100%"
       style={{
-        borderRight: "1px solid var(--mantine-color-gray-3)",
+        overflow: "hidden",
       }}
     >
-      <LeftPanelHeader />
-
       <Box
-        h="calc(100% - 40px)"
-        pl={88}
+        h="100%"
+        bg="white"
         style={{
-          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 348,
         }}
       >
-        <SiteTree />
-      </Box>
+        <LeftPanelHeader />
 
-      <LeftPalette />
+        <Box
+          style={{
+            display: "flex",
+            flex: 1,
+            minHeight: 0,
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            w={88}
+            h="100%"
+            style={{
+              position: "relative",
+              flexShrink: 0,
+              overflow: "hidden",
+            }}
+          >
+            <LeftPalette />
+          </Box>
+
+          <Box
+            h="100%"
+            style={{
+              flex: 1,
+              minWidth: 260,
+              overflow: "hidden",
+            }}
+          >
+            <SiteTree />
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 }

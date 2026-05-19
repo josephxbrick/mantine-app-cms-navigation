@@ -61,12 +61,12 @@ export const LeftPalette = () => {
 
   return (
     <Box
-      pos="absolute"
-      top={82}
-      left={12}
+      mt={10}
+      mx="auto"
       px={8}
       py={12}
       bg={paletteBackground}
+      w={64}
       style={{
         borderRadius: 12,
         backdropFilter: "blur(16px)",

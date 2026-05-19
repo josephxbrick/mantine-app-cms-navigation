@@ -14,13 +14,7 @@ export const SiteTree = () => {
       bg="white"
       p="xs"
       miw={260}
-      style={{
-        borderRight: "1px solid var(--mantine-color-asxIndigo-2)",
-      }}
     >
-
-
-
       <ScrollArea h="100%" type="auto">
         {siteTreeData.map((node) => (
           <SiteTreeItem
