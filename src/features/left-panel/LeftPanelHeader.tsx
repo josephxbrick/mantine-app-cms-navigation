@@ -1,7 +1,7 @@
 import { Box, Group, Text } from "@mantine/core";
 import { IconSitemap } from "@tabler/icons-react";
 
-export const LeftPaneHeader = () => {
+export const LeftPanelHeader = () => {
     return (
         <Box
             h={72}

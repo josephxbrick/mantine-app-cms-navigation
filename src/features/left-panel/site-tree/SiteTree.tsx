@@ -1,7 +1,7 @@
 import { Box, ScrollArea } from "@mantine/core";
 import { useState } from "react";
 
-import { siteTreeData } from "./SiteTreeData";
+import { siteTreeData } from "./siteTreeData";
 import { SiteTreeItem } from "./SiteTreeItem";
 
 export const SiteTree = () => {
@@ -15,7 +15,7 @@ export const SiteTree = () => {
       p="xs"
       miw={260}
       style={{
-        borderRight: "1px solid var(--mantine-color-asxIndigo-2   )",
+        borderRight: "1px solid var(--mantine-color-asxIndigo-2)",
       }}
     >
 

@@ -25,12 +25,14 @@ import {
   IconHistory,
   IconInfoCircle,
   IconLayoutSidebarRight,
+  IconPhoto,
   IconSettings,
   IconTags,
 } from "@tabler/icons-react";
 
 type ToolKey =
   | "Edit"
+  | "Assets"
   | "Preview"
   | "Categorize"
   | "History"
@@ -46,6 +48,11 @@ const tools: {
     {
       label: "Edit",
       icon: <IconFileText size={28}
+        stroke={1} />,
+    },
+    {
+      label: "Assets",
+      icon: <IconPhoto size={28}
         stroke={1} />,
     },
     {

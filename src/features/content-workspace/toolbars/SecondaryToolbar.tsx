@@ -1,14 +1,13 @@
-import MegamenuView from "./megamenus/MegamenuView";
-import MegamenuActions from "./megamenus/MegamenuActions";
-import MegamenuPublish from "./megamenus/MegamenuPublish";
-import MegamenuNew from "./megamenus/MegamenuNew";
+import MegamenuView from "../tools/edit/megamenus/MegamenuView";
+import MegamenuActions from "../tools/edit/megamenus/MegamenuActions";
+import MegamenuPublish from "../tools/edit/megamenus/MegamenuPublish";
+import MegamenuNew from "../tools/edit/megamenus/MegamenuNew";
 
 import { useRef, useState } from "react";
 
 import {
   IconArrowBackUp,
   IconChevronDown,
-  IconCircle,
   IconDeviceFloppy,
   IconSearch,
 } from "@tabler/icons-react";
@@ -29,32 +28,6 @@ type MenuKey =
   | "publish"
   | "new"
   | null;
-
-const ICON = IconCircle;
-
-const menuContent: Record<
-  Exclude<MenuKey, null>,
-  string[]
-> = {
-  view: [
-    "Index Mode",
-    "Form Mode",
-    "In Context Mode",
-    "Show Path",
-  ],
-  actions: [
-    "Rename",
-    "Move",
-    "Duplicate",
-    "Delete",
-  ],
-  publish: [
-    "Publish Now",
-    "Schedule Publish",
-    "Unpublish",
-  ],
-  new: [],
-};
 
 export default function SecondaryToolbar() {
   const [activeMenu, setActiveMenu] =
@@ -212,13 +185,7 @@ export default function SecondaryToolbar() {
             ) : activeMenu === "new" ? (
               <MegamenuNew />
             ) : (
-              menuContent[activeMenu].map((item) => (
-                <Group key={item} gap={10}>
-                  <ICON size={12} />
-
-                  <Text size="sm">{item}</Text>
-                </Group>
-              ))
+              null
             )}
           </Stack>
         </Paper>

@@ -1,8 +1,4 @@
-export interface SiteTreeNode {
-  id: string;
-  label: string;
-  children?: SiteTreeNode[];
-}
+import type { SiteTreeNode } from "./types";
 
 export const siteTreeData: SiteTreeNode[] = [
   {
