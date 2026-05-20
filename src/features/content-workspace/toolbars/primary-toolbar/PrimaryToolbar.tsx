@@ -1,7 +1,7 @@
 /*
  * Primary content toolbar.
  * - Shows the selected content node title and workspace context.
- * - Owns selected content-tool state and measures the tool selector width.
+ * - Receives selected content-tool state and measures the tool selector width.
  */
 import {
   useEffect,
@@ -78,6 +78,8 @@ const tools: ToolbarTool[] = [
 
 type PrimaryToolbarProps = {
   selectedNodeLabel: string;
+  selectedTool: ToolKey;
+  onSelectTool: (tool: ToolKey) => void;
 };
 
 type DisplayGroupProps = {
@@ -164,10 +166,9 @@ function MeasurementProbe({
 
 export function PrimaryToolbar({
   selectedNodeLabel,
+  selectedTool,
+  onSelectTool,
 }: PrimaryToolbarProps) {
-  const [selectedTool, setSelectedTool] =
-    useState<ToolKey>("Edit");
-
   const selected =
     tools.find(
       (tool) => tool.label === selectedTool
@@ -195,7 +196,7 @@ export function PrimaryToolbar({
     buttonWidth,
     selected,
     tools,
-    onSelectTool: setSelectedTool,
+    onSelectTool,
   };
 
   const measurementProbeProps = {

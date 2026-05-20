@@ -1,6 +1,6 @@
 /*
  * Left navigation panel.
- * - Displays the site-tree header, vertical palette, and tree browser.
+ * - Displays the active tree header, vertical palette, and tree browser.
  * - Receives sizing and selected-node state from the app shell.
  */
 import { Box } from "@mantine/core";
@@ -9,9 +9,12 @@ import type { ReactNode } from "react";
 import { LeftPanelHeader } from "./LeftPanelHeader";
 import { LeftPalette } from "./palette/LeftPalette";
 import { SiteTree } from "./site-tree/SiteTree";
+import type { SiteTreeNode } from "./site-tree/types";
 
 type LeftPanelProps = {
   width: number;
+  title: string;
+  nodes: SiteTreeNode[];
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string) => void;
 };
@@ -54,7 +57,11 @@ function DisplayGroup({
   );
 }
 
-function Header() {
+type HeaderProps = {
+  title: string;
+};
+
+function Header({ title }: HeaderProps) {
   return (
     <Box
       style={{
@@ -63,7 +70,7 @@ function Header() {
         minWidth: 0,
       }}
     >
-      <LeftPanelHeader />
+      <LeftPanelHeader title={title} />
     </Box>
   );
 }
@@ -85,11 +92,13 @@ function PaletteColumn() {
 }
 
 type SiteTreeColumnProps = {
+  nodes: SiteTreeNode[];
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string) => void;
 };
 
 function SiteTreeColumn({
+  nodes,
   selectedNodeId,
   onSelectNode,
 }: SiteTreeColumnProps) {
@@ -104,6 +113,7 @@ function SiteTreeColumn({
       }}
     >
       <SiteTree
+        nodes={nodes}
         selectedNodeId={selectedNodeId}
         onSelectNode={onSelectNode}
       />
@@ -113,17 +123,24 @@ function SiteTreeColumn({
 
 export function LeftPanel({
   width,
+  title,
+  nodes,
   selectedNodeId,
   onSelectNode,
 }: LeftPanelProps) {
+  const headerProps = {
+    title,
+  };
+
   const siteTreeColumnProps = {
+    nodes,
     selectedNodeId,
     onSelectNode,
   };
 
   return (
     <DisplayGroup width={width}>
-      <Header />
+      <Header {...headerProps} />
       <PaletteColumn />
       <SiteTreeColumn {...siteTreeColumnProps} />
     </DisplayGroup>

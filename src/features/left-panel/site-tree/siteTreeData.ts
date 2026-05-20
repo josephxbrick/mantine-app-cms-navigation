@@ -1,11 +1,11 @@
 /*
- * Site tree sample data.
- * - Provides the hierarchical nodes shown in the left panel tree.
+ * Left-panel tree sample data.
+ * - Provides separate hierarchical nodes for content and asset workspaces.
  * - Includes a helper for resolving the selected node by id.
  */
 import type { SiteTreeNode } from "./types";
 
-export const siteTreeData: SiteTreeNode[] = [
+export const editTreeData: SiteTreeNode[] = [
   {
     id: "ingeniux",
     label: "Ingeniux CMS",
@@ -132,9 +132,88 @@ export const siteTreeData: SiteTreeNode[] = [
   },
 ];
 
-export function findSiteTreeNodeById(
+export const assetsTreeData: SiteTreeNode[] = [
+  {
+    id: "asset-library",
+    label: "Asset Library",
+    children: [
+      {
+        id: "images",
+        label: "Images",
+        children: [
+          {
+            id: "hero-images",
+            label: "Hero Images",
+          },
+          {
+            id: "campus-photos",
+            label: "Campus Photos",
+          },
+          {
+            id: "faculty-headshots",
+            label: "Faculty Headshots",
+          },
+        ],
+      },
+      {
+        id: "documents",
+        label: "Documents",
+        children: [
+          {
+            id: "admissions-pdfs",
+            label: "Admissions PDFs",
+          },
+          {
+            id: "policy-documents",
+            label: "Policy Documents",
+          },
+          {
+            id: "annual-reports",
+            label: "Annual Reports",
+          },
+        ],
+      },
+      {
+        id: "video",
+        label: "Video",
+        children: [
+          {
+            id: "campus-tours",
+            label: "Campus Tours",
+          },
+          {
+            id: "student-stories",
+            label: "Student Stories",
+          },
+        ],
+      },
+      {
+        id: "shared-assets",
+        label: "Shared Assets",
+        children: [
+          {
+            id: "logos",
+            label: "Logos",
+          },
+          {
+            id: "icons",
+            label: "Icons",
+          },
+          {
+            id: "brand-templates",
+            label: "Brand Templates",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const siteTreeData = editTreeData;
+
+export function findTreeNodeById(
   nodeId: string | null,
-  nodes: SiteTreeNode[] = siteTreeData
+  nodes: SiteTreeNode[]
 ): SiteTreeNode | null {
   if (!nodeId) {
     return null;
@@ -145,7 +224,7 @@ export function findSiteTreeNodeById(
       return node;
     }
 
-    const childMatch = findSiteTreeNodeById(
+    const childMatch = findTreeNodeById(
       nodeId,
       node.children ?? []
     );
@@ -156,4 +235,11 @@ export function findSiteTreeNodeById(
   }
 
   return null;
+}
+
+export function findSiteTreeNodeById(
+  nodeId: string | null,
+  nodes: SiteTreeNode[] = siteTreeData
+): SiteTreeNode | null {
+  return findTreeNodeById(nodeId, nodes);
 }

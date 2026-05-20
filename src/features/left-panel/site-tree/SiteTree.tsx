@@ -1,16 +1,16 @@
 /*
  * Site tree browser.
- * - Renders the scrollable tree from siteTreeData.
+ * - Renders the scrollable tree from caller-provided tree data.
  * - Passes selected-node state and selection callbacks to each tree item.
  */
 import { Box, ScrollArea } from "@mantine/core";
 import type { ReactNode } from "react";
 
-import { siteTreeData } from "./siteTreeData";
 import { SiteTreeItem } from "./SiteTreeItem";
 import type { SiteTreeNode } from "./types";
 
 type SiteTreeProps = {
+  nodes: SiteTreeNode[];
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string) => void;
 };
@@ -56,11 +56,12 @@ function TreeNodes({
 }
 
 export const SiteTree = ({
+  nodes,
   selectedNodeId,
   onSelectNode,
 }: SiteTreeProps) => {
   const treeNodesProps = {
-    nodes: siteTreeData,
+    nodes,
     selectedNodeId,
     onSelectNode,
   };

@@ -1,16 +1,19 @@
 /*
  * Content workspace region.
  * - Stacks the primary toolbar, secondary toolbar, and selected-node preview area.
- * - Receives the selected site-tree label from the app shell.
+ * - Receives the selected tree label and active tool from the app shell.
  */
 import { Box, Flex, Text } from "@mantine/core";
 import type { ReactNode } from "react";
 
 import { PrimaryToolbar } from "./toolbars/primary-toolbar/PrimaryToolbar";
+import type { ToolKey } from "./toolbars/primary-toolbar/types";
 import SecondaryToolbar from "./toolbars/SecondaryToolbar";
 
 type ContentWorkspaceProps = {
   selectedNodeLabel: string;
+  selectedTool: ToolKey;
+  onSelectTool: (tool: ToolKey) => void;
 };
 
 type DisplayGroupProps = {
@@ -50,14 +53,22 @@ function SelectedNodePreview({
 
 export function ContentWorkspace({
   selectedNodeLabel,
+  selectedTool,
+  onSelectTool,
 }: ContentWorkspaceProps) {
   const selectedNodePreviewProps = {
     selectedNodeLabel,
   };
 
+  const primaryToolbarProps = {
+    selectedNodeLabel,
+    selectedTool,
+    onSelectTool,
+  };
+
   return (
     <DisplayGroup>
-      <PrimaryToolbar selectedNodeLabel={selectedNodeLabel} />
+      <PrimaryToolbar {...primaryToolbarProps} />
       <SecondaryToolbar />
       <SelectedNodePreview {...selectedNodePreviewProps} />
     </DisplayGroup>

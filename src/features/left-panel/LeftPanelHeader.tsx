@@ -1,6 +1,6 @@
 /*
  * Left panel header.
- * - Displays the Site Tree title and sitemap icon.
+ * - Displays the active tree title and sitemap icon.
  * - Provides the fixed header band above the palette and tree browser.
  */
 import { Box, Group, Text } from "@mantine/core";
@@ -9,6 +9,10 @@ import type { ReactNode } from "react";
 
 type DisplayGroupProps = {
   children: ReactNode;
+};
+
+type LeftPanelHeaderProps = {
+  title: string;
 };
 
 function DisplayGroup({ children }: DisplayGroupProps) {
@@ -39,19 +43,21 @@ function SiteTreeIcon() {
   );
 }
 
-function Title() {
+function Title({ title }: LeftPanelHeaderProps) {
   return (
     <Text size="lg" fw={600} c="asxIndigo.9" truncate>
-      Site Tree
+      {title}
     </Text>
   );
 }
 
-export const LeftPanelHeader = () => {
+export const LeftPanelHeader = ({
+  title,
+}: LeftPanelHeaderProps) => {
   return (
     <DisplayGroup>
       <SiteTreeIcon />
-      <Title />
+      <Title title={title} />
     </DisplayGroup>
   );
 };
