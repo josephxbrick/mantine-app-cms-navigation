@@ -1,3 +1,8 @@
+/*
+ * Megamenu data contracts.
+ * - Defines config, column, item, radio, and checkbox value shapes.
+ * - Used by the generic megamenu renderer and edit-menu configs.
+ */
 export type RadioVisibilityRule = {
   source: "radio";
   radioGroupId: string;

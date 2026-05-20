@@ -1,4 +1,10 @@
+/*
+ * Resizable workspace divider.
+ * - Lets users drag or use arrow keys to resize the left panel.
+ * - Displays the vertical splitter line, grabber, and hover/focus affordances.
+ */
 import { Box } from "@mantine/core";
+import type { ReactNode } from "react";
 
 type WorkspaceSplitterProps = {
   value: number;
@@ -10,6 +16,143 @@ type WorkspaceSplitterProps = {
 const DEFAULT_MIN = 260;
 const DEFAULT_MAX = 100000;
 const KEYBOARD_STEP = 16;
+
+type DisplayGroupProps = {
+  children: ReactNode;
+  value: number;
+  min: number;
+  max: number;
+  onPointerDown: (
+    event: React.PointerEvent<HTMLDivElement>
+  ) => void;
+  onKeyDown: (
+    event: React.KeyboardEvent<HTMLDivElement>
+  ) => void;
+};
+
+function DisplayGroup({
+  children,
+  value,
+  min,
+  max,
+  onPointerDown,
+  onKeyDown,
+}: DisplayGroupProps) {
+  return (
+    <Box
+      role="separator"
+      aria-orientation="vertical"
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuenow={Math.round(value)}
+      tabIndex={0}
+      h="100%"
+      w={9}
+      onPointerDown={onPointerDown}
+      onKeyDown={onKeyDown}
+      style={{
+        alignSelf: "stretch",
+        cursor: "col-resize",
+        position: "absolute",
+        left: "50%",
+        top: 0,
+        transform: "translateX(-50%)",
+        flexShrink: 0,
+        zIndex: 20,
+        outline: "none",
+        background: "transparent",
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
+function SplitterLine() {
+  return (
+    <Box
+      className="workspace-splitter-line"
+      style={{
+        position: "absolute",
+        left: "50%",
+        top: 0,
+        bottom: 0,
+        width: 1,
+        transform: "translateX(-50%)",
+        borderRadius: 999,
+        background: "var(--mantine-color-asxIndigo-6)",
+        transition: "opacity 140ms ease, width 140ms ease",
+      }}
+    />
+  );
+}
+
+function SplitterGrabber() {
+  return (
+    <Box
+      className="workspace-splitter-grabber"
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        width: 9,
+        height: 44,
+        transform: "translate(-50%, -50%)",
+        borderRadius: 999,
+        border:
+          "1px solid var(--mantine-color-asxIndigo-7)",
+        background: "var(--mantine-color-asxGray-0)",
+        transition:
+          "height 140ms ease, background 140ms ease, border-color 140ms ease",
+      }}
+    >
+      {[0, 1, 2].map((dot) => (
+        <GrabberDot key={dot} index={dot} />
+      ))}
+    </Box>
+  );
+}
+
+type GrabberDotProps = {
+  index: number;
+};
+
+function GrabberDot({ index }: GrabberDotProps) {
+  return (
+    <Box
+      style={{
+        position: "absolute",
+        left: "50%",
+        top: 12 + index * 9,
+        width: 3,
+        height: 3,
+        transform: "translateX(-50%)",
+        borderRadius: 999,
+        background: "var(--mantine-color-asxIndigo-7)",
+      }}
+    />
+  );
+}
+
+function SplitterInteractionStyles() {
+  return (
+    <style>
+      {`
+        [role="separator"]:hover .workspace-splitter-line,
+        [role="separator"]:focus-visible .workspace-splitter-line {
+          width: 2px;
+        }
+
+        [role="separator"]:hover .workspace-splitter-grabber,
+        [role="separator"]:focus-visible .workspace-splitter-grabber {
+          height: 52px;
+          background: var(--mantine-color-asxIndigo-0);
+          border-color: var(--mantine-color-asxIndigo-8);
+        }
+      `}
+    </style>
+  );
+}
 
 export function WorkspaceSplitter({
   value,
@@ -66,94 +209,19 @@ export function WorkspaceSplitter({
     }
   };
 
+  const displayGroupProps = {
+    value,
+    min,
+    max,
+    onPointerDown: startResize,
+    onKeyDown: resizeWithKeyboard,
+  };
+
   return (
-    <Box
-      role="separator"
-      aria-orientation="vertical"
-      aria-valuemin={min}
-      aria-valuemax={max}
-      aria-valuenow={Math.round(value)}
-      tabIndex={0}
-      w={9}
-      ml={-4}
-      mr={-4}
-      onPointerDown={startResize}
-      onKeyDown={resizeWithKeyboard}
-      style={{
-        alignSelf: "stretch",
-        cursor: "col-resize",
-        position: "relative",
-        flexShrink: 0,
-        zIndex: 20,
-        outline: "none",
-        background: "transparent",
-      }}
-    >
-      <Box
-        className="workspace-splitter-line"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: 0,
-          bottom: 0,
-          width: 1,
-          transform: "translateX(-50%)",
-          borderRadius: 999,
-          background: "var(--mantine-color-asxIndigo-6)",
-          transition: "opacity 140ms ease, width 140ms ease",
-        }}
-      />
-
-      <Box
-        className="workspace-splitter-grabber"
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: 9,
-          height: 44,
-          transform: "translate(-50%, -50%)",
-          borderRadius: 999,
-          border:
-            "1px solid var(--mantine-color-asxIndigo-7)",
-          background: "var(--mantine-color-asxGray-0)",
-          transition:
-            "height 140ms ease, background 140ms ease, border-color 140ms ease",
-        }}
-      >
-        {[0, 1, 2].map((dot) => (
-          <Box
-            key={dot}
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: 12 + dot * 9,
-              width: 3,
-              height: 3,
-              transform: "translateX(-50%)",
-              borderRadius: 999,
-              background:
-                "var(--mantine-color-asxIndigo-7)",
-            }}
-          />
-        ))}
-      </Box>
-
-      <style>
-        {`
-          [role="separator"]:hover .workspace-splitter-line,
-          [role="separator"]:focus-visible .workspace-splitter-line {
-            width: 2px;
-          }
-
-          [role="separator"]:hover .workspace-splitter-grabber,
-          [role="separator"]:focus-visible .workspace-splitter-grabber {
-            height: 52px;
-            background: var(--mantine-color-asxIndigo-0);
-            border-color: var(--mantine-color-asxIndigo-8);
-          }
-        `}
-      </style>
-    </Box>
+    <DisplayGroup {...displayGroupProps}>
+      <SplitterLine />
+      <SplitterGrabber />
+      <SplitterInteractionStyles />
+    </DisplayGroup>
   );
 }

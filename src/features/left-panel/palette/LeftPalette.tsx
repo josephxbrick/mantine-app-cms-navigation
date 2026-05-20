@@ -1,4 +1,10 @@
+/*
+ * Left panel palette.
+ * - Displays the vertical icon rail for workspace tools/sections.
+ * - Owns the selected palette item state and collapse button.
+ */
 import { useState } from "react";
+import type { ReactNode } from "react";
 
 import { Box, Divider, Stack } from "@mantine/core";
 import {
@@ -59,6 +65,24 @@ export const LeftPalette = () => {
   const [selectedItemId, setSelectedItemId] =
     useState("site");
 
+  const paletteItemsProps = {
+    selectedItemId,
+    onSelectItem: setSelectedItemId,
+  };
+
+  return (
+    <DisplayGroup>
+      <PaletteItems {...paletteItemsProps} />
+      <CollapseButton />
+    </DisplayGroup>
+  );
+};
+
+type DisplayGroupProps = {
+  children: ReactNode;
+};
+
+function DisplayGroup({ children }: DisplayGroupProps) {
   return (
     <Box
       mt={10}
@@ -76,6 +100,23 @@ export const LeftPalette = () => {
       }}
     >
       <Stack align="center" gap={10}>
+        {children}
+      </Stack>
+    </Box>
+  );
+}
+
+type PaletteItemsProps = {
+  selectedItemId: string;
+  onSelectItem: (itemId: string) => void;
+};
+
+function PaletteItems({
+  selectedItemId,
+  onSelectItem,
+}: PaletteItemsProps) {
+  return (
+    <>
         {paletteItems.map((item) => {
           if ("divider" in item) {
             return (
@@ -94,33 +135,36 @@ export const LeftPalette = () => {
               id={item.id}
               icon={item.icon}
               selectedItemId={selectedItemId}
-              onSelectItem={setSelectedItemId}
+              onSelectItem={onSelectItem}
             />
           );
         })}
+    </>
+  );
+}
 
-        <Box
-          component="button"
-          type="button"
-          w={40}
-          h={40}
-          c={unselectedIconColor}
-          bg="transparent"
-          display="flex"
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 12,
-            border: 0,
-            cursor: "pointer",
-          }}
-        >
-          <IconLayoutSidebarLeftCollapse
-            size={22}
-            stroke={1.7}
-          />
-        </Box>
-      </Stack>
+function CollapseButton() {
+  return (
+    <Box
+      component="button"
+      type="button"
+      w={40}
+      h={40}
+      c={unselectedIconColor}
+      bg="transparent"
+      display="flex"
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 12,
+        border: 0,
+        cursor: "pointer",
+      }}
+    >
+      <IconLayoutSidebarLeftCollapse
+        size={22}
+        stroke={1.7}
+      />
     </Box>
   );
-};
+}

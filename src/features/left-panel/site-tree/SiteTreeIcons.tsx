@@ -1,3 +1,8 @@
+/*
+ * Site tree icon set.
+ * - Provides consistent chevron, folder, open-folder, and page icons.
+ * - Centralizes size/color defaults for tree rows.
+ */
 import {
   IconChevronDown,
   IconChevronRight,

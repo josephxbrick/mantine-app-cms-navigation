@@ -1,4 +1,10 @@
+/*
+ * Left navigation panel.
+ * - Displays the site-tree header, vertical palette, and tree browser.
+ * - Receives sizing and selected-node state from the app shell.
+ */
 import { Box } from "@mantine/core";
+import type { ReactNode } from "react";
 
 import { LeftPanelHeader } from "./LeftPanelHeader";
 import { LeftPalette } from "./palette/LeftPalette";
@@ -10,11 +16,15 @@ type LeftPanelProps = {
   onSelectNode: (nodeId: string) => void;
 };
 
-export function LeftPanel({
+type DisplayGroupProps = {
+  children: ReactNode;
+  width: number;
+};
+
+function DisplayGroup({
   width,
-  selectedNodeId,
-  onSelectNode,
-}: LeftPanelProps) {
+  children,
+}: DisplayGroupProps) {
   return (
     <Box
       w={width}
@@ -29,48 +39,93 @@ export function LeftPanel({
         h="100%"
         bg="white"
         style={{
-          display: "flex",
-          flexDirection: "column",
+          display: "grid",
+          gridTemplateColumns:
+            "88px minmax(260px, 1fr)",
+          gridTemplateRows:
+            "72px minmax(0, 1fr)",
           minWidth: 348,
+          minHeight: 0,
         }}
       >
-        <LeftPanelHeader />
-
-        <Box
-          style={{
-            display: "flex",
-            flex: 1,
-            minHeight: 0,
-            overflow: "hidden",
-          }}
-        >
-          <Box
-            w={88}
-            h="100%"
-            style={{
-              position: "relative",
-              flexShrink: 0,
-              overflow: "hidden",
-            }}
-          >
-            <LeftPalette />
-          </Box>
-
-          <Box
-            h="100%"
-            style={{
-              flex: 1,
-              minWidth: 260,
-              overflow: "hidden",
-            }}
-          >
-            <SiteTree
-              selectedNodeId={selectedNodeId}
-              onSelectNode={onSelectNode}
-            />
-          </Box>
-        </Box>
+        {children}
       </Box>
     </Box>
+  );
+}
+
+function Header() {
+  return (
+    <Box
+      style={{
+        gridColumn: "1 / -1",
+        gridRow: 1,
+        minWidth: 0,
+      }}
+    >
+      <LeftPanelHeader />
+    </Box>
+  );
+}
+
+function PaletteColumn() {
+  return (
+    <Box
+      h="100%"
+      style={{
+        gridColumn: 1,
+        gridRow: 2,
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <LeftPalette />
+    </Box>
+  );
+}
+
+type SiteTreeColumnProps = {
+  selectedNodeId: string | null;
+  onSelectNode: (nodeId: string) => void;
+};
+
+function SiteTreeColumn({
+  selectedNodeId,
+  onSelectNode,
+}: SiteTreeColumnProps) {
+  return (
+    <Box
+      h="100%"
+      style={{
+        gridColumn: 2,
+        gridRow: 2,
+        minWidth: 0,
+        overflow: "hidden",
+      }}
+    >
+      <SiteTree
+        selectedNodeId={selectedNodeId}
+        onSelectNode={onSelectNode}
+      />
+    </Box>
+  );
+}
+
+export function LeftPanel({
+  width,
+  selectedNodeId,
+  onSelectNode,
+}: LeftPanelProps) {
+  const siteTreeColumnProps = {
+    selectedNodeId,
+    onSelectNode,
+  };
+
+  return (
+    <DisplayGroup width={width}>
+      <Header />
+      <PaletteColumn />
+      <SiteTreeColumn {...siteTreeColumnProps} />
+    </DisplayGroup>
   );
 }

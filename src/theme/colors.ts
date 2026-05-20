@@ -15,15 +15,15 @@ export const asxGreen: MantineColorsTuple = [
 
 export const asxBlue: MantineColorsTuple = [
   "#eef3ff",
-  "#dbe3f8",
-  "#bcc9ea",
-  "#9aaed9",
-  "#7f97cb",
-  "#6c89c2",
-  "#5f80bc",
-  "#4d6ea8",
-  "#406197",
-  "#325285",
+  "#d6e1fd",
+  "#b4c5f2",
+  "#8faae4",
+  "#7292d8",
+  "#5d84d1",
+  "#4f7bcc",
+  "#3d6ab8",
+  "#315da6",
+  "#234f94",
 ];
 
 export const asxIndigo: MantineColorsTuple = [

@@ -1,3 +1,8 @@
+/*
+ * View megamenu content.
+ * - Connects View menu state to the generic megamenu renderer.
+ * - Handles edit mode radio choices, view option toggles, and preview commands.
+ */
 import { MegamenuRenderer } from "../../../megamenus/MegamenuRenderer";
 
 import {
@@ -36,45 +41,46 @@ export default function MegamenuView({
   showPath,
   onToggleShowPath,
 }: MegamenuViewProps) {
-  return (
-    <MegamenuRenderer
-      config={editViewMenu}
-      radioValues={{
-        [EDIT_MODE_GROUP_ID]: selectedMode,
-      }}
-      checkboxValues={{
-        [SHOW_FORM_INDEX_ID]: showFormIndex,
-        [SHOW_IN_CONTEXT_INDEX_ID]: showInContextIndex,
-        [SHOW_PATH_ID]: showPath,
-      }}
-      onRadioChange={(_, value) =>
-        onSelectMode(value as EditMode)
+  const megamenuRendererProps = {
+    config: editViewMenu,
+    radioValues: {
+      [EDIT_MODE_GROUP_ID]: selectedMode,
+    },
+    checkboxValues: {
+      [SHOW_FORM_INDEX_ID]: showFormIndex,
+      [SHOW_IN_CONTEXT_INDEX_ID]: showInContextIndex,
+      [SHOW_PATH_ID]: showPath,
+    },
+    onRadioChange: (_: string, value: string) =>
+      onSelectMode(value as EditMode),
+    onCheckboxChange: (itemId: string) => {
+      if (itemId === SHOW_FORM_INDEX_ID) {
+        onToggleFormIndex();
+        return;
       }
-      onCheckboxChange={(itemId) => {
-        if (itemId === SHOW_FORM_INDEX_ID) {
-          onToggleFormIndex();
-          return;
-        }
 
-        if (itemId === SHOW_IN_CONTEXT_INDEX_ID) {
-          onToggleInContextIndex();
-          return;
-        }
+      if (itemId === SHOW_IN_CONTEXT_INDEX_ID) {
+        onToggleInContextIndex();
+        return;
+      }
 
-        if (itemId === SHOW_PATH_ID) {
-          onToggleShowPath();
-        }
-      }}
-      onCommand={(itemId) => {
-        if (itemId === PREVIEW_OPTIONS_COMMAND_ID) {
-          console.log("Preview Options");
-          return;
-        }
+      if (itemId === SHOW_PATH_ID) {
+        onToggleShowPath();
+      }
+    },
+    onCommand: (itemId: string) => {
+      if (itemId === PREVIEW_OPTIONS_COMMAND_ID) {
+        console.log("Preview Options");
+        return;
+      }
 
-        if (itemId === PREVIEW_COMMAND_ID) {
-          console.log("Preview");
-        }
-      }}
-    />
+      if (itemId === PREVIEW_COMMAND_ID) {
+        console.log("Preview");
+      }
+    },
+  };
+
+  return (
+    <MegamenuRenderer {...megamenuRendererProps} />
   );
 }

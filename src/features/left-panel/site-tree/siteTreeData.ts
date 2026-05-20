@@ -1,3 +1,8 @@
+/*
+ * Site tree sample data.
+ * - Provides the hierarchical nodes shown in the left panel tree.
+ * - Includes a helper for resolving the selected node by id.
+ */
 import type { SiteTreeNode } from "./types";
 
 export const siteTreeData: SiteTreeNode[] = [

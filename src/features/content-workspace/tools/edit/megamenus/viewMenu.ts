@@ -1,3 +1,8 @@
+/*
+ * View megamenu configuration.
+ * - Defines ids and menu data for the View dropdown.
+ * - Drives radio modes, checkbox toggles, and preview command rendering.
+ */
 import {
   IconAdjustmentsHorizontal,
   IconEye,

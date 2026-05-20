@@ -1,5 +1,11 @@
+/*
+ * Palette item button.
+ * - Renders one icon button in the left palette.
+ * - Applies selected/unselected styling and notifies the palette when clicked.
+ */
 import { Box } from "@mantine/core";
 import type { Icon } from "@tabler/icons-react";
+import type { ReactNode } from "react";
 
 type PaletteItemProps = {
     id: string;
@@ -12,14 +18,19 @@ const selectedIconColor = "asxIndigo.8";
 const unselectedIconColor = "asxGray.8";
 const selectedIconBackground = "asxIndigo.0";
 
-export const PaletteItem = ({
-    id,
-    icon: Icon,
-    selectedItemId,
-    onSelectItem,
-}: PaletteItemProps) => {
-    const isSelected = selectedItemId === id;
+type DisplayGroupProps = {
+    children: ReactNode;
+    id: string;
+    isSelected: boolean;
+    onSelectItem: (itemId: string) => void;
+};
 
+function DisplayGroup({
+    children,
+    id,
+    isSelected,
+    onSelectItem,
+}: DisplayGroupProps) {
     return (
         <Box
             component="button"
@@ -48,7 +59,26 @@ export const PaletteItem = ({
             }}
             onClick={() => onSelectItem(id)}
         >
-            <Icon size={26} stroke={1.3} />
+            {children}
         </Box>
+    );
+}
+
+export const PaletteItem = ({
+    id,
+    icon: Icon,
+    selectedItemId,
+    onSelectItem,
+}: PaletteItemProps) => {
+    const isSelected = selectedItemId === id;
+
+    return (
+        <DisplayGroup
+            id={id}
+            isSelected={isSelected}
+            onSelectItem={onSelectItem}
+        >
+            <Icon size={26} stroke={1.3} />
+        </DisplayGroup>
     );
 };
