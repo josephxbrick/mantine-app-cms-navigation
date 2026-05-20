@@ -4,12 +4,18 @@
  * - Centralizes size/color defaults for tree rows.
  */
 import {
+  IconArchive,
   IconChevronDown,
   IconChevronRight,
   IconFile,
+  IconFileText,
   IconFolder,
   IconFolderOpen,
+  IconPhoto,
+  IconVideo,
 } from "@tabler/icons-react";
+
+import type { SiteTreeNodeIconKey } from "./types";
 
 type SiteTreeIconProps = {
   size?: number;
@@ -64,3 +70,81 @@ export const PageIcon = ({
     color="var(--mantine-color-asxGray-7)"
   />
 );
+
+export const ImageIcon = ({
+  size = 24,
+}: SiteTreeIconProps) => (
+  <IconPhoto
+    size={size}
+    stroke={1.3}
+    color="var(--mantine-color-asxGray-7)"
+  />
+);
+
+export const DocumentIcon = ({
+  size = 24,
+}: SiteTreeIconProps) => (
+  <IconFileText
+    size={size}
+    stroke={1.3}
+    color="var(--mantine-color-asxGray-7)"
+  />
+);
+
+export const VideoIcon = ({
+  size = 24,
+}: SiteTreeIconProps) => (
+  <IconVideo
+    size={size}
+    stroke={1.3}
+    color="var(--mantine-color-asxGray-7)"
+  />
+);
+
+export const AssetIcon = ({
+  size = 24,
+}: SiteTreeIconProps) => (
+  <IconArchive
+    size={size}
+    stroke={1.3}
+    color="var(--mantine-color-asxGray-7)"
+  />
+);
+
+type TreeNodeIconProps = {
+  icon?: SiteTreeNodeIconKey;
+  isFolder: boolean;
+  isOpen: boolean;
+};
+
+export function TreeNodeIcon({
+  icon,
+  isFolder,
+  isOpen,
+}: TreeNodeIconProps) {
+  if (icon === "image") {
+    return <ImageIcon />;
+  }
+
+  if (icon === "document") {
+    return <DocumentIcon />;
+  }
+
+  if (icon === "video") {
+    return <VideoIcon />;
+  }
+
+  if (icon === "asset") {
+    return <AssetIcon />;
+  }
+
+  if (isFolder || icon === "folder") {
+    return isOpen ? (
+      <FolderOpenIcon />
+    ) : (
+      <FolderClosedIcon />
+    );
+  }
+
+  return <PageIcon />;
+}

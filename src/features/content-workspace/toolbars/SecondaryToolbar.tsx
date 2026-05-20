@@ -1,6 +1,6 @@
 /*
  * Secondary content toolbar.
- * - Shows edit menus such as View, Actions, Publish, and New.
+ * - Shows menus for the active workspace domain and content tool.
  * - Manages hover/click menu activation and renders the active megamenu panel.
  */
 import MegamenuView from "../tools/edit/megamenus/MegamenuView";
@@ -8,7 +8,7 @@ import MegamenuActions from "../tools/edit/megamenus/MegamenuActions";
 import MegamenuPublish from "../tools/edit/megamenus/MegamenuPublish";
 import MegamenuNew from "../tools/edit/megamenus/MegamenuNew";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import {
@@ -28,12 +28,161 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 
-type MenuKey =
-  | "view"
-  | "actions"
-  | "publish"
-  | "new"
-  | null;
+import type {
+  SelectedToolKey,
+  ToolKey,
+} from "./primary-toolbar/types";
+import type { WorkspaceDomain } from "../../workspace/types";
+
+type MenuKey = string | null;
+
+type MegamenuRendererKey =
+  | "edit-view"
+  | "edit-actions"
+  | "edit-publish"
+  | "edit-new"
+  | "placeholder";
+
+type SecondaryMenu = {
+  key: string;
+  label: string;
+  renderer: MegamenuRendererKey;
+};
+
+type SecondaryToolbarProps = {
+  domain: WorkspaceDomain;
+  tool: SelectedToolKey;
+};
+
+function placeholderMenus(
+  ...labels: string[]
+): SecondaryMenu[] {
+  return labels.map((label) => ({
+    key: label.toLowerCase().replaceAll(" ", "-"),
+    label,
+    renderer: "placeholder",
+  }));
+}
+
+const secondaryMenusByDomain: Record<
+  WorkspaceDomain,
+  Record<ToolKey, SecondaryMenu[]>
+> = {
+  site: {
+    Edit: [
+      {
+        key: "view",
+        label: "View",
+        renderer: "edit-view",
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        renderer: "edit-actions",
+      },
+      {
+        key: "publish",
+        label: "Publish",
+        renderer: "edit-publish",
+      },
+      {
+        key: "new",
+        label: "New",
+        renderer: "edit-new",
+      },
+    ],
+    Preview: placeholderMenus("Preview", "Devices", "Share"),
+    Categorize: placeholderMenus(
+      "Categories",
+      "Tags",
+      "Audience"
+    ),
+    History: placeholderMenus(
+      "Versions",
+      "Compare",
+      "Restore"
+    ),
+    XML: placeholderMenus("Source", "Validate", "Export"),
+    Properties: placeholderMenus(
+      "General",
+      "SEO",
+      "Advanced"
+    ),
+    Analytics: placeholderMenus(
+      "Traffic",
+      "Engagement",
+      "Reports"
+    ),
+    Accessibility: placeholderMenus(
+      "Checks",
+      "Issues",
+      "Guidance"
+    ),
+  },
+  assets: {
+    Browse: placeholderMenus("View", "Filter", "Sort"),
+    Upload: placeholderMenus("Upload", "Import", "Queue"),
+    Metadata: placeholderMenus(
+      "Details",
+      "Tags",
+      "Rights"
+    ),
+    Renditions: placeholderMenus(
+      "Sizes",
+      "Crop",
+      "Generate"
+    ),
+    Usage: placeholderMenus(
+      "References",
+      "Pages",
+      "Reports"
+    ),
+    Properties: placeholderMenus(
+      "General",
+      "Security",
+      "Advanced"
+    ),
+  },
+  ctp: {
+    Campaigns: placeholderMenus(
+      "Campaigns",
+      "Segments",
+      "Schedule"
+    ),
+    Taxonomy: placeholderMenus(
+      "Terms",
+      "Groups",
+      "Import"
+    ),
+    Reports: placeholderMenus(
+      "Overview",
+      "Performance",
+      "Export"
+    ),
+  },
+  administration: {
+    Users: placeholderMenus("Users", "Groups", "Invite"),
+    Roles: placeholderMenus(
+      "Roles",
+      "Permissions",
+      "Policies"
+    ),
+    Settings: placeholderMenus(
+      "General",
+      "Security",
+      "Integrations"
+    ),
+  },
+  apps: {
+    Apps: placeholderMenus("Installed", "Browse", "Manage"),
+    Search: placeholderMenus("Index", "Rules", "Logs"),
+    Properties: placeholderMenus(
+      "General",
+      "Access",
+      "Advanced"
+    ),
+  },
+};
 
 type DisplayGroupProps = {
   children: ReactNode;
@@ -73,34 +222,29 @@ function ToolbarRow({ children }: ToolbarRowProps) {
 }
 
 type ToolbarMenuTabsProps = {
+  menus: SecondaryMenu[];
   activeMenu: MenuKey;
   onActivateMenu: (
-    menu: Exclude<MenuKey, null>
+    menu: SecondaryMenu
   ) => void;
   onHoverMenu: (
-    menu: Exclude<MenuKey, null>
+    menu: SecondaryMenu
   ) => void;
 };
 
-const toolbarMenus = [
-  "view",
-  "actions",
-  "publish",
-  "new",
-] as Exclude<MenuKey, null>[];
-
 function ToolbarMenuTabs({
+  menus,
   activeMenu,
   onActivateMenu,
   onHoverMenu,
 }: ToolbarMenuTabsProps) {
   return (
     <Group gap="xl" wrap="nowrap">
-      {toolbarMenus.map((menu) => (
+      {menus.map((menu) => (
         <ToolbarMenuTab
-          key={menu}
+          key={menu.key}
           menu={menu}
-          active={activeMenu === menu}
+          active={activeMenu === menu.key}
           onActivateMenu={onActivateMenu}
           onHoverMenu={onHoverMenu}
         />
@@ -110,13 +254,13 @@ function ToolbarMenuTabs({
 }
 
 type ToolbarMenuTabProps = {
-  menu: Exclude<MenuKey, null>;
+  menu: SecondaryMenu;
   active: boolean;
   onActivateMenu: (
-    menu: Exclude<MenuKey, null>
+    menu: SecondaryMenu
   ) => void;
   onHoverMenu: (
-    menu: Exclude<MenuKey, null>
+    menu: SecondaryMenu
   ) => void;
 };
 
@@ -142,7 +286,7 @@ function ToolbarMenuTab({
       }}
     >
       <ToolbarMenuTabLabel>
-        <Text tt="capitalize">{menu}</Text>
+        <Text>{menu.label}</Text>
         <IconChevronDown size={20} />
       </ToolbarMenuTabLabel>
     </UnstyledButton>
@@ -170,6 +314,7 @@ function ToolbarActions() {
 }
 
 type ActiveMegamenuProps = {
+  menus: SecondaryMenu[];
   activeMenu: MenuKey;
   selectedViewMode:
     | "Index Mode"
@@ -190,6 +335,7 @@ type ActiveMegamenuProps = {
 };
 
 function ActiveMegamenu({
+  menus,
   activeMenu,
   selectedViewMode,
   onSelectViewMode,
@@ -200,7 +346,11 @@ function ActiveMegamenu({
   showPath,
   onToggleShowPath,
 }: ActiveMegamenuProps) {
-  if (!activeMenu) {
+  const activeMenuConfig =
+    menus.find((menu) => menu.key === activeMenu) ??
+    null;
+
+  if (!activeMenuConfig) {
     return null;
   }
 
@@ -216,7 +366,7 @@ function ActiveMegamenu({
       }}
     >
       <Stack gap="sm">
-        {activeMenu === "view" ? (
+        {activeMenuConfig.renderer === "edit-view" ? (
           <MegamenuView
             selectedMode={selectedViewMode}
             onSelectMode={onSelectViewMode}
@@ -229,19 +379,42 @@ function ActiveMegamenu({
             showPath={showPath}
             onToggleShowPath={onToggleShowPath}
           />
-        ) : activeMenu === "actions" ? (
+        ) : activeMenuConfig.renderer ===
+          "edit-actions" ? (
           <MegamenuActions />
-        ) : activeMenu === "publish" ? (
+        ) : activeMenuConfig.renderer ===
+          "edit-publish" ? (
           <MegamenuPublish />
-        ) : activeMenu === "new" ? (
+        ) : activeMenuConfig.renderer === "edit-new" ? (
           <MegamenuNew />
-        ) : null}
+        ) : (
+          <PlaceholderMegamenu
+            label={activeMenuConfig.label}
+          />
+        )}
       </Stack>
     </Paper>
   );
 }
 
-export default function SecondaryToolbar() {
+type PlaceholderMegamenuProps = {
+  label: string;
+};
+
+function PlaceholderMegamenu({
+  label,
+}: PlaceholderMegamenuProps) {
+  return (
+    <Text size="sm" c="asxGray.7" fw={500}>
+      {label} menu
+    </Text>
+  );
+}
+
+export default function SecondaryToolbar({
+  domain,
+  tool,
+}: SecondaryToolbarProps) {
   const [activeMenu, setActiveMenu] =
     useState<MenuKey>(null);
 
@@ -265,6 +438,10 @@ export default function SecondaryToolbar() {
   const [showPath, setShowPath] =
     useState(false);
 
+  useEffect(() => {
+    setActiveMenu(null);
+  }, [domain, tool]);
+
   const clearHoverTimeout = () => {
     if (hoverTimeoutRef.current) {
       window.clearTimeout(hoverTimeoutRef.current);
@@ -277,34 +454,39 @@ export default function SecondaryToolbar() {
   };
 
   const handleActivateMenu = (
-    menu: Exclude<MenuKey, null>
+    menu: SecondaryMenu
   ) => {
     clearHoverTimeout();
-    setActiveMenu(menu);
+    setActiveMenu(menu.key);
   };
 
   const handleHoverMenu = (
-    menu: Exclude<MenuKey, null>
+    menu: SecondaryMenu
   ) => {
     clearHoverTimeout();
 
     if (activeMenu) {
-      setActiveMenu(menu);
+      setActiveMenu(menu.key);
       return;
     }
 
     hoverTimeoutRef.current = window.setTimeout(() => {
-      setActiveMenu(menu);
+      setActiveMenu(menu.key);
     }, 200);
   };
 
+  const menus =
+    tool ? secondaryMenusByDomain[domain][tool] ?? [] : [];
+
   const toolbarMenuTabsProps = {
+    menus,
     activeMenu,
     onActivateMenu: handleActivateMenu,
     onHoverMenu: handleHoverMenu,
   };
 
   const activeMegamenuProps = {
+    menus,
     activeMenu,
     selectedViewMode,
     onSelectViewMode: setSelectedViewMode,

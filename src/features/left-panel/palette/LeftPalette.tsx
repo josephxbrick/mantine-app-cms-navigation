@@ -1,105 +1,213 @@
 /*
  * Left panel palette.
- * - Displays the vertical icon rail for workspace tools/sections.
- * - Owns the selected palette item state and collapse button.
+ * - Displays the expandable domain rail for major workspace areas.
+ * - Notifies the app shell when a workspace domain is selected.
  */
-import { useState } from "react";
-import type { ReactNode } from "react";
-
-import { Box, Divider, Stack } from "@mantine/core";
 import {
-  IconBinaryTree2,
-  IconCircleDot,
-  IconCpu,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import type { ReactNode } from "react";
+import type { Icon } from "@tabler/icons-react";
+
+import { Box, Stack, Text } from "@mantine/core";
+import {
   IconLayoutGridAdd,
-  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebar,
   IconPhotoCode,
-  IconSearch,
-  IconSitemap,
-  IconTags,
   IconTargetArrow,
-  IconUserCheck,
   IconUserShield,
-  IconWand,
 } from "@tabler/icons-react";
 
 import { PaletteItem } from "./PaletteItem";
+import { PALETTE_ITEM_SIZE } from "./PaletteItem";
+import type {
+  WorkspaceDomain,
+  WorkspaceUtilityKey,
+} from "../../workspace/types";
 
 const paletteBackground = "rgba(255,255,255,0.72)";
 const paletteBorder =
   "1px solid var(--mantine-color-asxGray-4)";
 const paletteShadow =
-  "0 2px 8px rgba(61,68,109,0.08)";
+  "0 8px 24px rgba(61,68,109,0.16)";
 
-const unselectedIconColor = "asxGray.6";
+const PALETTE_PADDING_X = 10;
+const PALETTE_COLLAPSED_WIDTH =
+  PALETTE_ITEM_SIZE + PALETTE_PADDING_X * 2;
+const PALETTE_EXPANDED_WIDTH = 228;
+const PALETTE_EXPAND_DELAY_MS = 1333;
+const PALETTE_ANIMATION_MS = 240;
+const paletteTransition =
+  `width ${PALETTE_ANIMATION_MS}ms cubic-bezier(0.2, 0, 0, 1)`;
 
 const paletteItems = [
-  { id: "site", icon: IconSitemap },
+  { id: "site", label: "Site", icon: IconLayoutSidebar },
 
-  { id: "media", icon: IconPhotoCode },
+  {
+    id: "assets",
+    label: "Assets",
+    icon: IconPhotoCode,
+  },
 
-  { id: "campaigns", icon: IconTargetArrow },
+  {
+    id: "ctp",
+    label: "CT&P",
+    icon: IconTargetArrow,
+  },
 
-  { id: "users", icon: IconUserShield },
+  {
+    id: "administration",
+    label: "Administration",
+    icon: IconUserShield,
+  },
 
-  { id: "apps", icon: IconLayoutGridAdd },
-
-  { id: "divider-1", divider: true },
-
-  { id: "ai", icon: IconCpu },
-
-  { id: "records", icon: IconCircleDot },
-
-  { id: "taxonomy", icon: IconTags },
-
-  { id: "workflow", icon: IconUserCheck },
-
-  { id: "assets", icon: IconBinaryTree2 },
-
-  { id: "search", icon: IconSearch },
-
-  { id: "tools", icon: IconWand },
+  { id: "apps", label: "Apps", icon: IconLayoutGridAdd },
 ];
 
-export const LeftPalette = () => {
-  const [selectedItemId, setSelectedItemId] =
-    useState("site");
+type UtilityPaletteItem = {
+  id: WorkspaceUtilityKey;
+  label: string;
+  icon: Icon;
+};
 
-  const paletteItemsProps = {
-    selectedItemId,
-    onSelectItem: setSelectedItemId,
+type LeftPaletteProps = {
+  selectedDomain: WorkspaceDomain;
+  utilityItems: UtilityPaletteItem[];
+  selectedUtilityId: WorkspaceUtilityKey;
+  onSelectDomain: (domain: WorkspaceDomain) => void;
+  onSelectUtility: (
+    utilityId: WorkspaceUtilityKey
+  ) => void;
+};
+
+export const LeftPalette = ({
+  selectedDomain,
+  utilityItems,
+  selectedUtilityId,
+  onSelectDomain,
+  onSelectUtility,
+}: LeftPaletteProps) => {
+  const [expanded, setExpanded] = useState(false);
+  const expandTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (expandTimerRef.current) {
+        window.clearTimeout(expandTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleMouseEnter = () => {
+    if (expandTimerRef.current) {
+      window.clearTimeout(expandTimerRef.current);
+    }
+
+    expandTimerRef.current = window.setTimeout(() => {
+      setExpanded(true);
+      expandTimerRef.current = null;
+    }, PALETTE_EXPAND_DELAY_MS);
+  };
+
+  const handleMouseLeave = () => {
+    if (expandTimerRef.current) {
+      window.clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = null;
+    }
+
+    setExpanded(false);
+  };
+
+  const clearExpandTimer = () => {
+    if (expandTimerRef.current) {
+      window.clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = null;
+    }
+  };
+
+  const handleSelectDomain = (itemId: string) => {
+    clearExpandTimer();
+    onSelectDomain(itemId as WorkspaceDomain);
+    setExpanded(false);
+  };
+
+  const handleSelectUtility = (itemId: string) => {
+    clearExpandTimer();
+    onSelectUtility(itemId);
+    setExpanded(false);
+  };
+
+  const domainItemsProps = {
+    expanded,
+    selectedItemId: selectedDomain,
+    onSelectItem: handleSelectDomain,
+    items: paletteItems,
+  };
+
+  const utilityItemsProps = {
+    expanded,
+    selectedItemId: selectedUtilityId,
+    onSelectItem: handleSelectUtility,
+    items: utilityItems,
+  };
+
+  const displayGroupProps = {
+    expanded,
+    onMouseEnter: handleMouseEnter,
+    onMouseLeave: handleMouseLeave,
   };
 
   return (
-    <DisplayGroup>
-      <PaletteItems {...paletteItemsProps} />
-      <CollapseButton />
+    <DisplayGroup {...displayGroupProps}>
+      <PaletteItems {...domainItemsProps} />
+      <UtilitiesDivider />
+      <UtilitiesLabel expanded={expanded} />
+      <PaletteItems {...utilityItemsProps} />
     </DisplayGroup>
   );
 };
 
 type DisplayGroupProps = {
   children: ReactNode;
+  expanded: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 };
 
-function DisplayGroup({ children }: DisplayGroupProps) {
+function DisplayGroup({
+  children,
+  expanded,
+  onMouseEnter,
+  onMouseLeave,
+}: DisplayGroupProps) {
   return (
     <Box
       mt={10}
-      mx="auto"
-      px={8}
+      ml={12}
+      px={PALETTE_PADDING_X}
       py={12}
       bg={paletteBackground}
-      w={64}
+      w={
+        expanded
+          ? PALETTE_EXPANDED_WIDTH
+          : PALETTE_COLLAPSED_WIDTH
+      }
       style={{
         borderRadius: 12,
         backdropFilter: "blur(16px)",
         border: paletteBorder,
         boxShadow: paletteShadow,
         zIndex: 5,
+        overflow: "hidden",
+        transition: paletteTransition,
+        transformOrigin: "left center",
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      <Stack align="center" gap={10}>
+      <Stack align="stretch" gap={10}>
         {children}
       </Stack>
     </Box>
@@ -107,64 +215,71 @@ function DisplayGroup({ children }: DisplayGroupProps) {
 }
 
 type PaletteItemsProps = {
+  expanded: boolean;
   selectedItemId: string;
   onSelectItem: (itemId: string) => void;
+  items: UtilityPaletteItem[];
 };
 
 function PaletteItems({
+  expanded,
   selectedItemId,
   onSelectItem,
+  items,
 }: PaletteItemsProps) {
   return (
     <>
-        {paletteItems.map((item) => {
-          if ("divider" in item) {
-            return (
-              <Divider
-                key={item.id}
-                w={24}
-                color="asxGray.6"
-                my={4}
-              />
-            );
-          }
-
-          return (
-            <PaletteItem
-              key={item.id}
-              id={item.id}
-              icon={item.icon}
-              selectedItemId={selectedItemId}
-              onSelectItem={onSelectItem}
-            />
-          );
-        })}
+      {items.map((item) => {
+        return (
+          <PaletteItem
+            key={item.id}
+            id={item.id}
+            label={item.label}
+            icon={item.icon}
+            expanded={expanded}
+            selectedItemId={selectedItemId}
+            onSelectItem={onSelectItem}
+          />
+        );
+      })}
     </>
   );
 }
 
-function CollapseButton() {
+function UtilitiesDivider() {
   return (
     <Box
-      component="button"
-      type="button"
-      w={40}
-      h={40}
-      c={unselectedIconColor}
-      bg="transparent"
-      display="flex"
+      h={1}
+      mx={8}
+      bg="asxGray.4"
+      style={{ flexShrink: 0 }}
+    />
+  );
+}
+
+type UtilitiesLabelProps = {
+  expanded: boolean;
+};
+
+function UtilitiesLabel({
+  expanded: _expanded,
+}: UtilitiesLabelProps) {
+  return (
+    <Text
+      fz={12}
+      fw={700}
+      w="100%"
+      ta="center"
       style={{
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 12,
-        border: 0,
-        cursor: "pointer",
+        boxSizing: "border-box",
+        color: "var(--mantine-color-asxGray-7)",
+        minHeight: 12,
+        lineHeight: "12px",
+        letterSpacing: 0,
+        whiteSpace: "nowrap",
       }}
     >
-      <IconLayoutSidebarLeftCollapse
-        size={22}
-        stroke={1.7}
-      />
-    </Box>
+      VIEWS
+    </Text>
   );
 }

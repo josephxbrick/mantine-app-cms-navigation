@@ -7,12 +7,20 @@ import { Box, Flex, Text } from "@mantine/core";
 import type { ReactNode } from "react";
 
 import { PrimaryToolbar } from "./toolbars/primary-toolbar/PrimaryToolbar";
-import type { ToolKey } from "./toolbars/primary-toolbar/types";
+import type {
+  SelectedToolKey,
+  ToolbarTool,
+  ToolKey,
+} from "./toolbars/primary-toolbar/types";
 import SecondaryToolbar from "./toolbars/SecondaryToolbar";
+import type { WorkspaceDomain } from "../workspace/types";
 
 type ContentWorkspaceProps = {
+  domain: WorkspaceDomain;
+  domainLabel: string;
   selectedNodeLabel: string;
-  selectedTool: ToolKey;
+  selectedTool: SelectedToolKey;
+  tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
 };
 
@@ -52,8 +60,11 @@ function SelectedNodePreview({
 }
 
 export function ContentWorkspace({
+  domain,
+  domainLabel,
   selectedNodeLabel,
   selectedTool,
+  tools,
   onSelectTool,
 }: ContentWorkspaceProps) {
   const selectedNodePreviewProps = {
@@ -61,15 +72,22 @@ export function ContentWorkspace({
   };
 
   const primaryToolbarProps = {
+    domainLabel,
     selectedNodeLabel,
     selectedTool,
+    tools,
     onSelectTool,
+  };
+
+  const secondaryToolbarProps = {
+    domain,
+    tool: selectedTool,
   };
 
   return (
     <DisplayGroup>
       <PrimaryToolbar {...primaryToolbarProps} />
-      <SecondaryToolbar />
+      <SecondaryToolbar {...secondaryToolbarProps} />
       <SelectedNodePreview {...selectedNodePreviewProps} />
     </DisplayGroup>
   );

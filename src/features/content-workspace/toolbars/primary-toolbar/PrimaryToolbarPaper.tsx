@@ -18,15 +18,12 @@ import {
   IconLayoutSidebarRight,
 } from "@tabler/icons-react";
 
-import type {
-  ToolbarTool,
-  ToolKey,
-} from "./types";
+import type { ToolbarTool, ToolKey } from "./types";
 import type { ReactNode } from "react";
 
 type PrimaryToolbarPaperProps = {
   buttonWidth: number;
-  selected: ToolbarTool;
+  selected: ToolbarTool | null;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
 };
@@ -66,7 +63,12 @@ function ContentToolsLabel() {
   );
 }
 
-type ToolSelectorMenuProps = PrimaryToolbarPaperProps;
+type ToolSelectorMenuProps = {
+  buttonWidth: number;
+  selected: ToolbarTool;
+  tools: ToolbarTool[];
+  onSelectTool: (tool: ToolKey) => void;
+};
 
 function ToolSelectorMenu({
   buttonWidth,
@@ -196,6 +198,14 @@ export function PrimaryToolbarPaper({
   tools,
   onSelectTool,
 }: PrimaryToolbarPaperProps) {
+  if (!selected || !tools.length) {
+    return (
+      <DisplayGroup>
+        <ViewMenu />
+      </DisplayGroup>
+    );
+  }
+
   const toolSelectorMenuProps = {
     buttonWidth,
     selected,

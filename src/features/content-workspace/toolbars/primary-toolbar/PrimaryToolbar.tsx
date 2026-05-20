@@ -18,67 +18,22 @@ import {
 } from "@mantine/core";
 
 import {
-  IconAccessible,
-  IconChartBar,
   IconChevronDown,
-  IconCode,
-  IconEye,
-  IconFileText,
-  IconHistory,
   IconInfoCircle,
-  IconPhoto,
-  IconSettings,
-  IconTags,
 } from "@tabler/icons-react";
 
 import { PrimaryToolbarPaper } from "./PrimaryToolbarPaper";
 import type {
+  SelectedToolKey,
   ToolbarTool,
   ToolKey,
 } from "./types";
 
-const tools: ToolbarTool[] = [
-  {
-    label: "Edit",
-    icon: <IconFileText size={28} stroke={1} />,
-  },
-  {
-    label: "Assets",
-    icon: <IconPhoto size={28} stroke={1} />,
-  },
-  {
-    label: "Preview",
-    icon: <IconEye size={28} stroke={1} />,
-  },
-  {
-    label: "Categorize",
-    icon: <IconTags size={28} stroke={1} />,
-  },
-  {
-    label: "History",
-    icon: <IconHistory size={28} stroke={1} />,
-  },
-  {
-    label: "XML",
-    icon: <IconCode size={28} stroke={1} />,
-  },
-  {
-    label: "Properties",
-    icon: <IconSettings size={28} stroke={1} />,
-  },
-  {
-    label: "Analytics",
-    icon: <IconChartBar size={28} stroke={1} />,
-  },
-  {
-    label: "Accessibility",
-    icon: <IconAccessible size={28} stroke={1} />,
-  },
-];
-
 type PrimaryToolbarProps = {
+  domainLabel: string;
   selectedNodeLabel: string;
-  selectedTool: ToolKey;
+  selectedTool: SelectedToolKey;
+  tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
 };
 
@@ -106,10 +61,12 @@ function DisplayGroup({ children }: DisplayGroupProps) {
 }
 
 type WorkspaceTitleProps = {
+  domainLabel: string;
   selectedNodeLabel: string;
 };
 
 function WorkspaceTitle({
+  domainLabel,
   selectedNodeLabel,
 }: WorkspaceTitleProps) {
   return (
@@ -126,7 +83,7 @@ function WorkspaceTitle({
       </Group>
 
       <Text size="s" c="asxIndigo.8">
-        x5 · Content workspace
+        x5 · {domainLabel} workspace
       </Text>
     </Box>
   );
@@ -134,13 +91,17 @@ function WorkspaceTitle({
 
 type MeasurementProbeProps = {
   measureRef: RefObject<HTMLDivElement | null>;
-  selected: ToolbarTool;
+  selected: ToolbarTool | null;
 };
 
 function MeasurementProbe({
   measureRef,
   selected,
 }: MeasurementProbeProps) {
+  if (!selected) {
+    return null;
+  }
+
   return (
     <Box
       ref={measureRef}
@@ -165,14 +126,16 @@ function MeasurementProbe({
 }
 
 export function PrimaryToolbar({
+  domainLabel,
   selectedNodeLabel,
   selectedTool,
+  tools,
   onSelectTool,
 }: PrimaryToolbarProps) {
   const selected =
-    tools.find(
-      (tool) => tool.label === selectedTool
-    ) ?? tools[0];
+    tools.find((tool) => tool.label === selectedTool) ??
+    tools[0] ??
+    null;
 
   const measureRef =
     useRef<HTMLDivElement>(null);
@@ -186,9 +149,10 @@ export function PrimaryToolbar({
         measureRef.current.offsetWidth + 26
       );
     }
-  }, [selectedTool]);
+  }, [selectedTool, tools]);
 
   const workspaceTitleProps = {
+    domainLabel,
     selectedNodeLabel,
   };
 

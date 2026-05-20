@@ -16,12 +16,13 @@ import type { ReactNode } from "react";
 import {
   ChevronClosedIcon,
   ChevronOpenIcon,
-  FolderClosedIcon,
-  FolderOpenIcon,
-  PageIcon,
+  TreeNodeIcon,
 } from "./SiteTreeIcons";
 import { SiteTreeIndent } from "./SiteTreeIndent";
-import type { SiteTreeNode } from "./types";
+import type {
+  SiteTreeNode,
+  SiteTreeNodeIconKey,
+} from "./types";
 
 type SiteTreeItemProps = {
   node: SiteTreeNode;
@@ -67,6 +68,7 @@ function NodeButton({
 
   const nodeIdentityProps = {
     label: node.label,
+    icon: node.icon,
     isFolder,
     isOpen,
     isSelected,
@@ -155,6 +157,7 @@ function NodeChevron({
 
 type NodeIdentityProps = {
   label: string;
+  icon?: SiteTreeNodeIconKey;
   isFolder: boolean;
   isOpen: boolean;
   isSelected: boolean;
@@ -162,6 +165,7 @@ type NodeIdentityProps = {
 
 function NodeIdentity({
   label,
+  icon,
   isFolder,
   isOpen,
   isSelected,
@@ -175,6 +179,7 @@ function NodeIdentity({
       }}
     >
       <NodeTypeIcon
+        icon={icon}
         isFolder={isFolder}
         isOpen={isOpen}
       />
@@ -194,11 +199,13 @@ function NodeIdentity({
 }
 
 type NodeTypeIconProps = {
+  icon?: SiteTreeNodeIconKey;
   isFolder: boolean;
   isOpen: boolean;
 };
 
 function NodeTypeIcon({
+  icon,
   isFolder,
   isOpen,
 }: NodeTypeIconProps) {
@@ -210,15 +217,11 @@ function NodeTypeIcon({
         flexShrink: 0,
       }}
     >
-      {isFolder ? (
-        isOpen ? (
-          <FolderOpenIcon />
-        ) : (
-          <FolderClosedIcon />
-        )
-      ) : (
-        <PageIcon />
-      )}
+      <TreeNodeIcon
+        icon={icon}
+        isFolder={isFolder}
+        isOpen={isOpen}
+      />
     </Box>
   );
 }

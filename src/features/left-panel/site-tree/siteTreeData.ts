@@ -140,68 +140,83 @@ export const assetsTreeData: SiteTreeNode[] = [
       {
         id: "images",
         label: "Images",
+        icon: "image",
         children: [
           {
             id: "hero-images",
             label: "Hero Images",
+            icon: "image",
           },
           {
             id: "campus-photos",
             label: "Campus Photos",
+            icon: "image",
           },
           {
             id: "faculty-headshots",
             label: "Faculty Headshots",
+            icon: "image",
           },
         ],
       },
       {
         id: "documents",
         label: "Documents",
+        icon: "document",
         children: [
           {
             id: "admissions-pdfs",
             label: "Admissions PDFs",
+            icon: "document",
           },
           {
             id: "policy-documents",
             label: "Policy Documents",
+            icon: "document",
           },
           {
             id: "annual-reports",
             label: "Annual Reports",
+            icon: "document",
           },
         ],
       },
       {
         id: "video",
         label: "Video",
+        icon: "video",
         children: [
           {
             id: "campus-tours",
             label: "Campus Tours",
+            icon: "video",
           },
           {
             id: "student-stories",
             label: "Student Stories",
+            icon: "video",
           },
         ],
       },
       {
         id: "shared-assets",
         label: "Shared Assets",
+        icon: "asset",
         children: [
           {
             id: "logos",
             label: "Logos",
+            icon: "image",
           },
           {
             id: "icons",
             label: "Icons",
+            icon: "asset",
           },
           {
             id: "brand-templates",
             label: "Brand Templates",
+            icon: "document",
           },
         ],
       },
