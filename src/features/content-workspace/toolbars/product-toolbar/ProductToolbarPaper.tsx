@@ -1,8 +1,3 @@
-/*
- * Product toolbar action surface.
- * - Displays Go To search, recent menu, user menu, help, and delimiters.
- * - Owns the animated Go To search field expansion/collapse behavior.
- */
 import {
   useEffect,
   useRef,
@@ -49,21 +44,9 @@ type ToolbarGroupProps = {
 
 function DisplayGroup({ children }: ToolbarGroupProps) {
   return (
-    <Paper
-      radius="xl"
-      px={10}
-      py={4}
-      bg="asxBlue.6"
-      shadow="xs"
-      style={{
-        border:
-          "1px solid var(--mantine-color-asxBlue-4)",
-      }}
-    >
-      <Group gap="lg" wrap="nowrap">
-        {children}
-      </Group>
-    </Paper>
+    <Group gap="lg" wrap="nowrap">
+      {children}
+    </Group>
   );
 }
 
@@ -124,15 +107,19 @@ function ToolbarDelimiter() {
 type GoToSearchControlProps = {
   fieldWidth: number;
   searchVisible: boolean;
+  searchValue: string;
   onOpen: () => void;
   onClose: () => void;
+  onSearchChange: (value: string) => void;
 };
 
 function GoToSearchControl({
   fieldWidth,
   searchVisible,
+  searchValue,
   onOpen,
   onClose,
+  onSearchChange,
 }: GoToSearchControlProps) {
   return (
     <Box
@@ -152,7 +139,9 @@ function GoToSearchControl({
         <SearchFieldSlot
           fieldWidth={fieldWidth}
           searchVisible={searchVisible}
+          searchValue={searchValue}
           onClose={onClose}
+          onSearchChange={onSearchChange}
         />
       </SearchControlGroup>
     </Box>
@@ -189,13 +178,17 @@ function GoToButton({ onClick }: GoToButtonProps) {
 type SearchFieldSlotProps = {
   fieldWidth: number;
   searchVisible: boolean;
+  searchValue: string;
   onClose: () => void;
+  onSearchChange: (value: string) => void;
 };
 
 function SearchFieldSlot({
   fieldWidth,
   searchVisible,
+  searchValue,
   onClose,
+  onSearchChange,
 }: SearchFieldSlotProps) {
   return (
     <Box
@@ -229,12 +222,22 @@ function SearchFieldSlot({
         }
         placeholder="Enter name or xID"
         size="sm"
+        value={searchValue}
         w={FIELD_FULL_WIDTH}
         radius="xl"
+        onChange={(event) =>
+          onSearchChange(event.currentTarget.value)
+        }
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            onClose();
+          }
+        }}
         styles={{
           input: {
             "--input-placeholder-color":
-              "var(--mantine-color-asxGray-7)",
+              "var(--mantine-color-asxGray-6)",
           } as CSSProperties,
         }}
       />
@@ -299,6 +302,7 @@ export function ProductToolbarPaper({
       ? FIELD_FULL_WIDTH
       : FIELD_COLLAPSED_WIDTH
   );
+  const [searchValue, setSearchValue] = useState("");
 
   const timerRef = useRef<number | null>(null);
 
@@ -324,6 +328,7 @@ export function ProductToolbarPaper({
   };
 
   const handleClose = () => {
+    setSearchValue("");
     setFieldWidth(FIELD_COLLAPSED_WIDTH);
 
     timerRef.current = window.setTimeout(() => {
@@ -335,18 +340,32 @@ export function ProductToolbarPaper({
   const goToSearchControlProps = {
     fieldWidth,
     searchVisible,
+    searchValue,
     onOpen: handleOpen,
     onClose: handleClose,
+    onSearchChange: setSearchValue,
   };
 
   return (
-    <DisplayGroup>
-      <GoToSearchControl {...goToSearchControlProps} />
-      <ToolbarDelimiter />
-      <RecentMenuButton />
-      <UserMenuButton />
-      <ToolbarDelimiter />
-      <HelpButton />
-    </DisplayGroup>
+    <Paper
+      radius="xl"
+      px={10}
+      py={4}
+      bg="asxBlue.6"
+      shadow="xs"
+      style={{
+        border:
+          "1px solid var(--mantine-color-asxBlue-4)",
+      }}
+    >
+      <DisplayGroup>
+        <GoToSearchControl {...goToSearchControlProps} />
+        <ToolbarDelimiter />
+        <RecentMenuButton />
+        <UserMenuButton />
+        <ToolbarDelimiter />
+        <HelpButton />
+      </DisplayGroup>
+    </Paper>
   );
 }

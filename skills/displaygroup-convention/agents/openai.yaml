@@ -1,0 +1,3 @@
+display_name: DisplayGroup Convention
+short_description: Refactor React UI files into this project’s DisplayGroup composition pattern.
+default_prompt: Apply the DisplayGroup convention to the active React component file.
