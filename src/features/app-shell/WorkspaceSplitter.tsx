@@ -80,7 +80,7 @@ function SplitterLine() {
         width: 1,
         transform: "translateX(-50%)",
         borderRadius: 999,
-        background: "var(--mantine-color-asxIndigo-6)",
+        background: "var(--mantine-color-asxIndigo-3)",
         transition: "opacity 140ms ease, width 140ms ease",
       }}
     />
