@@ -1,9 +1,10 @@
 /*
  * Left panel palette.
- * - Displays the expandable domain rail for major workspace areas.
- * - Notifies the app shell when a workspace domain is selected.
+ * - Displays the expandable view rail for the selected workspace domain.
+ * - Notifies the app shell when a workspace view is selected.
  */
 import {
+  Fragment,
   useEffect,
   useRef,
   useState,
@@ -11,21 +12,11 @@ import {
 import type { ReactNode } from "react";
 import type { Icon } from "@tabler/icons-react";
 
-import { Box, Stack, Text } from "@mantine/core";
-import {
-  IconLayoutGridAdd,
-  IconLayoutSidebar,
-  IconPhotoCode,
-  IconTargetArrow,
-  IconUserShield,
-} from "@tabler/icons-react";
+import { Box, Stack } from "@mantine/core";
 
 import { PaletteItem } from "./PaletteItem";
 import { PALETTE_ITEM_SIZE } from "./PaletteItem";
-import type {
-  WorkspaceDomain,
-  WorkspaceUtilityKey,
-} from "../../workspace/types";
+import type { WorkspaceUtilityKey } from "../../workspace/types";
 
 const paletteBackground = "rgba(255,255,255,0.72)";
 const paletteBorder =
@@ -37,56 +28,29 @@ const PALETTE_PADDING_X = 10;
 const PALETTE_COLLAPSED_WIDTH =
   PALETTE_ITEM_SIZE + PALETTE_PADDING_X * 2;
 const PALETTE_EXPANDED_WIDTH = 228;
-const PALETTE_EXPAND_DELAY_MS = 1333;
+const PALETTE_EXPAND_DELAY_MS = 100000;
 const PALETTE_ANIMATION_MS = 240;
 const paletteTransition =
   `width ${PALETTE_ANIMATION_MS}ms cubic-bezier(0.2, 0, 0, 1)`;
-
-const paletteItems = [
-  { id: "site", label: "Site", icon: IconLayoutSidebar },
-
-  {
-    id: "assets",
-    label: "Assets",
-    icon: IconPhotoCode,
-  },
-
-  {
-    id: "ctp",
-    label: "CT&P",
-    icon: IconTargetArrow,
-  },
-
-  {
-    id: "administration",
-    label: "Administration",
-    icon: IconUserShield,
-  },
-
-  { id: "apps", label: "Apps", icon: IconLayoutGridAdd },
-];
 
 type UtilityPaletteItem = {
   id: WorkspaceUtilityKey;
   label: string;
   icon: Icon;
+  dividerAfter?: boolean;
 };
 
 type LeftPaletteProps = {
-  selectedDomain: WorkspaceDomain;
   utilityItems: UtilityPaletteItem[];
   selectedUtilityId: WorkspaceUtilityKey;
-  onSelectDomain: (domain: WorkspaceDomain) => void;
   onSelectUtility: (
     utilityId: WorkspaceUtilityKey
   ) => void;
 };
 
 export const LeftPalette = ({
-  selectedDomain,
   utilityItems,
   selectedUtilityId,
-  onSelectDomain,
   onSelectUtility,
 }: LeftPaletteProps) => {
   const [expanded, setExpanded] = useState(false);
@@ -127,23 +91,10 @@ export const LeftPalette = ({
     }
   };
 
-  const handleSelectDomain = (itemId: string) => {
-    clearExpandTimer();
-    onSelectDomain(itemId as WorkspaceDomain);
-    setExpanded(false);
-  };
-
   const handleSelectUtility = (itemId: string) => {
     clearExpandTimer();
     onSelectUtility(itemId);
     setExpanded(false);
-  };
-
-  const domainItemsProps = {
-    expanded,
-    selectedItemId: selectedDomain,
-    onSelectItem: handleSelectDomain,
-    items: paletteItems,
   };
 
   const utilityItemsProps = {
@@ -161,9 +112,6 @@ export const LeftPalette = ({
 
   return (
     <DisplayGroup {...displayGroupProps}>
-      <PaletteItems {...domainItemsProps} />
-      <UtilitiesDivider />
-      <UtilitiesLabel expanded={expanded} />
       <PaletteItems {...utilityItemsProps} />
     </DisplayGroup>
   );
@@ -195,7 +143,7 @@ function DisplayGroup({
           : PALETTE_COLLAPSED_WIDTH
       }
       style={{
-        borderRadius: 12,
+        borderRadius:8,
         backdropFilter: "blur(16px)",
         border: paletteBorder,
         boxShadow: paletteShadow,
@@ -231,55 +179,27 @@ function PaletteItems({
     <>
       {items.map((item) => {
         return (
-          <PaletteItem
-            key={item.id}
-            id={item.id}
-            label={item.label}
-            icon={item.icon}
-            expanded={expanded}
-            selectedItemId={selectedItemId}
-            onSelectItem={onSelectItem}
-          />
+          <Fragment key={item.id}>
+            <PaletteItem
+              id={item.id}
+              label={item.label}
+              icon={item.icon}
+              expanded={expanded}
+              selectedItemId={selectedItemId}
+              onSelectItem={onSelectItem}
+            />
+            {item.dividerAfter ? <PaletteDivider /> : null}
+          </Fragment>
         );
       })}
     </>
   );
 }
 
-function UtilitiesDivider() {
+function PaletteDivider() {
   return (
-    <Box
-      h={1}
-      mx={8}
-      bg="asxGray.4"
-      style={{ flexShrink: 0 }}
-    />
-  );
-}
-
-type UtilitiesLabelProps = {
-  expanded: boolean;
-};
-
-function UtilitiesLabel({
-  expanded: _expanded,
-}: UtilitiesLabelProps) {
-  return (
-    <Text
-      fz={12}
-      fw={700}
-      w="100%"
-      ta="center"
-      style={{
-        boxSizing: "border-box",
-        color: "var(--mantine-color-asxGray-7)",
-        minHeight: 12,
-        lineHeight: "12px",
-        letterSpacing: 0,
-        whiteSpace: "nowrap",
-      }}
-    >
-      VIEWS
-    </Text>
+    <Box py={8} aria-hidden="true">
+      <Box h={1} w="100%" bg="asxGray.6" />
+    </Box>
   );
 }

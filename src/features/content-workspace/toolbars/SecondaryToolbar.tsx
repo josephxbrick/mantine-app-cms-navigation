@@ -7,6 +7,8 @@ import MegamenuView from "../tools/edit/megamenus/MegamenuView";
 import MegamenuActions from "../tools/edit/megamenus/MegamenuActions";
 import MegamenuPublish from "../tools/edit/megamenus/MegamenuPublish";
 import MegamenuNew from "../tools/edit/megamenus/MegamenuNew";
+import MegamenuPreviewActions from "../tools/preview/megamenus/MegamenuPreviewActions";
+import type { PreviewDevice } from "../tools/preview/megamenus/MegamenuPreviewActions";
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -39,6 +41,7 @@ type MenuKey = string | null;
 type MegamenuRendererKey =
   | "edit-view"
   | "edit-actions"
+  | "preview-actions"
   | "edit-publish"
   | "edit-new"
   | "placeholder";
@@ -64,12 +67,38 @@ function placeholderMenus(
   }));
 }
 
+const editMenus: SecondaryMenu[] = [
+  {
+    key: "view",
+    label: "View",
+    renderer: "edit-view",
+  },
+  {
+    key: "actions",
+    label: "Actions",
+    renderer: "edit-actions",
+  },
+  {
+    key: "publish",
+    label: "Publish",
+    renderer: "edit-publish",
+  },
+  {
+    key: "new",
+    label: "New",
+    renderer: "edit-new",
+  },
+];
+
 const secondaryMenusByDomain: Record<
   WorkspaceDomain,
   Record<ToolKey, SecondaryMenu[]>
 > = {
+  dashboard: {},
   site: {
-    Edit: [
+    "Folder Content": editMenus,
+    Edit: editMenus,
+    Preview: [
       {
         key: "view",
         label: "View",
@@ -78,7 +107,7 @@ const secondaryMenusByDomain: Record<
       {
         key: "actions",
         label: "Actions",
-        renderer: "edit-actions",
+        renderer: "preview-actions",
       },
       {
         key: "publish",
@@ -91,7 +120,6 @@ const secondaryMenusByDomain: Record<
         renderer: "edit-new",
       },
     ],
-    Preview: placeholderMenus("Preview", "Devices", "Share"),
     Categorize: placeholderMenus(
       "Categories",
       "Tags",
@@ -120,27 +148,33 @@ const secondaryMenusByDomain: Record<
     ),
   },
   assets: {
-    Browse: placeholderMenus("View", "Filter", "Sort"),
-    Upload: placeholderMenus("Upload", "Import", "Queue"),
-    Metadata: placeholderMenus(
-      "Details",
+    "Folder Content": editMenus,
+    Overview: editMenus,
+    Edit: placeholderMenus("Edit", "Replace", "Download"),
+    Categorize: placeholderMenus(
+      "Categories",
       "Tags",
       "Rights"
     ),
-    Renditions: placeholderMenus(
-      "Sizes",
-      "Crop",
-      "Generate"
-    ),
-    Usage: placeholderMenus(
-      "References",
-      "Pages",
-      "Reports"
+    History: placeholderMenus(
+      "Versions",
+      "Activity",
+      "Restore"
     ),
     Properties: placeholderMenus(
       "General",
       "Security",
       "Advanced"
+    ),
+    "DITA Properties": placeholderMenus(
+      "Topics",
+      "Maps",
+      "Metadata"
+    ),
+    Authoring: placeholderMenus(
+      "Checkout",
+      "Review",
+      "Publish"
     ),
   },
   ctp: {
@@ -316,6 +350,7 @@ function ToolbarActions() {
 type ActiveMegamenuProps = {
   menus: SecondaryMenu[];
   activeMenu: MenuKey;
+  tool: SelectedToolKey;
   selectedViewMode:
     | "Index Mode"
     | "Form Mode"
@@ -332,11 +367,14 @@ type ActiveMegamenuProps = {
   onToggleInContextIndex: () => void;
   showPath: boolean;
   onToggleShowPath: () => void;
+  selectedPreviewDevice: PreviewDevice;
+  onSelectPreviewDevice: (device: PreviewDevice) => void;
 };
 
 function ActiveMegamenu({
   menus,
   activeMenu,
+  tool,
   selectedViewMode,
   onSelectViewMode,
   showFormIndex,
@@ -345,6 +383,8 @@ function ActiveMegamenu({
   onToggleInContextIndex,
   showPath,
   onToggleShowPath,
+  selectedPreviewDevice,
+  onSelectPreviewDevice,
 }: ActiveMegamenuProps) {
   const activeMenuConfig =
     menus.find((menu) => menu.key === activeMenu) ??
@@ -381,7 +421,15 @@ function ActiveMegamenu({
           />
         ) : activeMenuConfig.renderer ===
           "edit-actions" ? (
-          <MegamenuActions />
+          <MegamenuActions
+            hideSave={tool === "Folder Content"}
+          />
+        ) : activeMenuConfig.renderer ===
+          "preview-actions" ? (
+          <MegamenuPreviewActions
+            selectedDevice={selectedPreviewDevice}
+            onSelectDevice={onSelectPreviewDevice}
+          />
         ) : activeMenuConfig.renderer ===
           "edit-publish" ? (
           <MegamenuPublish />
@@ -438,6 +486,11 @@ export default function SecondaryToolbar({
   const [showPath, setShowPath] =
     useState(false);
 
+  const [
+    selectedPreviewDevice,
+    setSelectedPreviewDevice,
+  ] = useState<PreviewDevice>("Desktop");
+
   useEffect(() => {
     setActiveMenu(null);
   }, [domain, tool]);
@@ -475,8 +528,12 @@ export default function SecondaryToolbar({
     }, 200);
   };
 
-  const menus =
+  const toolMenus =
     tool ? secondaryMenusByDomain[domain][tool] ?? [] : [];
+  const menus =
+    domain === "assets"
+      ? toolMenus.filter((menu) => menu.key !== "view")
+      : toolMenus;
 
   const toolbarMenuTabsProps = {
     menus,
@@ -488,6 +545,7 @@ export default function SecondaryToolbar({
   const activeMegamenuProps = {
     menus,
     activeMenu,
+    tool,
     selectedViewMode,
     onSelectViewMode: setSelectedViewMode,
     showFormIndex,
@@ -499,6 +557,8 @@ export default function SecondaryToolbar({
     showPath,
     onToggleShowPath: () =>
       setShowPath((current) => !current),
+    selectedPreviewDevice,
+    onSelectPreviewDevice: setSelectedPreviewDevice,
   };
 
   return (

@@ -1,10 +1,10 @@
 /*
  * Left panel header.
- * - Displays the active tree title and sitemap icon.
+ * - Displays the active left-panel view title and icon.
  * - Provides the fixed header band above the palette and tree browser.
  */
 import { Box, Group, Text } from "@mantine/core";
-import { IconSitemap } from "@tabler/icons-react";
+import type { Icon } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 
 type DisplayGroupProps = {
@@ -13,6 +13,7 @@ type DisplayGroupProps = {
 
 type LeftPanelHeaderProps = {
   title: string;
+  icon: Icon;
 };
 
 function DisplayGroup({ children }: DisplayGroupProps) {
@@ -26,26 +27,40 @@ function DisplayGroup({ children }: DisplayGroupProps) {
           "1px solid var(--mantine-color-asxIndigo-3)",
       }}
     >
-      <Group h="100%" gap={12} wrap="nowrap" px="lg">
+      <Group h="100%" gap={6} wrap="nowrap" px="lg">
         {children}
       </Group>
     </Box>
   );
 }
 
-function SiteTreeIcon() {
+type HeaderIconProps = {
+  icon: Icon;
+};
+
+function HeaderIcon({ icon: Icon }: HeaderIconProps) {
   return (
-    <IconSitemap
-      size={28}
+    <Icon
+      size={36}
       stroke={1.5}
-      color="var(--mantine-color-asxIndigo-9)"
+      color="var(--mantine-color-asxIndigo-7)"
     />
   );
 }
 
-function Title({ title }: LeftPanelHeaderProps) {
+type TitleProps = {
+  title: string;
+};
+
+function Title({ title }: TitleProps) {
   return (
-    <Text size="lg" fw={600} c="asxIndigo.9" truncate>
+    <Text
+      size="lg"
+      fw={600}
+      c="asxIndigo.9"
+      truncate
+      style={{ textBoxTrim: "trim-both" }}
+    >
       {title}
     </Text>
   );
@@ -53,10 +68,11 @@ function Title({ title }: LeftPanelHeaderProps) {
 
 export const LeftPanelHeader = ({
   title,
+  icon,
 }: LeftPanelHeaderProps) => {
   return (
     <DisplayGroup>
-      <SiteTreeIcon />
+      <HeaderIcon icon={icon} />
       <Title title={title} />
     </DisplayGroup>
   );

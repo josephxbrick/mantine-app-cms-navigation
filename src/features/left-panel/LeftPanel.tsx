@@ -13,7 +13,6 @@ import { LeftPalette } from "./palette/LeftPalette";
 import { SiteTree } from "./site-tree/SiteTree";
 import type { SiteTreeNode } from "./site-tree/types";
 import type {
-  WorkspaceDomain,
   WorkspaceUtilityKey,
 } from "../workspace/types";
 
@@ -26,12 +25,11 @@ type LeftPanelUtility = {
 type LeftPanelProps = {
   width: number;
   title: string;
+  icon: Icon;
   nodes: SiteTreeNode[] | null;
-  selectedDomain: WorkspaceDomain;
   utilityItems: LeftPanelUtility[];
   selectedUtilityId: WorkspaceUtilityKey;
   selectedNodeId: string | null;
-  onSelectDomain: (domain: WorkspaceDomain) => void;
   onSelectUtility: (
     utilityId: WorkspaceUtilityKey
   ) => void;
@@ -78,9 +76,10 @@ function DisplayGroup({
 
 type HeaderProps = {
   title: string;
+  icon: Icon;
 };
 
-function Header({ title }: HeaderProps) {
+function Header({ title, icon }: HeaderProps) {
   return (
     <Box
       style={{
@@ -89,26 +88,22 @@ function Header({ title }: HeaderProps) {
         minWidth: 0,
       }}
     >
-      <LeftPanelHeader title={title} />
+      <LeftPanelHeader title={title} icon={icon} />
     </Box>
   );
 }
 
 type PaletteColumnProps = {
-  selectedDomain: WorkspaceDomain;
   utilityItems: LeftPanelUtility[];
   selectedUtilityId: WorkspaceUtilityKey;
-  onSelectDomain: (domain: WorkspaceDomain) => void;
   onSelectUtility: (
     utilityId: WorkspaceUtilityKey
   ) => void;
 };
 
 function PaletteColumn({
-  selectedDomain,
   utilityItems,
   selectedUtilityId,
-  onSelectDomain,
   onSelectUtility,
 }: PaletteColumnProps) {
   return (
@@ -123,10 +118,8 @@ function PaletteColumn({
       }}
     >
       <LeftPalette
-        selectedDomain={selectedDomain}
         utilityItems={utilityItems}
         selectedUtilityId={selectedUtilityId}
-        onSelectDomain={onSelectDomain}
         onSelectUtility={onSelectUtility}
       />
     </Box>
@@ -193,24 +186,22 @@ function UtilityColumn({ title }: UtilityColumnProps) {
 export function LeftPanel({
   width,
   title,
+  icon,
   nodes,
-  selectedDomain,
   utilityItems,
   selectedUtilityId,
   selectedNodeId,
-  onSelectDomain,
   onSelectUtility,
   onSelectNode,
 }: LeftPanelProps) {
   const headerProps = {
     title,
+    icon,
   };
 
   const paletteColumnProps = {
-    selectedDomain,
     utilityItems,
     selectedUtilityId,
-    onSelectDomain,
     onSelectUtility,
   };
 

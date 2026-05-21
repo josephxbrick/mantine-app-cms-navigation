@@ -11,18 +11,20 @@ import {
   IconAccessible,
   IconBinaryTree2,
   IconChartBar,
-  IconCircleArrowUp,
   IconCircleDot,
   IconCode,
   IconCpu,
   IconEye,
   IconFileText,
+  IconFolder,
   IconHistory,
+  IconLayoutDashboard,
   IconLayoutGridAdd,
+  IconLayoutSidebar,
+  IconPencilCog,
   IconPhoto,
   IconSearch,
   IconSettings,
-  IconSitemap,
   IconTags,
   IconTargetArrow,
   IconUserCheck,
@@ -53,8 +55,8 @@ import { WorkspaceSplitter } from "./WorkspaceSplitter";
 
 const LEFT_PANEL_INITIAL_WIDTH = 414;
 const LEFT_PANEL_MIN_WIDTH = 348;
-const DEFAULT_EDIT_NODE_ID = "central-university";
-const DEFAULT_ASSETS_NODE_ID = "asset-library";
+const DEFAULT_EDIT_NODE_ID = "undergraduate";
+const DEFAULT_ASSETS_NODE_ID = "campus-hero.png";
 
 type TreeConfig = {
   title: string;
@@ -64,9 +66,11 @@ type TreeConfig = {
 
 type DomainConfig = {
   label: string;
+  icon: Icon;
   tree: TreeConfig | null;
-  defaultTool: SelectedToolKey;
-  tools: ToolbarTool[];
+  defaultContentTool: SelectedToolKey;
+  folderTools?: ToolbarTool[];
+  contentTools: ToolbarTool[];
   defaultUtility: WorkspaceUtilityKey;
   utilities: DomainUtility[];
 };
@@ -75,26 +79,82 @@ type DomainUtility = {
   id: WorkspaceUtilityKey;
   label: string;
   icon: Icon;
+  dividerAfter?: boolean;
 };
+
+type ContentToolContext = "folder" | "content";
+
+type DomainToolSelection = Record<
+  ContentToolContext,
+  SelectedToolKey
+>;
+
+function getDefaultFolderTool(
+  config: DomainConfig
+): SelectedToolKey {
+  return config.folderTools?.[0]?.label ?? null;
+}
 
 const domainConfigs: Record<
   WorkspaceDomain,
   DomainConfig
 > = {
+  dashboard: {
+    label: "Dashboard",
+    icon: IconLayoutDashboard,
+    tree: null,
+    defaultContentTool: null,
+    defaultUtility: "dashboard",
+    utilities: [
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        icon: IconLayoutDashboard,
+      },
+    ],
+    contentTools: [],
+  },
   site: {
     label: "Site",
+    icon: IconLayoutSidebar,
     tree: {
       title: "Site Tree",
       nodes: editTreeData,
       defaultNodeId: DEFAULT_EDIT_NODE_ID,
     },
-    defaultTool: "Edit",
+    defaultContentTool: "Edit",
+    folderTools: [
+      {
+        label: "Folder Content",
+        icon: <IconFolder size={28} stroke={1} />,
+      },
+      {
+        label: "Properties",
+        icon: <IconSettings size={28} stroke={1} />,
+      },
+    ],
     defaultUtility: "tree",
     utilities: [
       {
         id: "tree",
         label: "Site Tree",
-        icon: IconSitemap,
+        icon: IconLayoutSidebar,
+        dividerAfter: true,
+      },
+      {
+        id: "assets",
+        label: "Asset Tree",
+        icon: IconPhoto,
+      },
+      {
+        id: "taxonomy",
+        label: "Taxonomy",
+        icon: IconTags,
+      },
+      {
+        id: "workflow",
+        label: "Assignments",
+        icon: IconUserCheck,
       },
       {
         id: "search",
@@ -102,17 +162,12 @@ const domainConfigs: Record<
         icon: IconSearch,
       },
       {
-        id: "workflow",
-        label: "Workflow",
-        icon: IconUserCheck,
-      },
-      {
         id: "tools",
-        label: "Tools",
+        label: "Mystery Feature",
         icon: IconWand,
       },
     ],
-    tools: [
+    contentTools: [
       {
         label: "Edit",
         icon: <IconFileText size={28} stroke={1} />,
@@ -149,12 +204,27 @@ const domainConfigs: Record<
   },
   assets: {
     label: "Assets",
+    icon: IconPhoto,
     tree: {
       title: "Asset Tree",
       nodes: assetsTreeData,
       defaultNodeId: DEFAULT_ASSETS_NODE_ID,
     },
-    defaultTool: "Browse",
+    defaultContentTool: "Overview",
+    folderTools: [
+      {
+        label: "Folder Content",
+        icon: <IconFolder size={28} stroke={1} />,
+      },
+      {
+        label: "Properties",
+        icon: <IconSettings size={28} stroke={1} />,
+      },
+      {
+        label: "Authoring",
+        icon: <IconPencilCog size={28} stroke={1} />,
+      },
+    ],
     defaultUtility: "tree",
     utilities: [
       {
@@ -178,37 +248,42 @@ const domainConfigs: Record<
         icon: IconCpu,
       },
     ],
-    tools: [
+    contentTools: [
       {
-        label: "Browse",
+        label: "Overview",
         icon: <IconPhoto size={28} stroke={1} />,
       },
       {
-        label: "Upload",
-        icon: <IconCircleArrowUp size={28} stroke={1} />,
+        label: "Edit",
+        icon: <IconFileText size={28} stroke={1} />,
       },
       {
-        label: "Metadata",
+        label: "Categorize",
         icon: <IconTags size={28} stroke={1} />,
       },
       {
-        label: "Renditions",
-        icon: <IconEye size={28} stroke={1} />,
-      },
-      {
-        label: "Usage",
-        icon: <IconChartBar size={28} stroke={1} />,
+        label: "History",
+        icon: <IconHistory size={28} stroke={1} />,
       },
       {
         label: "Properties",
         icon: <IconSettings size={28} stroke={1} />,
       },
+      {
+        label: "DITA Properties",
+        icon: <IconCode size={28} stroke={1} />,
+      },
+      {
+        label: "Authoring",
+        icon: <IconPencilCog size={28} stroke={1} />,
+      },
     ],
   },
   ctp: {
     label: "CT&P",
+    icon: IconTargetArrow,
     tree: null,
-    defaultTool: null,
+    defaultContentTool: null,
     defaultUtility: "campaigns",
     utilities: [
       {
@@ -227,12 +302,13 @@ const domainConfigs: Record<
         icon: IconCircleDot,
       },
     ],
-    tools: [],
+    contentTools: [],
   },
   administration: {
-    label: "Administration",
+    label: "Admin",
+    icon: IconUserShield,
     tree: null,
-    defaultTool: "Users",
+    defaultContentTool: "Users",
     defaultUtility: "users",
     utilities: [
       {
@@ -251,7 +327,7 @@ const domainConfigs: Record<
         icon: IconSettings,
       },
     ],
-    tools: [
+    contentTools: [
       {
         label: "Users",
         icon: <IconUserShield size={28} stroke={1} />,
@@ -268,8 +344,9 @@ const domainConfigs: Record<
   },
   apps: {
     label: "Apps",
+    icon: IconLayoutGridAdd,
     tree: null,
-    defaultTool: "Apps",
+    defaultContentTool: "Apps",
     defaultUtility: "apps",
     utilities: [
       {
@@ -288,7 +365,7 @@ const domainConfigs: Record<
         icon: IconWand,
       },
     ],
-    tools: [
+    contentTools: [
       {
         label: "Apps",
         icon: <IconLayoutGridAdd size={28} stroke={1} />,
@@ -304,6 +381,21 @@ const domainConfigs: Record<
     ],
   },
 };
+
+const domainItems = (
+  [
+    "dashboard",
+    "site",
+    "assets",
+    "ctp",
+    "administration",
+    "apps",
+  ] satisfies WorkspaceDomain[]
+).map((domain) => ({
+  id: domain,
+  label: domainConfigs[domain].label,
+  icon: domainConfigs[domain].icon,
+}));
 
 type DisplayGroupProps = {
   children: ReactNode;
@@ -402,19 +494,43 @@ export function AppShell() {
   const [selectedDomain, setSelectedDomain] =
     useState<WorkspaceDomain>("site");
   const [selectedTools, setSelectedTools] = useState<
-    Record<WorkspaceDomain, SelectedToolKey>
+    Record<WorkspaceDomain, DomainToolSelection>
   >({
-    site: domainConfigs.site.defaultTool,
-    assets: domainConfigs.assets.defaultTool,
-    ctp: domainConfigs.ctp.defaultTool,
-    administration:
-      domainConfigs.administration.defaultTool,
-    apps: domainConfigs.apps.defaultTool,
+    dashboard: {
+      folder: getDefaultFolderTool(
+        domainConfigs.dashboard
+      ),
+      content: domainConfigs.dashboard.defaultContentTool,
+    },
+    site: {
+      folder: getDefaultFolderTool(domainConfigs.site),
+      content: domainConfigs.site.defaultContentTool,
+    },
+    assets: {
+      folder: getDefaultFolderTool(domainConfigs.assets),
+      content: domainConfigs.assets.defaultContentTool,
+    },
+    ctp: {
+      folder: getDefaultFolderTool(domainConfigs.ctp),
+      content: domainConfigs.ctp.defaultContentTool,
+    },
+    administration: {
+      folder: getDefaultFolderTool(
+        domainConfigs.administration
+      ),
+      content:
+        domainConfigs.administration.defaultContentTool,
+    },
+    apps: {
+      folder: getDefaultFolderTool(domainConfigs.apps),
+      content: domainConfigs.apps.defaultContentTool,
+    },
   });
   const [selectedUtilities, setSelectedUtilities] =
     useState<
-      Record<WorkspaceDomain, WorkspaceUtilityKey>
+    Record<WorkspaceDomain, WorkspaceUtilityKey>
     >({
+      dashboard: domainConfigs.dashboard.defaultUtility,
       site: domainConfigs.site.defaultUtility,
       assets: domainConfigs.assets.defaultUtility,
       ctp: domainConfigs.ctp.defaultUtility,
@@ -429,6 +545,7 @@ export function AppShell() {
   const [selectedNodeIds, setSelectedNodeIds] = useState<
     Record<WorkspaceDomain, string | null>
   >({
+    dashboard: null,
     site: DEFAULT_EDIT_NODE_ID,
     assets: DEFAULT_ASSETS_NODE_ID,
     ctp: null,
@@ -445,9 +562,6 @@ export function AppShell() {
     domainConfig.utilities.find(
       (utility) => utility.id === selectedUtilityId
     ) ?? domainConfig.utilities[0];
-  const selectedTool =
-    selectedTools[selectedDomain] ??
-    domainConfig.defaultTool;
   const selectedTreeConfig =
     selectedUtility?.id === "tree"
       ? domainConfig.tree
@@ -462,18 +576,80 @@ export function AppShell() {
         selectedTreeConfig.nodes
       )
     : null;
+  const selectedNodeIsFolder = Boolean(
+    selectedNode?.children?.length
+  );
+  const activeTools =
+    selectedTreeConfig &&
+    selectedNodeIsFolder &&
+    domainConfig.folderTools
+      ? domainConfig.folderTools
+      : domainConfig.contentTools;
+  const activeToolContext =
+    selectedTreeConfig &&
+    selectedNodeIsFolder &&
+    domainConfig.folderTools
+      ? "folder"
+      : "content";
+  const selectedToolCandidate =
+    selectedTools[selectedDomain]?.[
+      activeToolContext
+    ] ??
+    (activeToolContext === "folder"
+      ? getDefaultFolderTool(domainConfig)
+      : domainConfig.defaultContentTool);
+  const selectedTool =
+    activeTools.some(
+      (tool) => tool.label === selectedToolCandidate
+    )
+      ? selectedToolCandidate
+      : activeTools[0]?.label ?? null;
 
   const handleSelectNode = (nodeId: string) => {
+    const nextNode = selectedTreeConfig
+      ? findTreeNodeById(
+          nodeId,
+          selectedTreeConfig.nodes
+        )
+      : null;
+    const nextNodeIsFolder = Boolean(
+      nextNode?.children?.length
+    );
+    const nextToolContext =
+      selectedTreeConfig &&
+      nextNodeIsFolder &&
+      domainConfig.folderTools
+        ? "folder"
+        : "content";
+    const nextTools =
+      nextToolContext === "folder"
+        ? domainConfig.folderTools ?? []
+        : domainConfig.contentTools;
+
     setSelectedNodeIds((current) => ({
       ...current,
       [selectedDomain]: nodeId,
     }));
+
+    if (nextToolContext !== activeToolContext) {
+      setSelectedTools((current) => ({
+        ...current,
+        [selectedDomain]: {
+          ...current[selectedDomain],
+          [nextToolContext]:
+            nextTools[0]?.label ?? null,
+        },
+      }));
+    }
   };
 
   const handleSelectTool = (tool: ToolKey) => {
     setSelectedTools((current) => ({
       ...current,
-      [selectedDomain]: tool,
+      [selectedDomain]: {
+        ...current[selectedDomain],
+        [activeToolContext]: tool,
+      },
     }));
   };
 
@@ -501,23 +677,22 @@ export function AppShell() {
 
   const productToolbarProps = {
     mode: productToolbarMode,
+    domainItems,
+    selectedDomain,
     onGoTo: () => setProductToolbarMode("search"),
     onCloseSearch: () =>
       setProductToolbarMode("default"),
+    onSelectDomain: handleSelectDomain,
   };
 
   const leftPanelProps = {
     width: leftPaneWidth,
-    title:
-      selectedTreeConfig?.title ??
-      selectedUtility?.label ??
-      "Workspace",
+    title: domainConfig.label,
+    icon: domainConfig.icon,
     nodes: selectedTreeConfig?.nodes ?? null,
-    selectedDomain,
     utilityItems: domainConfig.utilities,
     selectedUtilityId,
     selectedNodeId,
-    onSelectDomain: handleSelectDomain,
     onSelectUtility: handleSelectUtility,
     onSelectNode: handleSelectNode,
   };
@@ -537,7 +712,7 @@ export function AppShell() {
         ? "No selection"
         : domainConfig.label),
     selectedTool,
-    tools: domainConfig.tools,
+    tools: activeTools,
     onSelectTool: handleSelectTool,
   };
 

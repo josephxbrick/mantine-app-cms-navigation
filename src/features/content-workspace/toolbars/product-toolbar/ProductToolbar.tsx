@@ -5,17 +5,30 @@
  */
 import {
   Flex,
+  Group,
   Stack,
   Text,
+  UnstyledButton,
 } from "@mantine/core";
+import type { Icon } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 
 import { ProductToolbarPaper } from "./ProductToolbarPaper";
+import type { WorkspaceDomain } from "../../../workspace/types";
 
 type ProductToolbarProps = {
   mode: "default" | "search";
+  domainItems: ProductToolbarDomainItem[];
+  selectedDomain: WorkspaceDomain;
   onGoTo: () => void;
   onCloseSearch: () => void;
+  onSelectDomain: (domain: WorkspaceDomain) => void;
+};
+
+type ProductToolbarDomainItem = {
+  id: WorkspaceDomain;
+  label: string;
+  icon: Icon;
 };
 
 type DisplayGroupProps = {
@@ -51,11 +64,83 @@ function ProductIdentity() {
   );
 }
 
+type DomainTabsProps = {
+  items: ProductToolbarDomainItem[];
+  selectedDomain: WorkspaceDomain;
+  onSelectDomain: (domain: WorkspaceDomain) => void;
+};
+
+function DomainTabs({
+  items,
+  selectedDomain,
+  onSelectDomain,
+}: DomainTabsProps) {
+  return (
+    <Group gap={8} wrap="nowrap">
+      {items.map((item) => (
+        <DomainTab
+          key={item.id}
+          item={item}
+          selected={item.id === selectedDomain}
+          onSelectDomain={onSelectDomain}
+        />
+      ))}
+    </Group>
+  );
+}
+
+type DomainTabProps = {
+  item: ProductToolbarDomainItem;
+  selected: boolean;
+  onSelectDomain: (domain: WorkspaceDomain) => void;
+};
+
+function DomainTab({
+  item,
+  selected,
+  onSelectDomain,
+}: DomainTabProps) {
+  const Icon = item.icon;
+
+  return (
+    <UnstyledButton
+      px={16}
+      py={7}
+      c={selected ? "asxBlue.9" : "asxGray.0"}
+      bg={selected ? "asxBlue.1" : "transparent"}
+      style={{
+
+        borderRadius: 999,
+ 
+        transition:
+          "background-color 120ms ease,color 120ms ease",
+      }}
+      onClick={() => onSelectDomain(item.id)}
+    >
+      <Group gap={6} wrap="nowrap">
+        <Icon size={28} stroke={1.4} />
+        <Text size="md" fw={selected ? 700 : 500}>
+          {item.label}
+        </Text>
+      </Group>
+    </UnstyledButton>
+  );
+}
+
 export function ProductToolbar({
   mode,
+  domainItems,
+  selectedDomain,
   onGoTo,
   onCloseSearch,
+  onSelectDomain,
 }: ProductToolbarProps) {
+  const domainTabsProps = {
+    items: domainItems,
+    selectedDomain,
+    onSelectDomain,
+  };
+
   const productToolbarPaperProps = {
     mode,
     onGoTo,
@@ -65,6 +150,7 @@ export function ProductToolbar({
   return (
     <DisplayGroup>
       <ProductIdentity />
+      <DomainTabs {...domainTabsProps} />
       <ProductToolbarPaper {...productToolbarPaperProps} />
     </DisplayGroup>
   );

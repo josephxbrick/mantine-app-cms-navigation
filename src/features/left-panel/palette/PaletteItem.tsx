@@ -63,9 +63,9 @@ function DisplayGroup({
                 alignItems: "center",
                 justifyContent: "flex-start",
                 gap: 10,
-                borderRadius: 10,
+                borderRadius: 6,
                 border: isSelected
-                    ? "1px solid var(--mantine-color-asxIndigo-2)"
+                    ? "1px solid var(--mantine-color-asxIndigo-4)"
                     : "1px solid transparent",
                 cursor: "pointer",
                 overflow: "hidden",

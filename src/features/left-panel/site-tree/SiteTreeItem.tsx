@@ -10,7 +10,7 @@ import {
   Transition,
   UnstyledButton,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 import {
@@ -28,6 +28,7 @@ type SiteTreeItemProps = {
   node: SiteTreeNode;
   level: number;
   selectedNodeId: string | null;
+  openNodeIds: string[];
   onSelectNode: (nodeId: string) => void;
 };
 
@@ -230,6 +231,7 @@ type ChildNodesProps = {
   node: SiteTreeNode;
   level: number;
   selectedNodeId: string | null;
+  openNodeIds: string[];
   onSelectNode: (nodeId: string) => void;
   isOpen: boolean;
 };
@@ -238,6 +240,7 @@ function ChildNodes({
   node,
   level,
   selectedNodeId,
+  openNodeIds,
   onSelectNode,
   isOpen,
 }: ChildNodesProps) {
@@ -260,6 +263,7 @@ function ChildNodes({
               node={childNode}
               level={level + 1}
               selectedNodeId={selectedNodeId}
+              openNodeIds={openNodeIds}
               onSelectNode={onSelectNode}
             />
           ))}
@@ -273,10 +277,21 @@ export const SiteTreeItem = ({
   node,
   level,
   selectedNodeId,
+  openNodeIds,
   onSelectNode,
 }: SiteTreeItemProps) => {
   const hasChildren = Boolean(node.children?.length);
-  const [isOpen, setIsOpen] = useState(level < 2);
+  const shouldOpenToSelection =
+    openNodeIds.includes(node.id);
+  const [isOpen, setIsOpen] = useState(
+    shouldOpenToSelection
+  );
+
+  useEffect(() => {
+    if (shouldOpenToSelection) {
+      setIsOpen(true);
+    }
+  }, [shouldOpenToSelection]);
 
   const isSelected = selectedNodeId === node.id;
   const isFolder = hasChildren;
@@ -297,6 +312,7 @@ export const SiteTreeItem = ({
     node,
     level,
     selectedNodeId,
+    openNodeIds,
     onSelectNode,
     isOpen,
   };

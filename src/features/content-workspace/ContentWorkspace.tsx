@@ -38,11 +38,17 @@ function DisplayGroup({ children }: DisplayGroupProps) {
 
 type SelectedNodePreviewProps = {
   selectedNodeLabel: string;
+  selectedTool: SelectedToolKey;
 };
 
 function SelectedNodePreview({
   selectedNodeLabel,
+  selectedTool,
 }: SelectedNodePreviewProps) {
+  const previewLabel = selectedTool
+    ? `${selectedNodeLabel} | ${selectedTool}`
+    : selectedNodeLabel;
+
   return (
     <Box
       bg="gray.1"
@@ -53,7 +59,7 @@ function SelectedNodePreview({
       }}
     >
       <Text c="asxGray.6" fw={500} size="xl">
-        {selectedNodeLabel}
+        {previewLabel}
       </Text>
     </Box>
   );
@@ -69,6 +75,7 @@ export function ContentWorkspace({
 }: ContentWorkspaceProps) {
   const selectedNodePreviewProps = {
     selectedNodeLabel,
+    selectedTool,
   };
 
   const primaryToolbarProps = {

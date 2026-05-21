@@ -143,19 +143,19 @@ export const assetsTreeData: SiteTreeNode[] = [
         icon: "image",
         children: [
           {
-            id: "hero-images",
-            label: "Hero Images",
+            id: "campus-hero.png",
+            label: "campus-hero.png",
             icon: "image",
           },
           {
-            id: "campus-photos",
-            label: "Campus Photos",
+            id: "student-union.png",
+            label: "student-union.png",
             icon: "image",
           },
           {
-            id: "faculty-headshots",
-            label: "Faculty Headshots",
+            id: "faculty-headshot-kim.png",
             icon: "image",
+            label: "faculty-headshot-kim.png",
           },
         ],
       },
@@ -165,18 +165,18 @@ export const assetsTreeData: SiteTreeNode[] = [
         icon: "document",
         children: [
           {
-            id: "admissions-pdfs",
-            label: "Admissions PDFs",
+            id: "undergraduate-application.pdf",
+            label: "undergraduate-application.pdf",
             icon: "document",
           },
           {
-            id: "policy-documents",
-            label: "Policy Documents",
+            id: "student-handbook.pdf",
+            label: "student-handbook.pdf",
             icon: "document",
           },
           {
-            id: "annual-reports",
-            label: "Annual Reports",
+            id: "annual-report-2026.pdf",
+            label: "annual-report-2026.pdf",
             icon: "document",
           },
         ],
@@ -187,13 +187,13 @@ export const assetsTreeData: SiteTreeNode[] = [
         icon: "video",
         children: [
           {
-            id: "campus-tours",
-            label: "Campus Tours",
+            id: "campus-tour.mp4",
+            label: "campus-tour.mp4",
             icon: "video",
           },
           {
-            id: "student-stories",
-            label: "Student Stories",
+            id: "student-story-amelia.mp4",
+            label: "student-story-amelia.mp4",
             icon: "video",
           },
         ],
@@ -204,18 +204,18 @@ export const assetsTreeData: SiteTreeNode[] = [
         icon: "asset",
         children: [
           {
-            id: "logos",
-            label: "Logos",
+            id: "university-logo.svg",
+            label: "university-logo.svg",
             icon: "image",
           },
           {
-            id: "icons",
-            label: "Icons",
+            id: "site-icons.zip",
+            label: "site-icons.zip",
             icon: "asset",
           },
           {
-            id: "brand-templates",
-            label: "Brand Templates",
+            id: "brand-presentation-template.pptx",
+            label: "brand-presentation-template.pptx",
             icon: "document",
           },
         ],
@@ -250,6 +250,43 @@ export function findTreeNodeById(
   }
 
   return null;
+}
+
+export function findTreeNodePathIds(
+  nodeId: string | null,
+  nodes: SiteTreeNode[],
+  path: string[] = []
+): string[] {
+  if (!nodeId) {
+    return [];
+  }
+
+  for (const node of nodes) {
+    const nodePath = [...path, node.id];
+
+    if (node.id === nodeId) {
+      return nodePath;
+    }
+
+    const childPath = findTreeNodePathIds(
+      nodeId,
+      node.children ?? [],
+      nodePath
+    );
+
+    if (childPath.length) {
+      return childPath;
+    }
+  }
+
+  return [];
+}
+
+export function getTreeNodeIdsToOpen(
+  nodeId: string | null,
+  nodes: SiteTreeNode[]
+): string[] {
+  return findTreeNodePathIds(nodeId, nodes).slice(0, -1);
 }
 
 export function findSiteTreeNodeById(

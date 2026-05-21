@@ -122,6 +122,14 @@ export function TreeNodeIcon({
   isFolder,
   isOpen,
 }: TreeNodeIconProps) {
+  if (isFolder || icon === "folder") {
+    return isOpen ? (
+      <FolderOpenIcon />
+    ) : (
+      <FolderClosedIcon />
+    );
+  }
+
   if (icon === "image") {
     return <ImageIcon />;
   }
@@ -136,14 +144,6 @@ export function TreeNodeIcon({
 
   if (icon === "asset") {
     return <AssetIcon />;
-  }
-
-  if (isFolder || icon === "folder") {
-    return isOpen ? (
-      <FolderOpenIcon />
-    ) : (
-      <FolderClosedIcon />
-    );
   }
 
   return <PageIcon />;

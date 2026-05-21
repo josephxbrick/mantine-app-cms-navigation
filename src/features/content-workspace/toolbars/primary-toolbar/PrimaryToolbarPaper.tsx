@@ -125,17 +125,41 @@ function ToolSelectorMenu({
       </Menu.Target>
 
       <Menu.Dropdown>
-        {tools.map((tool) => (
-          <Menu.Item
-            key={tool.label}
-            leftSection={tool.icon}
-            onClick={() =>
-              onSelectTool(tool.label)
-            }
-          >
-            {tool.label}
-          </Menu.Item>
-        ))}
+        {tools.map((tool) => {
+          const isSelected =
+            tool.label === selected.label;
+
+          return (
+            <Menu.Item
+              key={tool.label}
+              leftSection={tool.icon}
+              bg={
+                isSelected
+                  ? "asxIndigo.0"
+                  : "transparent"
+              }
+              c={
+                isSelected
+                  ? "asxIndigo.9"
+                  : "asxGray.8"
+              }
+              fw={isSelected ? 600 : 400}
+              styles={{
+                item: {
+                  border: isSelected
+                    ? "1px solid var(--mantine-color-asxIndigo-2)"
+                    : "1px solid transparent",
+                  borderRadius: 4,
+                },
+              }}
+              onClick={() =>
+                onSelectTool(tool.label)
+              }
+            >
+              {tool.label}
+            </Menu.Item>
+          );
+        })}
       </Menu.Dropdown>
     </Menu>
   );

@@ -106,6 +106,10 @@ type MenuColumnsProps = {
   columns: MenuColumn[];
 };
 
+type MegamenuActionsProps = {
+  hideSave?: boolean;
+};
+
 function DisplayGroup({ children }: DisplayGroupProps) {
   return (
     <SimpleGrid
@@ -193,10 +197,33 @@ function MenuItem({ item }: MenuItemProps) {
   );
 }
 
-export default function MegamenuActions() {
+function getVisibleColumns(hideSave: boolean) {
+  if (!hideSave) {
+    return columns;
+  }
+
+  return columns.map((column) => {
+    if (column.title !== "Page") {
+      return column;
+    }
+
+    return {
+      ...column,
+      items: column.items.filter(
+        (item) => item.label !== "Save"
+      ),
+    };
+  });
+}
+
+export default function MegamenuActions({
+  hideSave = false,
+}: MegamenuActionsProps) {
+  const visibleColumns = getVisibleColumns(hideSave);
+
   return (
     <DisplayGroup>
-      <MenuColumns columns={columns} />
+      <MenuColumns columns={visibleColumns} />
     </DisplayGroup>
   );
 }
