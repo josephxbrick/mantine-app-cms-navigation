@@ -300,9 +300,17 @@ export const SiteTreeItem = ({
   );
 
   useEffect(() => {
-    if (shouldOpenToSelection) {
-      setIsOpen(true);
+    if (!shouldOpenToSelection) {
+      return;
     }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsOpen(true);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [shouldOpenToSelection]);
 
   const isSelected = selectedNodeId === node.id;

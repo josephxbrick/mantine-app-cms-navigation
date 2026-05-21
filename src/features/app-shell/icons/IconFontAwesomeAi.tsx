@@ -22,6 +22,8 @@ export const IconFontAwesomeAi = forwardRef<
   },
   ref
 ) {
+  void _stroke;
+
   return (
     <svg
       ref={ref}

@@ -590,7 +590,13 @@ export default function SecondaryToolbar({
     useState(true);
 
   useEffect(() => {
-    setActiveMenu(null);
+    const timeoutId = window.setTimeout(() => {
+      setActiveMenu(null);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [domain, tool]);
 
   const clearHoverTimeout = () => {
