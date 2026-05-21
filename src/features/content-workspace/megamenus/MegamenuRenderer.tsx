@@ -5,9 +5,12 @@
  */
 import {
   Box,
+  Button,
   Group,
+  Select,
   Stack,
   Text,
+  TextInput,
   UnstyledButton,
 } from "@mantine/core";
 import type { ReactNode } from "react";
@@ -16,6 +19,7 @@ import type {
   MegamenuCheckboxValues,
   MegamenuColumn,
   MegamenuConfig,
+  MegamenuFieldValues,
   MegamenuItem,
   MegamenuRadioValues,
 } from "./types";
@@ -28,8 +32,10 @@ type MegamenuRendererProps = {
   config: MegamenuConfig;
   radioValues: MegamenuRadioValues;
   checkboxValues: MegamenuCheckboxValues;
+  fieldValues?: MegamenuFieldValues;
   onRadioChange: (groupId: string, value: string) => void;
   onCheckboxChange: (itemId: string) => void;
+  onFieldChange?: (itemId: string, value: string) => void;
   onCommand: (itemId: string) => void;
 };
 
@@ -55,8 +61,10 @@ type MenuColumnSlotsProps = {
   slots: ColumnSlot[];
   radioValues: MegamenuRadioValues;
   checkboxValues: MegamenuCheckboxValues;
+  fieldValues: MegamenuFieldValues;
   onRadioChange: (groupId: string, value: string) => void;
   onCheckboxChange: (itemId: string) => void;
+  onFieldChange: (itemId: string, value: string) => void;
   onCommand: (itemId: string) => void;
 };
 
@@ -64,15 +72,19 @@ function MenuColumnSlots({
   slots,
   radioValues,
   checkboxValues,
+  fieldValues,
   onRadioChange,
   onCheckboxChange,
+  onFieldChange,
   onCommand,
 }: MenuColumnSlotsProps) {
   const columnViewProps = {
     radioValues,
     checkboxValues,
+    fieldValues,
     onRadioChange,
     onCheckboxChange,
+    onFieldChange,
     onCommand,
   };
 
@@ -220,8 +232,10 @@ type MenuColumnViewProps = {
   column: MegamenuColumn;
   radioValues: MegamenuRadioValues;
   checkboxValues: MegamenuCheckboxValues;
+  fieldValues: MegamenuFieldValues;
   onRadioChange: (groupId: string, value: string) => void;
   onCheckboxChange: (itemId: string) => void;
+  onFieldChange: (itemId: string, value: string) => void;
   onCommand: (itemId: string) => void;
 };
 
@@ -229,22 +243,28 @@ function MenuColumnView({
   column,
   radioValues,
   checkboxValues,
+  fieldValues,
   onRadioChange,
   onCheckboxChange,
+  onFieldChange,
   onCommand,
 }: MenuColumnViewProps) {
   const menuItemsProps = {
     items: column.items,
     radioValues,
     checkboxValues,
+    fieldValues,
     onRadioChange,
     onCheckboxChange,
+    onFieldChange,
     onCommand,
   };
 
   return (
     <MenuColumnDisplay>
-      <MenuColumnHeader title={column.header} />
+      {column.header ? (
+        <MenuColumnHeader title={column.header} />
+      ) : null}
       <MenuItems {...menuItemsProps} />
     </MenuColumnDisplay>
   );
@@ -285,8 +305,10 @@ function MenuItems({
   items,
   radioValues,
   checkboxValues,
+  fieldValues,
   onRadioChange,
   onCheckboxChange,
+  onFieldChange,
   onCommand,
 }: MenuItemsProps) {
   return (
@@ -297,8 +319,10 @@ function MenuItems({
           item={item}
           radioValues={radioValues}
           checkboxValues={checkboxValues}
+          fieldValues={fieldValues}
           onRadioChange={onRadioChange}
           onCheckboxChange={onCheckboxChange}
+          onFieldChange={onFieldChange}
           onCommand={onCommand}
         />
       ))}
@@ -310,8 +334,10 @@ type MenuItemViewProps = {
   item: MegamenuItem;
   radioValues: MegamenuRadioValues;
   checkboxValues: MegamenuCheckboxValues;
+  fieldValues: MegamenuFieldValues;
   onRadioChange: (groupId: string, value: string) => void;
   onCheckboxChange: (itemId: string) => void;
+  onFieldChange: (itemId: string, value: string) => void;
   onCommand: (itemId: string) => void;
 };
 
@@ -319,8 +345,10 @@ function MenuItemView({
   item,
   radioValues,
   checkboxValues,
+  fieldValues,
   onRadioChange,
   onCheckboxChange,
+  onFieldChange,
   onCommand,
 }: MenuItemViewProps) {
   if (item.type === "radio") {
@@ -353,6 +381,63 @@ function MenuItemView({
     );
   }
 
+  if (item.type === "select") {
+    return (
+      <FieldMenuItem label={item.label}>
+        <Select
+          size="xs"
+          value={fieldValues[item.id] ?? null}
+          placeholder={item.placeholder}
+          data={item.options}
+          onChange={(value) =>
+            onFieldChange(item.id, value ?? "")
+          }
+          styles={{
+            input: {
+              minHeight: 36,
+            },
+          }}
+        />
+      </FieldMenuItem>
+    );
+  }
+
+  if (item.type === "text-input") {
+    return (
+      <FieldMenuItem label={item.label}>
+        <TextInput
+          size="xs"
+          value={fieldValues[item.id] ?? ""}
+          placeholder={item.placeholder}
+          onChange={(event) =>
+            onFieldChange(
+              item.id,
+              event.currentTarget.value
+            )
+          }
+          styles={{
+            input: {
+              minHeight: 36,
+            },
+          }}
+        />
+      </FieldMenuItem>
+    );
+  }
+
+  if (item.type === "button") {
+    return (
+      <Button
+        size="xs"
+        radius={4}
+        onClick={() => onCommand(item.id)}
+        style={{ alignSelf: "flex-start" }}
+      >
+        {item.label}
+      </Button>
+    );
+  }
+
   const Icon = item.icon;
 
   return (
@@ -360,6 +445,25 @@ function MenuItemView({
       <CommandIcon Icon={Icon} />
       <Text size="sm">{item.label}</Text>
     </CommandMenuItem>
+  );
+}
+
+type FieldMenuItemProps = {
+  children: ReactNode;
+  label: string;
+};
+
+function FieldMenuItem({
+  children,
+  label,
+}: FieldMenuItemProps) {
+  return (
+    <Stack gap={4}>
+      <Text size="sm" fw={500} c="asxGray.8">
+        {label}
+      </Text>
+      {children}
+    </Stack>
   );
 }
 
@@ -576,8 +680,10 @@ export function MegamenuRenderer({
   config,
   radioValues,
   checkboxValues,
+  fieldValues = {},
   onRadioChange,
   onCheckboxChange,
+  onFieldChange = () => {},
   onCommand,
 }: MegamenuRendererProps) {
   const slots = groupColumnsIntoSlots(config.columns);
@@ -586,8 +692,10 @@ export function MegamenuRenderer({
     slots,
     radioValues,
     checkboxValues,
+    fieldValues,
     onRadioChange,
     onCheckboxChange,
+    onFieldChange,
     onCommand,
   };
 

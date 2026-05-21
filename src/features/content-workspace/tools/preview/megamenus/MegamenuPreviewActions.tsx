@@ -1,7 +1,7 @@
 /*
  * Preview actions megamenu content.
- * - Mirrors Edit Actions, replacing the Page column with preview device radios.
- * - Tracks the selected preview device through caller-owned state.
+ * - Mirrors Edit Actions without Page-specific commands.
+ * - Currently wires actions to placeholder console logging.
  */
 import {
   Group,
@@ -21,11 +21,6 @@ import {
   IconUsers,
   IconUserCircle,
 } from "@tabler/icons-react";
-
-export type PreviewDevice =
-  | "Desktop"
-  | "Tablet"
-  | "Mobile";
 
 const actionColumns = [
   {
@@ -70,23 +65,6 @@ const actionColumns = [
   },
 ];
 
-type DeviceItem = {
-  label: PreviewDevice;
-  icon?: Icon;
-};
-
-const deviceItems: DeviceItem[] = [
-  {
-    label: "Desktop",
-  },
-  {
-    label: "Tablet",
-  },
-  {
-    label: "Mobile",
-  },
-];
-
 type ActionItem = {
   label: string;
   icon: Icon;
@@ -102,11 +80,6 @@ type DisplayGroupProps = {
   children: ReactNode;
 };
 
-type DeviceColumnProps = {
-  selectedDevice: PreviewDevice;
-  onSelectDevice: (device: PreviewDevice) => void;
-};
-
 type ActionColumnsProps = {
   columns: ActionColumn[];
 };
@@ -114,97 +87,14 @@ type ActionColumnsProps = {
 function DisplayGroup({ children }: DisplayGroupProps) {
   return (
     <SimpleGrid
-      cols={3}
+      cols={2}
       spacing={48}
       style={{
-        width: 3 * 240 + 2 * 48,
+        width: 2 * 240 + 48,
       }}
     >
       {children}
     </SimpleGrid>
-  );
-}
-
-function DeviceColumn({
-  selectedDevice,
-  onSelectDevice,
-}: DeviceColumnProps) {
-  return (
-    <Stack gap={8} w={240}>
-      <ColumnTitle title="Device" />
-      <DeviceItems
-        selectedDevice={selectedDevice}
-        onSelectDevice={onSelectDevice}
-      />
-    </Stack>
-  );
-}
-
-function DeviceItems({
-  selectedDevice,
-  onSelectDevice,
-}: DeviceColumnProps) {
-  return (
-    <>
-      {deviceItems.map((item) => (
-        <DeviceRadioItem
-          key={item.label}
-          item={item}
-          selected={selectedDevice === item.label}
-          onSelectDevice={onSelectDevice}
-        />
-      ))}
-    </>
-  );
-}
-
-type DeviceRadioItemProps = {
-  item: DeviceItem;
-  selected: boolean;
-  onSelectDevice: (device: PreviewDevice) => void;
-};
-
-function DeviceRadioItem({
-  item,
-  selected,
-  onSelectDevice,
-}: DeviceRadioItemProps) {
-  const Icon = item.icon;
-
-  return (
-    <UnstyledButton
-      onClick={() => onSelectDevice(item.label)}
-      style={{
-        width: "100%",
-        padding: "8px 10px",
-        borderRadius: 8,
-        borderLeft: selected
-          ? "3px solid var(--mantine-color-indigo-6)"
-          : "3px solid transparent",
-        background: selected
-          ? "var(--mantine-color-indigo-1)"
-          : "transparent",
-        color: selected
-          ? "var(--mantine-color-indigo-9)"
-          : "var(--mantine-color-asxGray-7)",
-        fontWeight: selected ? 700 : 500,
-      }}
-    >
-      <Group gap="xs" wrap="nowrap">
-        {Icon ? (
-          <Icon
-            size={24}
-            stroke={1.3}
-            color={
-              selected
-                ? "var(--mantine-color-indigo-7)"
-                : "var(--mantine-color-asxGray-7)"
-            }
-          />
-        ) : null}
-        <Text size="sm">{item.label}</Text>
-      </Group>
-    </UnstyledButton>
   );
 }
 
@@ -284,21 +174,9 @@ function ActionItem({ item }: ActionItemProps) {
   );
 }
 
-type MegamenuPreviewActionsProps = {
-  selectedDevice: PreviewDevice;
-  onSelectDevice: (device: PreviewDevice) => void;
-};
-
-export default function MegamenuPreviewActions({
-  selectedDevice,
-  onSelectDevice,
-}: MegamenuPreviewActionsProps) {
+export default function MegamenuPreviewActions() {
   return (
     <DisplayGroup>
-      <DeviceColumn
-        selectedDevice={selectedDevice}
-        onSelectDevice={onSelectDevice}
-      />
       <ActionColumns columns={actionColumns} />
     </DisplayGroup>
   );

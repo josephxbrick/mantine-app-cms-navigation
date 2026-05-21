@@ -26,6 +26,7 @@ import {
   IconSearch,
   IconSettings,
   IconTags,
+  IconTarget,
   IconTargetArrow,
   IconUserCheck,
   IconUserShield,
@@ -33,6 +34,7 @@ import {
 } from "@tabler/icons-react";
 import type { Icon } from "@tabler/icons-react";
 
+import { IconFontAwesomeAi } from "./icons/IconFontAwesomeAi";
 import { ContentWorkspace } from "../content-workspace/ContentWorkspace";
 import type {
   SelectedToolKey,
@@ -139,7 +141,6 @@ const domainConfigs: Record<
         id: "tree",
         label: "Site Tree",
         icon: IconLayoutSidebar,
-        dividerAfter: true,
       },
       {
         id: "assets",
@@ -150,6 +151,16 @@ const domainConfigs: Record<
         id: "taxonomy",
         label: "Taxonomy",
         icon: IconTags,
+      },
+      {
+        id: "ai",
+        label: "AI",
+        icon: IconFontAwesomeAi,
+      },
+      {
+        id: "ctp",
+        label: "CT&P",
+        icon: IconTarget,
       },
       {
         id: "workflow",

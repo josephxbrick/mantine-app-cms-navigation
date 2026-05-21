@@ -8,7 +8,14 @@ import MegamenuActions from "../tools/edit/megamenus/MegamenuActions";
 import MegamenuPublish from "../tools/edit/megamenus/MegamenuPublish";
 import MegamenuNew from "../tools/edit/megamenus/MegamenuNew";
 import MegamenuPreviewActions from "../tools/preview/megamenus/MegamenuPreviewActions";
-import type { PreviewDevice } from "../tools/preview/megamenus/MegamenuPreviewActions";
+import MegamenuPreviewAdvanced from "../tools/preview/megamenus/MegamenuPreviewAdvanced";
+import MegamenuPreviewView from "../tools/preview/megamenus/MegamenuPreviewView";
+import type { PreviewDevice } from "../tools/preview/megamenus/PreviewDeviceColumn";
+import {
+  ADVANCED_OPTIONS_ID,
+  ADVANCED_SITE_ID,
+} from "../tools/preview/megamenus/advancedMenu";
+import type { MegamenuFieldValues } from "../megamenus/types";
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -16,6 +23,7 @@ import type { ReactNode } from "react";
 import {
   IconArrowBackUp,
   IconChevronDown,
+  IconDeviceDesktop,
   IconDeviceFloppy,
   IconSearch,
 } from "@tabler/icons-react";
@@ -40,6 +48,8 @@ type MenuKey = string | null;
 
 type MegamenuRendererKey =
   | "edit-view"
+  | "preview-view"
+  | "preview-advanced"
   | "edit-actions"
   | "preview-actions"
   | "edit-publish"
@@ -102,7 +112,12 @@ const secondaryMenusByDomain: Record<
       {
         key: "view",
         label: "View",
-        renderer: "edit-view",
+        renderer: "preview-view",
+      },
+      {
+        key: "simulate",
+        label: "Simulate",
+        renderer: "preview-advanced",
       },
       {
         key: "actions",
@@ -113,11 +128,6 @@ const secondaryMenusByDomain: Record<
         key: "publish",
         label: "Publish",
         renderer: "edit-publish",
-      },
-      {
-        key: "new",
-        label: "New",
-        renderer: "edit-new",
       },
     ],
     Categorize: placeholderMenus(
@@ -337,9 +347,31 @@ function ToolbarMenuTabLabel({
   );
 }
 
-function ToolbarActions() {
+type ToolbarActionsProps = {
+  domain: WorkspaceDomain;
+  tool: SelectedToolKey;
+};
+
+function ToolbarActions({
+  domain,
+  tool,
+}: ToolbarActionsProps) {
+  const showPreviewAction =
+    domain === "site" && tool === "Preview";
+
   return (
     <Group gap="lg" wrap="nowrap">
+      {showPreviewAction ? (
+        <>
+          <IconDeviceDesktop size={28} stroke={1} />
+          <Box
+            h={26}
+            w={1}
+            bg="asxGray.4"
+            aria-hidden="true"
+          />
+        </>
+      ) : null}
       <IconArrowBackUp size={28} stroke={1} />
       <IconDeviceFloppy size={28} stroke={1} />
       <IconSearch size={28} stroke={1} />
@@ -369,6 +401,15 @@ type ActiveMegamenuProps = {
   onToggleShowPath: () => void;
   selectedPreviewDevice: PreviewDevice;
   onSelectPreviewDevice: (device: PreviewDevice) => void;
+  previewAdvancedFieldValues: MegamenuFieldValues;
+  onChangePreviewAdvancedField: (
+    itemId: string,
+    value: string
+  ) => void;
+  includeBrowserCookies: boolean;
+  onToggleIncludeBrowserCookies: () => void;
+  showAllPages: boolean;
+  onToggleShowAllPages: () => void;
 };
 
 function ActiveMegamenu({
@@ -385,6 +426,12 @@ function ActiveMegamenu({
   onToggleShowPath,
   selectedPreviewDevice,
   onSelectPreviewDevice,
+  previewAdvancedFieldValues,
+  onChangePreviewAdvancedField,
+  includeBrowserCookies,
+  onToggleIncludeBrowserCookies,
+  showAllPages,
+  onToggleShowAllPages,
 }: ActiveMegamenuProps) {
   const activeMenuConfig =
     menus.find((menu) => menu.key === activeMenu) ??
@@ -420,16 +467,37 @@ function ActiveMegamenu({
             onToggleShowPath={onToggleShowPath}
           />
         ) : activeMenuConfig.renderer ===
+          "preview-view" ? (
+          <MegamenuPreviewView
+            selectedDevice={selectedPreviewDevice}
+            onSelectDevice={onSelectPreviewDevice}
+          />
+        ) : activeMenuConfig.renderer ===
+          "preview-advanced" ? (
+          <MegamenuPreviewAdvanced
+            fieldValues={previewAdvancedFieldValues}
+            onFieldChange={
+              onChangePreviewAdvancedField
+            }
+            selectedDevice={selectedPreviewDevice}
+            onSelectDevice={onSelectPreviewDevice}
+            includeBrowserCookies={
+              includeBrowserCookies
+            }
+            onToggleIncludeBrowserCookies={
+              onToggleIncludeBrowserCookies
+            }
+            showAllPages={showAllPages}
+            onToggleShowAllPages={onToggleShowAllPages}
+          />
+        ) : activeMenuConfig.renderer ===
           "edit-actions" ? (
           <MegamenuActions
             hideSave={tool === "Folder Content"}
           />
         ) : activeMenuConfig.renderer ===
           "preview-actions" ? (
-          <MegamenuPreviewActions
-            selectedDevice={selectedPreviewDevice}
-            onSelectDevice={onSelectPreviewDevice}
-          />
+          <MegamenuPreviewActions />
         ) : activeMenuConfig.renderer ===
           "edit-publish" ? (
           <MegamenuPublish />
@@ -491,6 +559,22 @@ export default function SecondaryToolbar({
     setSelectedPreviewDevice,
   ] = useState<PreviewDevice>("Desktop");
 
+  const [
+    previewAdvancedFieldValues,
+    setPreviewAdvancedFieldValues,
+  ] = useState<MegamenuFieldValues>({
+    [ADVANCED_SITE_ID]: "Default",
+    [ADVANCED_OPTIONS_ID]: "Default",
+  });
+
+  const [
+    includeBrowserCookies,
+    setIncludeBrowserCookies,
+  ] = useState(true);
+
+  const [showAllPages, setShowAllPages] =
+    useState(true);
+
   useEffect(() => {
     setActiveMenu(null);
   }, [domain, tool]);
@@ -528,6 +612,16 @@ export default function SecondaryToolbar({
     }, 200);
   };
 
+  const handleChangePreviewAdvancedField = (
+    itemId: string,
+    value: string
+  ) => {
+    setPreviewAdvancedFieldValues((current) => ({
+      ...current,
+      [itemId]: value,
+    }));
+  };
+
   const toolMenus =
     tool ? secondaryMenusByDomain[domain][tool] ?? [] : [];
   const menus =
@@ -540,6 +634,11 @@ export default function SecondaryToolbar({
     activeMenu,
     onActivateMenu: handleActivateMenu,
     onHoverMenu: handleHoverMenu,
+  };
+
+  const toolbarActionsProps = {
+    domain,
+    tool,
   };
 
   const activeMegamenuProps = {
@@ -559,13 +658,22 @@ export default function SecondaryToolbar({
       setShowPath((current) => !current),
     selectedPreviewDevice,
     onSelectPreviewDevice: setSelectedPreviewDevice,
+    previewAdvancedFieldValues,
+    onChangePreviewAdvancedField:
+      handleChangePreviewAdvancedField,
+    includeBrowserCookies,
+    onToggleIncludeBrowserCookies: () =>
+      setIncludeBrowserCookies((current) => !current),
+    showAllPages,
+    onToggleShowAllPages: () =>
+      setShowAllPages((current) => !current),
   };
 
   return (
     <DisplayGroup onMouseLeave={handleMouseLeave}>
       <ToolbarRow>
         <ToolbarMenuTabs {...toolbarMenuTabsProps} />
-        <ToolbarActions />
+        <ToolbarActions {...toolbarActionsProps} />
       </ToolbarRow>
       <ActiveMegamenu {...activeMegamenuProps} />
     </DisplayGroup>

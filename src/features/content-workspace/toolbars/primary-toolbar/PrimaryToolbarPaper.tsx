@@ -1,10 +1,9 @@
 /*
  * Primary toolbar tool surface.
- * - Displays the Content Tools selector and view-site menu inside a paper control.
+ * - Displays the Content Tools selector and view-site menu as separate paper controls.
  * - Keeps the toolbar controls readable as named display pieces.
  */
 import {
-  Box,
   Group,
   Menu,
   Paper,
@@ -32,22 +31,43 @@ type ToolbarGroupProps = {
   children: ReactNode;
 };
 
+type ToolbarBubbleProps = ToolbarGroupProps & {
+  px?: number;
+  pl?: number;
+  pr?: number;
+  py?: number;
+};
+
+const TOOLBAR_BUBBLE_PADDING_X = 14;
+const TOOLBAR_BUBBLE_PADDING_Y = 6;
+
 function DisplayGroup({ children }: ToolbarGroupProps) {
+  return (
+    <Group gap={16} wrap="nowrap">
+      {children}
+    </Group>
+  );
+}
+
+function ToolbarBubble({
+  children,
+  px = TOOLBAR_BUBBLE_PADDING_X,
+  pl,
+  pr,
+  py = TOOLBAR_BUBBLE_PADDING_Y,
+}: ToolbarBubbleProps) {
   return (
     <Paper
       radius="xl"
-      pl={18}
-      py={6}
+      pl={pl ?? px}
+      pr={pr ?? px}
+      py={py}
       bg="white"
       shadow="xs"
     >
       <Group gap="md">{children}</Group>
     </Paper>
   );
-}
-
-function ToolbarDelimiter() {
-  return <Box h={28} w={1} bg="asxIndigo.4" />;
 }
 
 function ContentToolsLabel() {
@@ -92,7 +112,7 @@ function ToolSelectorMenu({
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
-            gap: 10,
+            gap: 8,
             background:
               "var(--mantine-color-asxIndigo-0)",
             border:
@@ -180,7 +200,7 @@ function ViewMenu() {
             borderRadius: 999,
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 6,
             color:
               "var(--mantine-color-asxIndigo-7)",
           }}
@@ -216,6 +236,45 @@ function ViewMenu() {
   );
 }
 
+type ContentToolsBubbleProps = {
+  buttonWidth: number;
+  selected: ToolbarTool;
+  tools: ToolbarTool[];
+  onSelectTool: (tool: ToolKey) => void;
+};
+
+function ContentToolsBubble({
+  buttonWidth,
+  selected,
+  tools,
+  onSelectTool,
+}: ContentToolsBubbleProps) {
+  const toolSelectorMenuProps = {
+    buttonWidth,
+    selected,
+    tools,
+    onSelectTool,
+  };
+
+  return (
+    <ToolbarBubble
+      pl={18}
+      pr={TOOLBAR_BUBBLE_PADDING_Y}
+    >
+      <ContentToolsLabel />
+      <ToolSelectorMenu {...toolSelectorMenuProps} />
+    </ToolbarBubble>
+  );
+}
+
+function ViewSiteBubble() {
+  return (
+    <ToolbarBubble px={10}>
+      <ViewMenu />
+    </ToolbarBubble>
+  );
+}
+
 export function PrimaryToolbarPaper({
   buttonWidth,
   selected,
@@ -225,12 +284,12 @@ export function PrimaryToolbarPaper({
   if (!selected || !tools.length) {
     return (
       <DisplayGroup>
-        <ViewMenu />
+        <ViewSiteBubble />
       </DisplayGroup>
     );
   }
 
-  const toolSelectorMenuProps = {
+  const contentToolsBubbleProps = {
     buttonWidth,
     selected,
     tools,
@@ -239,10 +298,10 @@ export function PrimaryToolbarPaper({
 
   return (
     <DisplayGroup>
-      <ContentToolsLabel />
-      <ToolSelectorMenu {...toolSelectorMenuProps} />
-      <ToolbarDelimiter />
-      <ViewMenu />
+      <ContentToolsBubble
+        {...contentToolsBubbleProps}
+      />
+      <ViewSiteBubble />
     </DisplayGroup>
   );
 }

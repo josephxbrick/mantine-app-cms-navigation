@@ -40,14 +40,43 @@ export type CommandMenuItem = {
   icon?: React.ElementType;
 };
 
+export type SelectMenuItemOption = {
+  value: string;
+  label: string;
+};
+
+export type SelectMenuItem = {
+  type: "select";
+  id: string;
+  label: string;
+  options: SelectMenuItemOption[];
+  placeholder?: string;
+};
+
+export type TextInputMenuItem = {
+  type: "text-input";
+  id: string;
+  label: string;
+  placeholder?: string;
+};
+
+export type ButtonMenuItem = {
+  type: "button";
+  id: string;
+  label: string;
+};
+
 export type MegamenuItem =
   | RadioMenuItem
   | CheckboxMenuItem
-  | CommandMenuItem;
+  | CommandMenuItem
+  | SelectMenuItem
+  | TextInputMenuItem
+  | ButtonMenuItem;
 
 export type MegamenuColumn = {
   id: string;
-  header: string;
+  header?: string;
   items: MegamenuItem[];
   slotId?: string;
   visibleWhen?: MenuVisibilityRule;
@@ -61,3 +90,5 @@ export type MegamenuConfig = {
 export type MegamenuRadioValues = Record<string, string | undefined>;
 
 export type MegamenuCheckboxValues = Record<string, boolean | undefined>;
+
+export type MegamenuFieldValues = Record<string, string | undefined>;
