@@ -1,13 +1,12 @@
 /*
  * View megamenu content.
  * - Connects View menu state to the generic megamenu renderer.
- * - Handles edit mode radio choices, view option toggles, and preview commands.
+ * - Handles edit mode radio choices, view option toggles, and preview options.
  */
 import { MegamenuRenderer } from "../../../megamenus/MegamenuRenderer";
 
 import {
   EDIT_MODE_GROUP_ID,
-  PREVIEW_COMMAND_ID,
   PREVIEW_OPTIONS_COMMAND_ID,
   SHOW_FORM_INDEX_ID,
   SHOW_IN_CONTEXT_INDEX_ID,
@@ -71,11 +70,6 @@ export default function MegamenuView({
     onCommand: (itemId: string) => {
       if (itemId === PREVIEW_OPTIONS_COMMAND_ID) {
         console.log("Preview Options");
-        return;
-      }
-
-      if (itemId === PREVIEW_COMMAND_ID) {
-        console.log("Preview");
       }
     },
   };

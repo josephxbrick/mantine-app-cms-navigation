@@ -238,7 +238,15 @@ function DisplayGroup({
   onMouseLeave,
 }: DisplayGroupProps) {
   return (
-    <Box bg="white" onMouseLeave={onMouseLeave}>
+    <Box
+      bg="white"
+      onMouseLeave={onMouseLeave}
+      style={{
+        position: "relative",
+        zIndex: 20,
+        flexShrink: 0,
+      }}
+    >
       {children}
     </Box>
   );
@@ -448,8 +456,14 @@ function ActiveMegamenu({
       py="lg"
       bg="gray.0"
       style={{
+        position: "absolute",
+        top: 52,
+        left: 0,
+        right: 0,
+        zIndex: 20,
         borderBottom:
           "1px solid var(--mantine-color-indigo-2)",
+        boxShadow: "0 12px 28px rgba(61,68,109,0.12)",
       }}
     >
       <Stack gap="sm">

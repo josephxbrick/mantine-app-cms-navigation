@@ -9,6 +9,7 @@ import {
   Text,
   UnstyledButton,
 } from "@mantine/core";
+import { useState } from "react";
 import { IconExternalLink } from "@tabler/icons-react";
 
 import {
@@ -37,6 +38,8 @@ export default function MegamenuPreviewView({
 }
 
 function PreviewCommandColumn() {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <Stack gap={8} w={240}>
       <ColumnTitle title="Preview" />
@@ -44,6 +47,19 @@ function PreviewCommandColumn() {
         onClick={() =>
           console.log("View in New Browser Window")
         }
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          width: "100%",
+          padding: "0 10px",
+          borderRadius: 8,
+          border: isHovered
+            ? "1px solid var(--mantine-color-asxBlue-1)"
+            : "1px solid transparent",
+          background: isHovered
+            ? "var(--mantine-color-asxBlue-0)"
+            : "transparent",
+        }}
       >
         <Group gap={12} py={6}>
           <IconExternalLink

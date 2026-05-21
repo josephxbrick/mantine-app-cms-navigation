@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import type { Icon } from "@tabler/icons-react";
 import type { ReactNode } from "react";
+import { useState } from "react";
 
 import {
   IconCheck,
@@ -161,9 +162,24 @@ type MenuItemProps = {
 
 function MenuItem({ item }: MenuItemProps) {
   const Icon = item.icon;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <UnstyledButton>
+    <UnstyledButton
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        width: "100%",
+        padding: "0 10px",
+        borderRadius: 8,
+        border: isHovered
+          ? "1px solid var(--mantine-color-asxBlue-1)"
+          : "1px solid transparent",
+        background: isHovered
+          ? "var(--mantine-color-asxBlue-0)"
+          : "transparent",
+      }}
+    >
       <Group gap={12} py={6}>
         <Icon
           size={28}

@@ -61,6 +61,8 @@ function NodeButton({
   onSelectNode,
   onToggleOpen,
 }: NodeButtonProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const isHighlighted = isSelected || isHovered;
   const nodeChevronProps = {
     hasChildren,
     isOpen,
@@ -80,13 +82,23 @@ function NodeButton({
       w="100%"
       px="xs"
       py={4}
-      bg={isSelected ? "asxIndigo.0" : "transparent"}
+      bg={
+        isSelected
+          ? "asxIndigo.0"
+          : isHovered
+            ? "asxBlue.0"
+            : "transparent"
+      }
       onClick={() => onSelectNode(node.id)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         borderRadius: 4,
         overflow: "visible",
-        border: isSelected
-          ? "1px solid var(--mantine-color-asxIndigo-2)"
+        border: isHighlighted
+          ? `1px solid var(--mantine-color-${
+              isSelected ? "asxIndigo-2" : "asxBlue-1"
+            })`
           : "1px solid transparent",
       }}
     >

@@ -7,18 +7,20 @@ import {
   Group,
   Menu,
   Paper,
+  Stack,
   Text,
   UnstyledButton,
 } from "@mantine/core";
 
 import {
   IconChevronDown,
-  IconEye,
+  IconExternalLink,
   IconLayoutSidebarRight,
 } from "@tabler/icons-react";
 
 import type { ToolbarTool, ToolKey } from "./types";
 import type { ReactNode } from "react";
+import { useState } from "react";
 
 type PrimaryToolbarPaperProps = {
   buttonWidth: number;
@@ -145,43 +147,62 @@ function ToolSelectorMenu({
       </Menu.Target>
 
       <Menu.Dropdown>
-        {tools.map((tool) => {
-          const isSelected =
-            tool.label === selected.label;
-
-          return (
-            <Menu.Item
-              key={tool.label}
-              leftSection={tool.icon}
-              bg={
-                isSelected
-                  ? "asxIndigo.0"
-                  : "transparent"
-              }
-              c={
-                isSelected
-                  ? "asxIndigo.9"
-                  : "asxGray.8"
-              }
-              fw={isSelected ? 600 : 400}
-              styles={{
-                item: {
-                  border: isSelected
-                    ? "1px solid var(--mantine-color-asxIndigo-2)"
-                    : "1px solid transparent",
-                  borderRadius: 4,
-                },
-              }}
-              onClick={() =>
-                onSelectTool(tool.label)
-              }
-            >
-              {tool.label}
-            </Menu.Item>
-          );
-        })}
+        {tools.map((tool) => (
+          <ToolSelectorMenuItem
+            key={tool.label}
+            tool={tool}
+            selected={selected}
+            onSelectTool={onSelectTool}
+          />
+        ))}
       </Menu.Dropdown>
     </Menu>
+  );
+}
+
+type ToolSelectorMenuItemProps = {
+  tool: ToolbarTool;
+  selected: ToolbarTool;
+  onSelectTool: (tool: ToolKey) => void;
+};
+
+function ToolSelectorMenuItem({
+  tool,
+  selected,
+  onSelectTool,
+}: ToolSelectorMenuItemProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const isSelected = tool.label === selected.label;
+  const isHighlighted = isSelected || isHovered;
+
+  return (
+    <Menu.Item
+      leftSection={tool.icon}
+      bg={
+        isSelected
+          ? "asxIndigo.0"
+          : isHovered
+            ? "asxBlue.0"
+            : "transparent"
+      }
+      c={isSelected ? "asxIndigo.9" : "asxGray.8"}
+      fw={isSelected ? 600 : 400}
+      styles={{
+        item: {
+          border: isHighlighted
+            ? `1px solid var(--mantine-color-${
+                isSelected ? "asxIndigo-2" : "asxBlue-1"
+              })`
+            : "1px solid transparent",
+          borderRadius: 4,
+        },
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onSelectTool(tool.label)}
+    >
+      {tool.label}
+    </Menu.Item>
   );
 }
 
@@ -215,22 +236,30 @@ function ViewMenu() {
         </UnstyledButton>
       </Menu.Target>
 
-      <Menu.Dropdown>
-        <Menu.Item
-          leftSection={
-            <IconEye size={28} stroke={1} />
-          }
-        >
-          View Site in Staging
-        </Menu.Item>
+      <Menu.Dropdown px={12} pt={16} pb={12}>
+        <Stack gap={8} w="100%">
+          <Text size="xs" fw={700} c="asxGray.6" tt="uppercase">
+            Launch in Browser
+          </Text>
 
-        <Menu.Item
-          leftSection={
-            <IconEye size={28} stroke={1} />
-          }
-        >
-          View Site in Production
-        </Menu.Item>
+          <Stack gap={4}>
+            <Menu.Item
+              leftSection={
+                <IconExternalLink size={28} stroke={1} />
+              }
+            >
+              Site in Staging
+            </Menu.Item>
+
+            <Menu.Item
+              leftSection={
+                <IconExternalLink size={28} stroke={1} />
+              }
+            >
+              Site in Production
+            </Menu.Item>
+          </Stack>
+        </Stack>
       </Menu.Dropdown>
     </Menu>
   );

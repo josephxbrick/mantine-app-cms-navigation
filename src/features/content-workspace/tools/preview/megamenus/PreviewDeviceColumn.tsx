@@ -5,6 +5,7 @@
  */
 import { Group, Stack, Text, UnstyledButton } from "@mantine/core";
 import type { Icon } from "@tabler/icons-react";
+import { useState } from "react";
 
 export type PreviewDevice =
   | "Desktop"
@@ -78,20 +79,33 @@ function DeviceRadioItem({
   onSelectDevice,
 }: DeviceRadioItemProps) {
   const Icon = item.icon;
+  const [isHovered, setIsHovered] = useState(false);
+  const isHighlighted = selected || isHovered;
 
   return (
     <UnstyledButton
       onClick={() => onSelectDevice(item.label)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         width: "100%",
         padding: "8px 10px",
         borderRadius: 8,
+        border: isHighlighted
+          ? `1px solid var(--mantine-color-${
+              selected ? "indigo-2" : "asxBlue-1"
+            })`
+          : "1px solid transparent",
         borderLeft: selected
           ? "3px solid var(--mantine-color-indigo-6)"
-          : "3px solid transparent",
+          : isHovered
+            ? "3px solid var(--mantine-color-asxBlue-1)"
+            : "3px solid transparent",
         background: selected
           ? "var(--mantine-color-indigo-1)"
-          : "transparent",
+          : isHovered
+            ? "var(--mantine-color-asxBlue-0)"
+            : "transparent",
         color: selected
           ? "var(--mantine-color-indigo-9)"
           : "var(--mantine-color-asxGray-7)",

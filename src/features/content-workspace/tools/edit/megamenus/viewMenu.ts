@@ -3,10 +3,7 @@
  * - Defines ids and menu data for the View dropdown.
  * - Drives radio modes, checkbox toggles, and preview command rendering.
  */
-import {
-  IconAdjustmentsHorizontal,
-  IconEye,
-} from "@tabler/icons-react";
+import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
 
 import type { MegamenuConfig } from "../../../megamenus/types";
 
@@ -17,8 +14,6 @@ export const SHOW_IN_CONTEXT_INDEX_ID = "show-in-context-index";
 export const SHOW_PATH_ID = "show-path";
 
 export const PREVIEW_OPTIONS_COMMAND_ID = "preview-options";
-export const PREVIEW_COMMAND_ID = "preview";
-
 export const editViewMenu: MegamenuConfig = {
   id: "edit-view",
   columns: [
@@ -97,12 +92,6 @@ export const editViewMenu: MegamenuConfig = {
           type: "checkbox",
           id: SHOW_PATH_ID,
           label: "Show Path",
-        },
-        {
-          type: "command",
-          id: PREVIEW_COMMAND_ID,
-          label: "Preview",
-          icon: IconEye,
         },
       ],
     },

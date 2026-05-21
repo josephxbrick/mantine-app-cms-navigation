@@ -13,6 +13,7 @@ import {
   TextInput,
   UnstyledButton,
 } from "@mantine/core";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 import type {
@@ -478,19 +479,33 @@ function RadioMenuItem({
   selected,
   onClick,
 }: RadioMenuItemProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const isHighlighted = selected || isHovered;
+
   return (
     <UnstyledButton
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         width: "100%",
         padding: ITEM_PADDING,
         borderRadius: 8,
+        border: isHighlighted
+          ? `1px solid var(--mantine-color-${
+              selected ? "indigo-2" : "asxBlue-1"
+            })`
+          : "1px solid transparent",
         borderLeft: selected
           ? "3px solid var(--mantine-color-indigo-6)"
-          : "3px solid transparent",
+          : isHovered
+            ? "3px solid var(--mantine-color-asxBlue-1)"
+            : "3px solid transparent",
         background: selected
           ? "var(--mantine-color-indigo-1)"
-          : "transparent",
+          : isHovered
+            ? "var(--mantine-color-asxBlue-0)"
+            : "transparent",
         color: selected
           ? "var(--mantine-color-indigo-9)"
           : "var(--mantine-color-asxGray-7)",
@@ -513,16 +528,28 @@ function CheckboxMenuItem({
   selected,
   onClick,
 }: CheckboxMenuItemProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const isHighlighted = selected || isHovered;
+
   return (
     <UnstyledButton
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         width: "100%",
         padding: ITEM_PADDING,
         borderRadius: 8,
+        border: isHighlighted
+          ? `1px solid var(--mantine-color-${
+              selected ? "indigo-2" : "asxBlue-1"
+            })`
+          : "1px solid transparent",
         background: selected
           ? "var(--mantine-color-indigo-1)"
-          : "transparent",
+          : isHovered
+            ? "var(--mantine-color-asxBlue-0)"
+            : "transparent",
         color: selected
           ? "var(--mantine-color-indigo-9)"
           : "var(--mantine-color-asxGray-8)",
@@ -574,13 +601,23 @@ function CommandMenuItem({
   children,
   onClick,
 }: CommandMenuItemProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <UnstyledButton
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         width: "100%",
         padding: ITEM_PADDING,
         borderRadius: 8,
+        border: isHovered
+          ? "1px solid var(--mantine-color-asxBlue-1)"
+          : "1px solid transparent",
+        background: isHovered
+          ? "var(--mantine-color-asxBlue-0)"
+          : "transparent",
         color: "var(--mantine-color-asxGray-8)",
         fontWeight: 500,
       }}
