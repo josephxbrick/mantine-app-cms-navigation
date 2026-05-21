@@ -27,6 +27,8 @@ import type {
 
 const COLUMN_WIDTH = 240;
 const COLUMN_GAP = 32;
+const COLUMN_HEADER_GAP = 12;
+const COLUMN_ITEM_GAP = 4;
 const ITEM_PADDING = "8px 10px";
 
 type MegamenuRendererProps = {
@@ -48,6 +50,11 @@ type ColumnSlot = {
 
 type DisplayGroupProps = {
   children: ReactNode;
+};
+
+type MegamenuColumnLayoutProps = {
+  children: ReactNode;
+  header?: string;
 };
 
 function DisplayGroup({ children }: DisplayGroupProps) {
@@ -262,28 +269,23 @@ function MenuColumnView({
   };
 
   return (
-    <MenuColumnDisplay>
-      {column.header ? (
-        <MenuColumnHeader title={column.header} />
-      ) : null}
+    <MegamenuColumnLayout header={column.header}>
       <MenuItems {...menuItemsProps} />
-    </MenuColumnDisplay>
+    </MegamenuColumnLayout>
   );
 }
 
-function MenuColumnDisplay({
+export function MegamenuColumnLayout({
   children,
-}: DisplayGroupProps) {
+  header,
+}: MegamenuColumnLayoutProps) {
   return (
-    <Stack gap={8} w="100%">
-      {children}
+    <Stack gap={COLUMN_HEADER_GAP} w="100%">
+      {header ? <MenuColumnHeader title={header} /> : null}
+      <Stack gap={COLUMN_ITEM_GAP}>{children}</Stack>
     </Stack>
   );
 }
-
-type MenuColumnHeaderProps = {
-  title: string;
-};
 
 function MenuColumnHeader({
   title,
@@ -294,6 +296,10 @@ function MenuColumnHeader({
     </Text>
   );
 }
+
+type MenuColumnHeaderProps = {
+  title: string;
+};
 
 type MenuItemsProps = Omit<
   MenuColumnViewProps,

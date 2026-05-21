@@ -60,7 +60,7 @@ export const previewAdvancedMenu: MegamenuConfig = {
     },
     {
       id: "request-data",
-      header: "Request URL with",
+      header: "Request URL with...",
       items: [
         {
           type: "text-input",

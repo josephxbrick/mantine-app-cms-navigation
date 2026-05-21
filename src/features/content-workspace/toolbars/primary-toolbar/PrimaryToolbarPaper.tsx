@@ -7,7 +7,6 @@ import {
   Group,
   Menu,
   Paper,
-  Stack,
   Text,
   UnstyledButton,
 } from "@mantine/core";
@@ -21,6 +20,7 @@ import {
 import type { ToolbarTool, ToolKey } from "./types";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { MegamenuColumnLayout } from "../../megamenus/MegamenuRenderer";
 
 type PrimaryToolbarPaperProps = {
   buttonWidth: number;
@@ -146,15 +146,17 @@ function ToolSelectorMenu({
         </UnstyledButton>
       </Menu.Target>
 
-      <Menu.Dropdown>
-        {tools.map((tool) => (
-          <ToolSelectorMenuItem
-            key={tool.label}
-            tool={tool}
-            selected={selected}
-            onSelectTool={onSelectTool}
-          />
-        ))}
+      <Menu.Dropdown px={12} pt={16} pb={12}>
+        <MegamenuColumnLayout header="Choose a Tool">
+          {tools.map((tool) => (
+            <ToolSelectorMenuItem
+              key={tool.label}
+              tool={tool}
+              selected={selected}
+              onSelectTool={onSelectTool}
+            />
+          ))}
+        </MegamenuColumnLayout>
       </Menu.Dropdown>
     </Menu>
   );
@@ -237,29 +239,23 @@ function ViewMenu() {
       </Menu.Target>
 
       <Menu.Dropdown px={12} pt={16} pb={12}>
-        <Stack gap={8} w="100%">
-          <Text size="xs" fw={700} c="asxGray.6" tt="uppercase">
-            Launch in Browser
-          </Text>
+        <MegamenuColumnLayout header="Launch in Browser">
+          <Menu.Item
+            leftSection={
+              <IconExternalLink size={28} stroke={1} />
+            }
+          >
+            Site in Staging
+          </Menu.Item>
 
-          <Stack gap={4}>
-            <Menu.Item
-              leftSection={
-                <IconExternalLink size={28} stroke={1} />
-              }
-            >
-              Site in Staging
-            </Menu.Item>
-
-            <Menu.Item
-              leftSection={
-                <IconExternalLink size={28} stroke={1} />
-              }
-            >
-              Site in Production
-            </Menu.Item>
-          </Stack>
-        </Stack>
+          <Menu.Item
+            leftSection={
+              <IconExternalLink size={28} stroke={1} />
+            }
+          >
+            Site in Production
+          </Menu.Item>
+        </MegamenuColumnLayout>
       </Menu.Dropdown>
     </Menu>
   );
