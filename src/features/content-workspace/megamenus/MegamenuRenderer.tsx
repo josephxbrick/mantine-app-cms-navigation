@@ -25,7 +25,7 @@ import type {
   MegamenuRadioValues,
 } from "./types";
 
-const COLUMN_WIDTH = 240;
+export const MEGAMENU_COLUMN_WIDTH = 240;
 const COLUMN_GAP = 32;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
@@ -156,7 +156,7 @@ function ColumnSlotDisplay({
 }: StaticColumnSlotProps) {
   return (
     <Box
-      w={COLUMN_WIDTH}
+      w={MEGAMENU_COLUMN_WIDTH}
       ml={hasLeadingGap ? COLUMN_GAP : 0}
       style={{ flexShrink: 0 }}
     >
@@ -181,7 +181,8 @@ function AnimatedColumnSlot({
   children: React.ReactNode;
 }) {
   const expandedWidth =
-    COLUMN_WIDTH + (hasLeadingGap ? COLUMN_GAP : 0);
+    MEGAMENU_COLUMN_WIDTH +
+    (hasLeadingGap ? COLUMN_GAP : 0);
 
   const displayGroupProps = {
     visible,
@@ -220,7 +221,7 @@ function AnimatedColumnDisplay({
     >
       <Box
         ml={hasLeadingGap ? COLUMN_GAP : 0}
-        w={COLUMN_WIDTH}
+        w={MEGAMENU_COLUMN_WIDTH}
         style={{
           transform: visible
             ? "translateX(0)"
@@ -291,7 +292,7 @@ function MenuColumnHeader({
   title,
 }: MenuColumnHeaderProps) {
   return (
-    <Text size="xs" fw={700} c="asxGray.6" tt="uppercase">
+    <Text size="15px" fw={700} c="asxGray.6" tt="uppercase">
       {title}
     </Text>
   );
@@ -369,7 +370,7 @@ function MenuItemView({
           onRadioChange(item.groupId, item.value)
         }
       >
-        <Text size="sm">{item.label}</Text>
+        <Text size="16px">{item.label}</Text>
       </RadioMenuItem>
     );
   }
@@ -383,7 +384,7 @@ function MenuItemView({
         onClick={() => onCheckboxChange(item.id)}
       >
         <CheckboxMark selected={selected} />
-        <Text size="sm">{item.label}</Text>
+        <Text size="16px">{item.label}</Text>
       </CheckboxMenuItem>
     );
   }
@@ -401,6 +402,7 @@ function MenuItemView({
           }
           styles={{
             input: {
+              fontSize: 15,
               minHeight: 36,
             },
           }}
@@ -424,6 +426,7 @@ function MenuItemView({
           }
           styles={{
             input: {
+              fontSize: 15,
               minHeight: 36,
             },
           }}
@@ -450,9 +453,21 @@ function MenuItemView({
   return (
     <CommandMenuItem onClick={() => onCommand(item.id)}>
       <CommandIcon Icon={Icon} />
-      <Text size="sm">{item.label}</Text>
+      <MegamenuCommandLabel>
+        {item.label}
+      </MegamenuCommandLabel>
     </CommandMenuItem>
   );
+}
+
+type MegamenuCommandLabelProps = {
+  children: ReactNode;
+};
+
+export function MegamenuCommandLabel({
+  children,
+}: MegamenuCommandLabelProps) {
+  return <Text size="16px">{children}</Text>;
 }
 
 type FieldMenuItemProps = {
@@ -466,7 +481,7 @@ function FieldMenuItem({
 }: FieldMenuItemProps) {
   return (
     <Stack gap={4}>
-      <Text size="sm" fw={500} c="asxGray.8">
+      <Text size="16px" fw={500} c="asxGray.8">
         {label}
       </Text>
       {children}
@@ -498,9 +513,8 @@ function RadioMenuItem({
         padding: ITEM_PADDING,
         borderRadius: 8,
         border: isHighlighted
-          ? `1px solid var(--mantine-color-${
-              selected ? "indigo-2" : "asxBlue-1"
-            })`
+          ? `1px solid var(--mantine-color-${selected ? "indigo-2" : "asxBlue-1"
+          })`
           : "1px solid transparent",
         borderLeft: selected
           ? "3px solid var(--mantine-color-indigo-6)"
@@ -547,9 +561,8 @@ function CheckboxMenuItem({
         padding: ITEM_PADDING,
         borderRadius: 8,
         border: isHighlighted
-          ? `1px solid var(--mantine-color-${
-              selected ? "indigo-2" : "asxBlue-1"
-            })`
+          ? `1px solid var(--mantine-color-${selected ? "indigo-2" : "asxBlue-1"
+          })`
           : "1px solid transparent",
         background: selected
           ? "var(--mantine-color-indigo-1)"
@@ -601,13 +614,16 @@ function CheckboxMark({ selected }: CheckboxMarkProps) {
 type CommandMenuItemProps = {
   children: ReactNode;
   onClick: () => void;
+  selected?: boolean;
 };
 
-function CommandMenuItem({
+export function MegamenuCommandItem({
   children,
   onClick,
+  selected = false,
 }: CommandMenuItemProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const isHighlighted = selected || isHovered;
 
   return (
     <UnstyledButton
@@ -618,14 +634,19 @@ function CommandMenuItem({
         width: "100%",
         padding: ITEM_PADDING,
         borderRadius: 8,
-        border: isHovered
-          ? "1px solid var(--mantine-color-asxBlue-1)"
+        border: isHighlighted
+          ? `1px solid var(--mantine-color-${selected ? "indigo-2" : "asxBlue-1"
+          })`
           : "1px solid transparent",
-        background: isHovered
-          ? "var(--mantine-color-asxBlue-0)"
-          : "transparent",
-        color: "var(--mantine-color-asxGray-8)",
-        fontWeight: 500,
+        background: selected
+          ? "var(--mantine-color-indigo-1)"
+          : isHovered
+            ? "var(--mantine-color-asxBlue-0)"
+            : "transparent",
+        color: selected
+          ? "var(--mantine-color-indigo-9)"
+          : "var(--mantine-color-asxGray-8)",
+        fontWeight: selected ? 700 : 500,
       }}
     >
       <InlineMenuItemDisplay>
@@ -633,6 +654,10 @@ function CommandMenuItem({
       </InlineMenuItemDisplay>
     </UnstyledButton>
   );
+}
+
+function CommandMenuItem(props: CommandMenuItemProps) {
+  return <MegamenuCommandItem {...props} />;
 }
 
 type CommandIconProps = {
@@ -726,7 +751,7 @@ export function MegamenuRenderer({
   fieldValues = {},
   onRadioChange,
   onCheckboxChange,
-  onFieldChange = () => {},
+  onFieldChange = () => { },
   onCommand,
 }: MegamenuRendererProps) {
   const slots = groupColumnsIntoSlots(config.columns);

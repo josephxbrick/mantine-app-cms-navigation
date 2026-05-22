@@ -74,13 +74,13 @@ export const previewAdvancedMenu: MegamenuConfig = {
         },
         {
           type: "text-input",
-          id: ADVANCED_COOKIES_ID,
-          label: "Cookies",
+          id: ADVANCED_SERVER_VARIABLES_ID,
+          label: "Server variables",
         },
         {
           type: "text-input",
-          id: ADVANCED_SERVER_VARIABLES_ID,
-          label: "Server variables",
+          id: ADVANCED_COOKIES_ID,
+          label: "Cookies",
         },
         {
           type: "checkbox",

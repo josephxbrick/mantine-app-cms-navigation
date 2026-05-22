@@ -23,7 +23,6 @@ import type { ReactNode } from "react";
 import {
   IconArrowBackUp,
   IconChevronDown,
-  IconDeviceDesktop,
   IconDeviceFloppy,
   IconSearch,
 } from "@tabler/icons-react";
@@ -355,31 +354,9 @@ function ToolbarMenuTabLabel({
   );
 }
 
-type ToolbarActionsProps = {
-  domain: WorkspaceDomain;
-  tool: SelectedToolKey;
-};
-
-function ToolbarActions({
-  domain,
-  tool,
-}: ToolbarActionsProps) {
-  const showPreviewAction =
-    domain === "site" && tool === "Preview";
-
+function ToolbarActions() {
   return (
     <Group gap="lg" wrap="nowrap">
-      {showPreviewAction ? (
-        <>
-          <IconDeviceDesktop size={28} stroke={1} />
-          <Box
-            h={26}
-            w={1}
-            bg="asxGray.4"
-            aria-hidden="true"
-          />
-        </>
-      ) : null}
       <IconArrowBackUp size={28} stroke={1} />
       <IconDeviceFloppy size={28} stroke={1} />
       <IconSearch size={28} stroke={1} />
@@ -656,11 +633,6 @@ export default function SecondaryToolbar({
     onHoverMenu: handleHoverMenu,
   };
 
-  const toolbarActionsProps = {
-    domain,
-    tool,
-  };
-
   const activeMegamenuProps = {
     menus,
     activeMenu,
@@ -693,7 +665,7 @@ export default function SecondaryToolbar({
     <DisplayGroup onMouseLeave={handleMouseLeave}>
       <ToolbarRow>
         <ToolbarMenuTabs {...toolbarMenuTabsProps} />
-        <ToolbarActions {...toolbarActionsProps} />
+        <ToolbarActions />
       </ToolbarRow>
       <ActiveMegamenu {...activeMegamenuProps} />
     </DisplayGroup>

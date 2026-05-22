@@ -1,19 +1,8 @@
 /*
  * Publish megamenu content.
- * - Displays check-in, mark-for-publish, and publish action columns.
+ * - Defines check-in, mark-for-publish, and publish action columns for the shared renderer.
  * - Provides the visual menu options; publish behavior is not implemented yet.
  */
-import {
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-  UnstyledButton,
-} from "@mantine/core";
-import type { Icon } from "@tabler/icons-react";
-import type { ReactNode } from "react";
-import { useState } from "react";
-
 import {
   IconCheck,
   IconChecks,
@@ -25,180 +14,90 @@ import {
   IconRotate,
 } from "@tabler/icons-react";
 
-const columns = [
-  {
-    title: "Actions",
-    items: [
-      {
-        label: "Check In",
-        icon: IconLogin,
-      },
-      {
-        label: "Undo Checkout",
-        icon: IconRotate,
-      },
-      {
-        label: "Rollback",
-        icon: IconHistory,
-      },
-    ],
-  },
-  {
-    title: "Mark for Publish",
-    items: [
-      {
-        label: "Mark Page",
-        icon: IconCheck,
-      },
-      {
-        label: "Mark Page & Children",
-        icon: IconChecks,
-      },
-    ],
-  },
-  {
-    title: "Publish",
-    items: [
-      {
-        label: "Publish Page",
-        icon: IconFile,
-      },
-      {
-        label: "Publish Page & Children",
-        icon: IconFiles,
-      },
-      {
-        label: "Publish Site",
-        icon: IconFolderCheck,
-      },
-    ],
-  },
-];
+import { MegamenuRenderer } from "../../../megamenus/MegamenuRenderer";
+import type { MegamenuConfig } from "../../../megamenus/types";
 
-type MenuItem = {
-  label: string;
-  icon: Icon;
+const publishMenu: MegamenuConfig = {
+  id: "edit-publish",
+  columns: [
+    {
+      id: "actions",
+      header: "Actions",
+      items: [
+        {
+          type: "command",
+          id: "publish-check-in",
+          label: "Check In",
+          icon: IconLogin,
+        },
+        {
+          type: "command",
+          id: "publish-undo-checkout",
+          label: "Undo Checkout",
+          icon: IconRotate,
+        },
+        {
+          type: "command",
+          id: "publish-rollback",
+          label: "Rollback",
+          icon: IconHistory,
+        },
+      ],
+    },
+    {
+      id: "mark-for-publish",
+      header: "Mark for Publish",
+      items: [
+        {
+          type: "command",
+          id: "publish-mark-page",
+          label: "Mark Page",
+          icon: IconCheck,
+        },
+        {
+          type: "command",
+          id: "publish-mark-page-children",
+          label: "Mark Page & Children",
+          icon: IconChecks,
+        },
+      ],
+    },
+    {
+      id: "publish",
+      header: "Publish",
+      items: [
+        {
+          type: "command",
+          id: "publish-page",
+          label: "Publish Page",
+          icon: IconFile,
+        },
+        {
+          type: "command",
+          id: "publish-page-children",
+          label: "Publish Page & Children",
+          icon: IconFiles,
+        },
+        {
+          type: "command",
+          id: "publish-site",
+          label: "Publish Site",
+          icon: IconFolderCheck,
+        },
+      ],
+    },
+  ],
 };
-
-type MenuColumn = {
-  title: string;
-  items: MenuItem[];
-};
-
-type DisplayGroupProps = {
-  children: ReactNode;
-};
-
-type MenuColumnsProps = {
-  columns: MenuColumn[];
-};
-
-function DisplayGroup({ children }: DisplayGroupProps) {
-  return (
-    <SimpleGrid
-      cols={3}
-      spacing={48}
-      style={{
-        width: 3 * 240 + 2 * 48,
-      }}
-    >
-      {children}
-    </SimpleGrid>
-  );
-}
-
-function MenuColumns({ columns }: MenuColumnsProps) {
-  return (
-    <>
-      {columns.map((column) => (
-        <MenuColumn key={column.title} column={column} />
-      ))}
-    </>
-  );
-}
-
-type MenuColumnProps = {
-  column: MenuColumn;
-};
-
-function MenuColumn({ column }: MenuColumnProps) {
-  return (
-    <Stack gap={8} w={240}>
-      <ColumnTitle title={column.title} />
-      <MenuItems items={column.items} />
-    </Stack>
-  );
-}
-
-type ColumnTitleProps = {
-  title: string;
-};
-
-function ColumnTitle({ title }: ColumnTitleProps) {
-  return (
-    <Text size="xs" fw={700} c="asxGray.6" tt="uppercase">
-      {title}
-    </Text>
-  );
-}
-
-type MenuItemsProps = {
-  items: MenuItem[];
-};
-
-function MenuItems({ items }: MenuItemsProps) {
-  return (
-    <>
-      {items.map((item) => (
-        <MenuItem key={item.label} item={item} />
-      ))}
-    </>
-  );
-}
-
-type MenuItemProps = {
-  item: MenuItem;
-};
-
-function MenuItem({ item }: MenuItemProps) {
-  const Icon = item.icon;
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <UnstyledButton
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        width: "100%",
-        padding: "0 10px",
-        borderRadius: 8,
-        border: isHovered
-          ? "1px solid var(--mantine-color-asxBlue-1)"
-          : "1px solid transparent",
-        background: isHovered
-          ? "var(--mantine-color-asxBlue-0)"
-          : "transparent",
-      }}
-    >
-      <Group gap={12} py={6}>
-        <Icon
-          size={28}
-          stroke={1.3}
-          color="var(--mantine-color-asxGray-7)"
-        />
-
-        <Text size="sm" fw={500} c="asxGray.7">
-          {item.label}
-        </Text>
-      </Group>
-    </UnstyledButton>
-  );
-}
 
 export default function MegamenuPublish() {
   return (
-    <DisplayGroup>
-      <MenuColumns columns={columns} />
-    </DisplayGroup>
+    <MegamenuRenderer
+      config={publishMenu}
+      radioValues={{}}
+      checkboxValues={{}}
+      onRadioChange={() => {}}
+      onCheckboxChange={() => {}}
+      onCommand={(itemId) => console.log(itemId)}
+    />
   );
 }

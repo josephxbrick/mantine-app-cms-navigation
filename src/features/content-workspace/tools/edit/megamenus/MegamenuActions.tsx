@@ -1,19 +1,8 @@
 /*
  * Actions megamenu content.
- * - Displays Page, Assign To, and Workflow action columns.
+ * - Defines Page, Assign To, and Workflow action columns for the shared renderer.
  * - Currently wires actions to placeholder console logging.
  */
-import {
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-  UnstyledButton,
-} from "@mantine/core";
-import type { Icon } from "@tabler/icons-react";
-import type { ReactNode } from "react";
-import { useState } from "react";
-
 import {
   IconCalendar,
   IconDeviceFloppy,
@@ -25,222 +14,152 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react";
 
-const columns = [
+import { MegamenuRenderer } from "../../../megamenus/MegamenuRenderer";
+import type {
+  MegamenuColumn,
+  MegamenuConfig,
+} from "../../../megamenus/types";
+
+const SAVE_COMMAND_ID = "edit-actions-save";
+const RENAME_COMMAND_ID = "edit-actions-rename";
+const DELETE_COMMAND_ID = "edit-actions-delete";
+const ASSIGN_ME_COMMAND_ID = "edit-actions-assign-me";
+const ASSIGN_USER_COMMAND_ID =
+  "edit-actions-assign-user";
+const ASSIGN_GROUP_COMMAND_ID =
+  "edit-actions-assign-group";
+const ADVANCE_COMMAND_ID = "edit-actions-advance";
+const REMOVE_WORKFLOW_COMMAND_ID =
+  "edit-actions-remove-workflow";
+const WORKFLOW_HISTORY_COMMAND_ID =
+  "edit-actions-workflow-history";
+
+const actionColumns: MegamenuColumn[] = [
   {
-    title: "Page",
+    id: "page",
+    header: "Page",
     items: [
       {
+        type: "command",
+        id: SAVE_COMMAND_ID,
         label: "Save",
         icon: IconDeviceFloppy,
-        onClick: () => console.log("Save"),
       },
       {
+        type: "command",
+        id: RENAME_COMMAND_ID,
         label: "Rename...",
         icon: IconPencilCheck,
-        onClick: () => console.log("Rename"),
       },
       {
+        type: "command",
+        id: DELETE_COMMAND_ID,
         label: "Delete",
         icon: IconTrash,
-        onClick: () => console.log("Delete"),
       },
     ],
   },
   {
-    title: "Assign To",
+    id: "assign-to",
+    header: "Assign To",
     items: [
       {
+        type: "command",
+        id: ASSIGN_ME_COMMAND_ID,
         label: "Me",
         icon: IconUserCircle,
-        onClick: () => console.log("Assign to Me"),
       },
       {
+        type: "command",
+        id: ASSIGN_USER_COMMAND_ID,
         label: "User...",
         icon: IconUser,
-        onClick: () => console.log("Assign to User"),
       },
       {
+        type: "command",
+        id: ASSIGN_GROUP_COMMAND_ID,
         label: "Group...",
         icon: IconUsers,
-        onClick: () => console.log("Assign to Group"),
       },
     ],
   },
   {
-    title: "Workflow",
+    id: "workflow",
+    header: "Workflow",
     items: [
       {
+        type: "command",
+        id: ADVANCE_COMMAND_ID,
         label: "Advance",
         icon: IconRoute,
-        onClick: () => console.log("Advance"),
       },
       {
+        type: "command",
+        id: REMOVE_WORKFLOW_COMMAND_ID,
         label: "Remove from Workflow",
         icon: IconTrash,
-        onClick: () => console.log("Remove from Workflow"),
       },
       {
+        type: "command",
+        id: WORKFLOW_HISTORY_COMMAND_ID,
         label: "Show Workflow History",
         icon: IconCalendar,
-        onClick: () => console.log("Show Workflow History"),
       },
     ],
   },
 ];
 
-type MenuItem = {
-  label: string;
-  icon: Icon;
-  onClick: () => void;
-};
-
-type MenuColumn = {
-  title: string;
-  items: MenuItem[];
-};
-
-type DisplayGroupProps = {
-  children: ReactNode;
-};
-
-type MenuColumnsProps = {
-  columns: MenuColumn[];
+const commandMessages: Record<string, string> = {
+  [SAVE_COMMAND_ID]: "Save",
+  [RENAME_COMMAND_ID]: "Rename",
+  [DELETE_COMMAND_ID]: "Delete",
+  [ASSIGN_ME_COMMAND_ID]: "Assign to Me",
+  [ASSIGN_USER_COMMAND_ID]: "Assign to User",
+  [ASSIGN_GROUP_COMMAND_ID]: "Assign to Group",
+  [ADVANCE_COMMAND_ID]: "Advance",
+  [REMOVE_WORKFLOW_COMMAND_ID]: "Remove from Workflow",
+  [WORKFLOW_HISTORY_COMMAND_ID]: "Show Workflow History",
 };
 
 type MegamenuActionsProps = {
   hideSave?: boolean;
 };
 
-function DisplayGroup({ children }: DisplayGroupProps) {
-  return (
-    <SimpleGrid
-      cols={3}
-      spacing={48}
-      style={{
-        width: 3 * 240 + 2 * 48,
-      }}
-    >
-      {children}
-    </SimpleGrid>
-  );
-}
+function getActionConfig(
+  hideSave: boolean
+): MegamenuConfig {
+  const columns = hideSave
+    ? actionColumns.map((column) =>
+        column.id === "page"
+          ? {
+              ...column,
+              items: column.items.filter(
+                (item) => item.id !== SAVE_COMMAND_ID
+              ),
+            }
+          : column
+      )
+    : actionColumns;
 
-function MenuColumns({ columns }: MenuColumnsProps) {
-  return (
-    <>
-      {columns.map((column) => (
-        <MenuColumn key={column.title} column={column} />
-      ))}
-    </>
-  );
-}
-
-type MenuColumnProps = {
-  column: MenuColumn;
-};
-
-function MenuColumn({ column }: MenuColumnProps) {
-  return (
-    <Stack gap={8} w={240}>
-      <ColumnTitle title={column.title} />
-      <MenuItems items={column.items} />
-    </Stack>
-  );
-}
-
-type ColumnTitleProps = {
-  title: string;
-};
-
-function ColumnTitle({ title }: ColumnTitleProps) {
-  return (
-    <Text size="xs" fw={700} c="asxGray.6" tt="uppercase">
-      {title}
-    </Text>
-  );
-}
-
-type MenuItemsProps = {
-  items: MenuItem[];
-};
-
-function MenuItems({ items }: MenuItemsProps) {
-  return (
-    <>
-      {items.map((item) => (
-        <MenuItem key={item.label} item={item} />
-      ))}
-    </>
-  );
-}
-
-type MenuItemProps = {
-  item: MenuItem;
-};
-
-function MenuItem({ item }: MenuItemProps) {
-  const Icon = item.icon;
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <UnstyledButton
-      onClick={item.onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        width: "100%",
-        padding: "0 10px",
-        borderRadius: 8,
-        border: isHovered
-          ? "1px solid var(--mantine-color-asxBlue-1)"
-          : "1px solid transparent",
-        background: isHovered
-          ? "var(--mantine-color-asxBlue-0)"
-          : "transparent",
-      }}
-    >
-      <Group gap={12} py={6}>
-        <Icon
-          size={28}
-          stroke={1.3}
-          color="var(--mantine-color-asxGray-7)"
-        />
-
-        <Text size="sm" fw={500} c="asxGray.7">
-          {item.label}
-        </Text>
-      </Group>
-    </UnstyledButton>
-  );
-}
-
-function getVisibleColumns(hideSave: boolean) {
-  if (!hideSave) {
-    return columns;
-  }
-
-  return columns.map((column) => {
-    if (column.title !== "Page") {
-      return column;
-    }
-
-    return {
-      ...column,
-      items: column.items.filter(
-        (item) => item.label !== "Save"
-      ),
-    };
-  });
+  return {
+    id: "edit-actions",
+    columns,
+  };
 }
 
 export default function MegamenuActions({
   hideSave = false,
 }: MegamenuActionsProps) {
-  const visibleColumns = getVisibleColumns(hideSave);
-
   return (
-    <DisplayGroup>
-      <MenuColumns columns={visibleColumns} />
-    </DisplayGroup>
+    <MegamenuRenderer
+      config={getActionConfig(hideSave)}
+      radioValues={{}}
+      checkboxValues={{}}
+      onRadioChange={() => {}}
+      onCheckboxChange={() => {}}
+      onCommand={(itemId) =>
+        console.log(commandMessages[itemId] ?? itemId)
+      }
+    />
   );
 }

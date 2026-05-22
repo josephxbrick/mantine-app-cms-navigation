@@ -19,8 +19,12 @@ import {
 
 import type { ToolbarTool, ToolKey } from "./types";
 import type { ReactNode } from "react";
-import { useState } from "react";
-import { MegamenuColumnLayout } from "../../megamenus/MegamenuRenderer";
+import {
+  MEGAMENU_COLUMN_WIDTH,
+  MegamenuColumnLayout,
+  MegamenuCommandLabel,
+  MegamenuCommandItem,
+} from "../../megamenus/MegamenuRenderer";
 
 type PrimaryToolbarPaperProps = {
   buttonWidth: number;
@@ -101,7 +105,7 @@ function ToolSelectorMenu({
   return (
     <Menu
       shadow="md"
-      width={240}
+      width={MEGAMENU_COLUMN_WIDTH}
       position="bottom-end"
     >
       <Menu.Target>
@@ -173,38 +177,18 @@ function ToolSelectorMenuItem({
   selected,
   onSelectTool,
 }: ToolSelectorMenuItemProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const isSelected = tool.label === selected.label;
-  const isHighlighted = isSelected || isHovered;
 
   return (
-    <Menu.Item
-      leftSection={tool.icon}
-      bg={
-        isSelected
-          ? "asxIndigo.0"
-          : isHovered
-            ? "asxBlue.0"
-            : "transparent"
-      }
-      c={isSelected ? "asxIndigo.9" : "asxGray.8"}
-      fw={isSelected ? 600 : 400}
-      styles={{
-        item: {
-          border: isHighlighted
-            ? `1px solid var(--mantine-color-${
-                isSelected ? "asxIndigo-2" : "asxBlue-1"
-              })`
-            : "1px solid transparent",
-          borderRadius: 4,
-        },
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <MegamenuCommandItem
+      selected={isSelected}
       onClick={() => onSelectTool(tool.label)}
     >
-      {tool.label}
-    </Menu.Item>
+      {tool.icon}
+      <MegamenuCommandLabel>
+        {tool.label}
+      </MegamenuCommandLabel>
+    </MegamenuCommandItem>
   );
 }
 
@@ -212,7 +196,7 @@ function ViewMenu() {
   return (
     <Menu
       shadow="md"
-      width={240}
+      width={MEGAMENU_COLUMN_WIDTH}
       position="bottom-end"
     >
       <Menu.Target>
@@ -240,21 +224,25 @@ function ViewMenu() {
 
       <Menu.Dropdown px={12} pt={16} pb={12}>
         <MegamenuColumnLayout header="Launch in Browser">
-          <Menu.Item
-            leftSection={
-              <IconExternalLink size={28} stroke={1} />
-            }
+          <MegamenuCommandItem
+            onClick={() => console.log("Site in Staging")}
           >
-            Site in Staging
-          </Menu.Item>
+            <IconExternalLink size={28} stroke={1} />
+            <MegamenuCommandLabel>
+              Site in Staging
+            </MegamenuCommandLabel>
+          </MegamenuCommandItem>
 
-          <Menu.Item
-            leftSection={
-              <IconExternalLink size={28} stroke={1} />
+          <MegamenuCommandItem
+            onClick={() =>
+              console.log("Site in Production")
             }
           >
-            Site in Production
-          </Menu.Item>
+            <IconExternalLink size={28} stroke={1} />
+            <MegamenuCommandLabel>
+              Site in Production
+            </MegamenuCommandLabel>
+          </MegamenuCommandItem>
         </MegamenuColumnLayout>
       </Menu.Dropdown>
     </Menu>
