@@ -549,6 +549,10 @@ export function AppShell() {
         domainConfigs.administration.defaultUtility,
       apps: domainConfigs.apps.defaultUtility,
     });
+  const [
+    demoWorkspaceVisible,
+    setDemoWorkspaceVisible,
+  ] = useState(false);
 
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     LEFT_PANEL_INITIAL_WIDTH
@@ -688,12 +692,15 @@ export function AppShell() {
 
   const productToolbarProps = {
     mode: productToolbarMode,
+    demoWorkspaceVisible,
     domainItems,
     selectedDomain,
     onGoTo: () => setProductToolbarMode("search"),
     onCloseSearch: () =>
       setProductToolbarMode("default"),
     onSelectDomain: handleSelectDomain,
+    onToggleDemoWorkspace: () =>
+      setDemoWorkspaceVisible((visible) => !visible),
   };
 
   const leftPanelProps = {
@@ -723,6 +730,7 @@ export function AppShell() {
         ? "No selection"
         : domainConfig.label),
     selectedTool,
+    demoWorkspaceVisible,
     tools: activeTools,
     onSelectTool: handleSelectTool,
   };

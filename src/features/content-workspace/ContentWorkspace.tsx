@@ -15,11 +15,17 @@ import type {
 import SecondaryToolbar from "./toolbars/SecondaryToolbar";
 import type { WorkspaceDomain } from "../workspace/types";
 
+const DEMO_IMAGE_WIDTH = 2138;
+const DEMO_TAB_HEIGHT = 67;
+const DEMO_EDIT_TAB_WIDTH = 94;
+const DEMO_PREVIEW_TAB_WIDTH = 132;
+
 type ContentWorkspaceProps = {
   domain: WorkspaceDomain;
   domainLabel: string;
   selectedNodeLabel: string;
   selectedTool: SelectedToolKey;
+  demoWorkspaceVisible: boolean;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
 };
@@ -37,30 +43,149 @@ function DisplayGroup({ children }: DisplayGroupProps) {
 }
 
 type SelectedNodePreviewProps = {
+  domain: WorkspaceDomain;
   selectedNodeLabel: string;
   selectedTool: SelectedToolKey;
+  demoWorkspaceVisible: boolean;
+  onSelectTool: (tool: ToolKey) => void;
 };
 
 function SelectedNodePreview({
+  domain,
   selectedNodeLabel,
   selectedTool,
+  demoWorkspaceVisible,
+  onSelectTool,
 }: SelectedNodePreviewProps) {
   const previewLabel = selectedTool
     ? `${selectedNodeLabel} | ${selectedTool}`
     : selectedNodeLabel;
+  const demoImage =
+    domain === "site" && selectedTool === "Edit"
+      ? "/demo/site-edit.png"
+      : domain === "site" && selectedTool === "Preview"
+        ? "/demo/site-preview.png"
+        : null;
+  const demoTitleSuffix =
+    selectedTool === "Edit"
+      ? " (x45)"
+      : selectedTool === "Preview"
+        ? " (x336)"
+        : "";
+  const demoImageHeight =
+    selectedTool === "Preview" ? 1924 : 1783;
+  const demoTabHeightPercent =
+    (DEMO_TAB_HEIGHT / demoImageHeight) * 100;
+  const demoEditTabWidthPercent =
+    (DEMO_EDIT_TAB_WIDTH / DEMO_IMAGE_WIDTH) * 100;
+  const demoPreviewTabLeftPercent =
+    demoEditTabWidthPercent;
+  const demoPreviewTabWidthPercent =
+    (DEMO_PREVIEW_TAB_WIDTH / DEMO_IMAGE_WIDTH) * 100;
 
   return (
     <Box
       bg="gray.1"
       style={{
         flex: 1,
-        display: "grid",
-        placeItems: "center",
+        display: demoWorkspaceVisible && demoImage ? "flex" : "grid",
+        flexDirection: "column",
+        placeItems:
+          demoWorkspaceVisible && demoImage
+            ? undefined
+            : "center",
+        minHeight: 0,
+        overflow: "hidden",
       }}
     >
-      <Text c="asxGray.6" fw={500} size="xl">
-        {previewLabel}
-      </Text>
+      {demoWorkspaceVisible && demoImage ? (
+        <>
+          <Box
+            bg="white"
+            w="100%"
+            px={24}
+            py={14}
+            style={{
+              borderBottom:
+                "1px solid var(--mantine-color-gray-4)",
+            }}
+          >
+            <Text
+              c="asxGray.9"
+              fw={500}
+              style={{ fontSize: 20, lineHeight: 1.2 }}
+            >
+              {selectedNodeLabel}
+              {demoTitleSuffix}
+            </Text>
+          </Box>
+
+          <Box
+            w="100%"
+            style={{
+              flex: 1,
+              minHeight: 0,
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              style={{
+                position: "relative",
+                width: "100%",
+              }}
+            >
+              <Box
+                component="img"
+                src={demoImage}
+                alt={previewLabel}
+                w="100%"
+                style={{
+                  display: "block",
+                  height: "auto",
+                }}
+              />
+
+              <Box
+                component="button"
+                aria-label="Switch to Site Edit"
+                onClick={() => onSelectTool("Edit")}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: `${demoEditTabWidthPercent}%`,
+                  height: `${demoTabHeightPercent}%`,
+                  padding: 0,
+                  border: 0,
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+              />
+
+              <Box
+                component="button"
+                aria-label="Switch to Site Preview"
+                onClick={() => onSelectTool("Preview")}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: `${demoPreviewTabLeftPercent}%`,
+                  width: `${demoPreviewTabWidthPercent}%`,
+                  height: `${demoTabHeightPercent}%`,
+                  padding: 0,
+                  border: 0,
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+              />
+            </Box>
+          </Box>
+        </>
+      ) : (
+        <Text c="asxGray.6" fw={500} size="xl">
+          {previewLabel}
+        </Text>
+      )}
     </Box>
   );
 }
@@ -70,12 +195,16 @@ export function ContentWorkspace({
   domainLabel,
   selectedNodeLabel,
   selectedTool,
+  demoWorkspaceVisible,
   tools,
   onSelectTool,
 }: ContentWorkspaceProps) {
   const selectedNodePreviewProps = {
+    domain,
     selectedNodeLabel,
     selectedTool,
+    demoWorkspaceVisible,
+    onSelectTool,
   };
 
   const primaryToolbarProps = {

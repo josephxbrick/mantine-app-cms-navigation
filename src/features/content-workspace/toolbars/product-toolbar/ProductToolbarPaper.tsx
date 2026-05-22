@@ -30,8 +30,10 @@ import {
 
 type ProductToolbarPaperProps = {
   mode: "default" | "search";
+  demoWorkspaceVisible: boolean;
   onGoTo: () => void;
   onCloseSearch: () => void;
+  onToggleDemoWorkspace: () => void;
 };
 
 const FIELD_FULL_WIDTH = 360;
@@ -277,13 +279,20 @@ function UserMenuButton() {
   );
 }
 
-function HelpButton() {
+type HelpButtonProps = {
+  active: boolean;
+  onClick: () => void;
+};
+
+function HelpButton({ active, onClick }: HelpButtonProps) {
   return (
     <ActionIcon
-      variant="subtle"
+      variant={active ? "filled" : "subtle"}
       color="asxBlue"
       c="asxGray.0"
       size="lg"
+      aria-label="Toggle workspace demo images"
+      onClick={onClick}
     >
       <IconHelpCircle size={28} stroke={1.3} />
     </ActionIcon>
@@ -292,8 +301,10 @@ function HelpButton() {
 
 export function ProductToolbarPaper({
   mode,
+  demoWorkspaceVisible,
   onGoTo,
   onCloseSearch,
+  onToggleDemoWorkspace,
 }: ProductToolbarPaperProps) {
   const [searchVisible, setSearchVisible] =
     useState(mode === "search");
@@ -364,7 +375,10 @@ export function ProductToolbarPaper({
         <RecentMenuButton />
         <UserMenuButton />
         <ToolbarDelimiter />
-        <HelpButton />
+        <HelpButton
+          active={demoWorkspaceVisible}
+          onClick={onToggleDemoWorkspace}
+        />
       </DisplayGroup>
     </Paper>
   );

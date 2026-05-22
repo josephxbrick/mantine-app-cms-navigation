@@ -18,11 +18,13 @@ import type { WorkspaceDomain } from "../../../workspace/types";
 
 type ProductToolbarProps = {
   mode: "default" | "search";
+  demoWorkspaceVisible: boolean;
   domainItems: ProductToolbarDomainItem[];
   selectedDomain: WorkspaceDomain;
   onGoTo: () => void;
   onCloseSearch: () => void;
   onSelectDomain: (domain: WorkspaceDomain) => void;
+  onToggleDemoWorkspace: () => void;
 };
 
 type ProductToolbarDomainItem = {
@@ -129,11 +131,13 @@ function DomainTab({
 
 export function ProductToolbar({
   mode,
+  demoWorkspaceVisible,
   domainItems,
   selectedDomain,
   onGoTo,
   onCloseSearch,
   onSelectDomain,
+  onToggleDemoWorkspace,
 }: ProductToolbarProps) {
   const domainTabsProps = {
     items: domainItems,
@@ -143,8 +147,10 @@ export function ProductToolbar({
 
   const productToolbarPaperProps = {
     mode,
+    demoWorkspaceVisible,
     onGoTo,
     onCloseSearch,
+    onToggleDemoWorkspace,
   };
 
   return (
