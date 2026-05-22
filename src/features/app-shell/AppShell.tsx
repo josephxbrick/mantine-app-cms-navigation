@@ -25,12 +25,12 @@ import {
   IconPhoto,
   IconSearch,
   IconSettings,
+  IconStar,
   IconTags,
   IconTarget,
   IconTargetArrow,
   IconUserCheck,
   IconUserShield,
-  IconWand,
 } from "@tabler/icons-react";
 import type { Icon } from "@tabler/icons-react";
 
@@ -178,7 +178,7 @@ const domainConfigs: Record<
       {
         id: "tools",
         label: "Mystery Feature",
-        icon: IconWand,
+        icon: IconStar,
       },
     ],
     contentTools: [
@@ -376,7 +376,7 @@ const domainConfigs: Record<
       {
         id: "tools",
         label: "Tools",
-        icon: IconWand,
+        icon: IconStar,
       },
     ],
     contentTools: [
