@@ -35,7 +35,10 @@ import {
 import type { Icon } from "@tabler/icons-react";
 
 import { IconFontAwesomeAi } from "./icons/IconFontAwesomeAi";
-import { ContentWorkspace } from "../content-workspace/ContentWorkspace";
+import {
+  ContentWorkspace,
+  type DemoWorkspaceTool,
+} from "../content-workspace/ContentWorkspace";
 import type {
   SelectedToolKey,
   ToolbarTool,
@@ -553,6 +556,8 @@ export function AppShell() {
     demoWorkspaceVisible,
     setDemoWorkspaceVisible,
   ] = useState(false);
+  const [demoWorkspaceTool, setDemoWorkspaceTool] =
+    useState<DemoWorkspaceTool>("Edit");
 
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     LEFT_PANEL_INITIAL_WIDTH
@@ -659,6 +664,10 @@ export function AppShell() {
   };
 
   const handleSelectTool = (tool: ToolKey) => {
+    if (tool === "Edit" || tool === "Preview") {
+      setDemoWorkspaceTool(tool);
+    }
+
     setSelectedTools((current) => ({
       ...current,
       [selectedDomain]: {
@@ -666,6 +675,21 @@ export function AppShell() {
         [activeToolContext]: tool,
       },
     }));
+  };
+
+  const handleSelectDemoWorkspaceTool = (
+    tool: DemoWorkspaceTool
+  ) => {
+    setDemoWorkspaceTool(tool);
+
+    if (
+      selectedDomain === "site" &&
+      activeTools.some(
+        (activeTool) => activeTool.label === tool
+      )
+    ) {
+      handleSelectTool(tool);
+    }
   };
 
   const handleSelectDomain = (
@@ -730,9 +754,12 @@ export function AppShell() {
         ? "No selection"
         : domainConfig.label),
     selectedTool,
+    demoWorkspaceTool,
     demoWorkspaceVisible,
     tools: activeTools,
     onSelectTool: handleSelectTool,
+    onSelectDemoWorkspaceTool:
+      handleSelectDemoWorkspaceTool,
   };
 
   return (

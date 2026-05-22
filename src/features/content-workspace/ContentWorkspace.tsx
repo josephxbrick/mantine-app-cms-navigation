@@ -20,14 +20,18 @@ const DEMO_TAB_HEIGHT = 67;
 const DEMO_EDIT_TAB_WIDTH = 94;
 const DEMO_PREVIEW_TAB_WIDTH = 132;
 
+export type DemoWorkspaceTool = "Edit" | "Preview";
+
 type ContentWorkspaceProps = {
   domain: WorkspaceDomain;
   domainLabel: string;
   selectedNodeLabel: string;
   selectedTool: SelectedToolKey;
+  demoWorkspaceTool: DemoWorkspaceTool;
   demoWorkspaceVisible: boolean;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
+  onSelectDemoWorkspaceTool: (tool: DemoWorkspaceTool) => void;
 };
 
 type DisplayGroupProps = {
@@ -46,34 +50,40 @@ type SelectedNodePreviewProps = {
   domain: WorkspaceDomain;
   selectedNodeLabel: string;
   selectedTool: SelectedToolKey;
+  demoWorkspaceTool: DemoWorkspaceTool;
   demoWorkspaceVisible: boolean;
-  onSelectTool: (tool: ToolKey) => void;
+  onSelectDemoWorkspaceTool: (tool: DemoWorkspaceTool) => void;
 };
 
 function SelectedNodePreview({
   domain,
   selectedNodeLabel,
   selectedTool,
+  demoWorkspaceTool,
   demoWorkspaceVisible,
-  onSelectTool,
+  onSelectDemoWorkspaceTool,
 }: SelectedNodePreviewProps) {
+  const activeDemoTool =
+    selectedTool === "Edit" || selectedTool === "Preview"
+      ? selectedTool
+      : demoWorkspaceTool;
   const previewLabel = selectedTool
     ? `${selectedNodeLabel} | ${selectedTool}`
     : selectedNodeLabel;
   const demoImage =
-    domain === "site" && selectedTool === "Edit"
+    domain === "site" && activeDemoTool === "Edit"
       ? "/demo/site-edit.png"
-      : domain === "site" && selectedTool === "Preview"
+      : domain === "site" && activeDemoTool === "Preview"
         ? "/demo/site-preview.png"
         : null;
   const demoTitleSuffix =
-    selectedTool === "Edit"
+    activeDemoTool === "Edit"
       ? " (x45)"
-      : selectedTool === "Preview"
+      : activeDemoTool === "Preview"
         ? " (x336)"
         : "";
   const demoImageHeight =
-    selectedTool === "Preview" ? 1924 : 1783;
+    activeDemoTool === "Preview" ? 1924 : 1783;
   const demoTabHeightPercent =
     (DEMO_TAB_HEIGHT / demoImageHeight) * 100;
   const demoEditTabWidthPercent =
@@ -148,7 +158,7 @@ function SelectedNodePreview({
               <Box
                 component="button"
                 aria-label="Switch to Site Edit"
-                onClick={() => onSelectTool("Edit")}
+                onClick={() => onSelectDemoWorkspaceTool("Edit")}
                 style={{
                   position: "absolute",
                   top: 0,
@@ -165,7 +175,9 @@ function SelectedNodePreview({
               <Box
                 component="button"
                 aria-label="Switch to Site Preview"
-                onClick={() => onSelectTool("Preview")}
+                onClick={() =>
+                  onSelectDemoWorkspaceTool("Preview")
+                }
                 style={{
                   position: "absolute",
                   top: 0,
@@ -195,16 +207,19 @@ export function ContentWorkspace({
   domainLabel,
   selectedNodeLabel,
   selectedTool,
+  demoWorkspaceTool,
   demoWorkspaceVisible,
   tools,
   onSelectTool,
+  onSelectDemoWorkspaceTool,
 }: ContentWorkspaceProps) {
   const selectedNodePreviewProps = {
     domain,
     selectedNodeLabel,
     selectedTool,
+    demoWorkspaceTool,
     demoWorkspaceVisible,
-    onSelectTool,
+    onSelectDemoWorkspaceTool,
   };
 
   const primaryToolbarProps = {
