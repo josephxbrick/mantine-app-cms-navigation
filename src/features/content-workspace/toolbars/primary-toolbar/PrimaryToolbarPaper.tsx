@@ -19,6 +19,7 @@ import {
 
 import type { ToolbarTool, ToolKey } from "./types";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import {
   MEGAMENU_COLUMN_WIDTH,
   MegamenuColumnLayout,
@@ -102,11 +103,20 @@ function ToolSelectorMenu({
   tools,
   onSelectTool,
 }: ToolSelectorMenuProps) {
+  const [opened, setOpened] = useState(false);
+
+  const handleSelectTool = (tool: ToolKey) => {
+    onSelectTool(tool);
+    setOpened(false);
+  };
+
   return (
     <Menu
       shadow="md"
       width={MEGAMENU_COLUMN_WIDTH}
       position="bottom-end"
+      opened={opened}
+      onChange={setOpened}
     >
       <Menu.Target>
         <UnstyledButton
@@ -157,7 +167,7 @@ function ToolSelectorMenu({
               key={tool.label}
               tool={tool}
               selected={selected}
-              onSelectTool={onSelectTool}
+              onSelectTool={handleSelectTool}
             />
           ))}
         </MegamenuColumnLayout>
@@ -193,11 +203,20 @@ function ToolSelectorMenuItem({
 }
 
 function ViewMenu() {
+  const [opened, setOpened] = useState(false);
+
+  const handleLaunch = (label: string) => {
+    console.log(label);
+    setOpened(false);
+  };
+
   return (
     <Menu
       shadow="md"
       width={MEGAMENU_COLUMN_WIDTH}
       position="bottom-end"
+      opened={opened}
+      onChange={setOpened}
     >
       <Menu.Target>
         <UnstyledButton
@@ -225,7 +244,7 @@ function ViewMenu() {
       <Menu.Dropdown px={12} pt={16} pb={12}>
         <MegamenuColumnLayout header="Launch in Browser">
           <MegamenuCommandItem
-            onClick={() => console.log("Site in Staging")}
+            onClick={() => handleLaunch("Site in Staging")}
           >
             <IconExternalLink size={28} stroke={1} />
             <MegamenuCommandLabel>
@@ -235,7 +254,7 @@ function ViewMenu() {
 
           <MegamenuCommandItem
             onClick={() =>
-              console.log("Site in Production")
+              handleLaunch("Site in Production")
             }
           >
             <IconExternalLink size={28} stroke={1} />

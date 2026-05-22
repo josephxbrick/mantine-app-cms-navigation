@@ -25,8 +25,8 @@ import type {
   MegamenuRadioValues,
 } from "./types";
 
-export const MEGAMENU_COLUMN_WIDTH = 240;
-const COLUMN_GAP = 32;
+export const MEGAMENU_COLUMN_WIDTH = 280;
+const COLUMN_GAP = 48;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
 const ITEM_PADDING = "8px 10px";
@@ -391,47 +391,51 @@ function MenuItemView({
 
   if (item.type === "select") {
     return (
-      <FieldMenuItem label={item.label}>
-        <Select
-          size="xs"
-          value={fieldValues[item.id] ?? null}
-          placeholder={item.placeholder}
-          data={item.options}
-          onChange={(value) =>
-            onFieldChange(item.id, value ?? "")
-          }
-          styles={{
-            input: {
-              fontSize: 15,
-              minHeight: 36,
-            },
-          }}
-        />
-      </FieldMenuItem>
+      <Box my={6}>
+        <FieldMenuItem label={item.label}>
+          <Select
+            size="xs"
+            value={fieldValues[item.id] ?? null}
+            placeholder={item.placeholder}
+            data={item.options}
+            onChange={(value) =>
+              onFieldChange(item.id, value ?? "")
+            }
+            styles={{
+              input: {
+                fontSize: 15,
+                minHeight: 36,
+              },
+            }}
+          />
+        </FieldMenuItem>
+      </Box>
     );
   }
 
   if (item.type === "text-input") {
     return (
-      <FieldMenuItem label={item.label}>
-        <TextInput
-          size="xs"
-          value={fieldValues[item.id] ?? ""}
-          placeholder={item.placeholder}
-          onChange={(event) =>
-            onFieldChange(
-              item.id,
-              event.currentTarget.value
-            )
-          }
-          styles={{
-            input: {
-              fontSize: 15,
-              minHeight: 36,
-            },
-          }}
-        />
-      </FieldMenuItem>
+      <Box my={6}>
+        <FieldMenuItem label={item.label}>
+          <TextInput
+            size="xs"
+            value={fieldValues[item.id] ?? ""}
+            placeholder={item.placeholder}
+            onChange={(event) =>
+              onFieldChange(
+                item.id,
+                event.currentTarget.value
+              )
+            }
+            styles={{
+              input: {
+                fontSize: 15,
+                minHeight: 36,
+              },
+            }}
+          />
+        </FieldMenuItem>
+      </Box>
     );
   }
 
