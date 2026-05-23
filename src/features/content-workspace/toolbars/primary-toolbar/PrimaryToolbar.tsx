@@ -45,7 +45,7 @@ function DisplayGroup({ children }: DisplayGroupProps) {
   return (
     <Flex
       h={72}
-      px="xl"
+      px="lg"
       align="center"
       justify="space-between"
       bg="asxIndigo.1"

@@ -198,9 +198,9 @@ function NodeIdentity({
       />
 
       <Text
-        size="sm"
+        fz={16}
         c={isSelected ? "asxIndigo.9" : "asxGray.8"}
-        fw={isSelected ? 600 : 400}
+        fw={isSelected ? 500 : 400}
         style={{
           whiteSpace: "nowrap",
         }}

@@ -79,7 +79,7 @@ function ToolbarBubble({
 function ContentToolsLabel() {
   return (
     <Text
-      fz={13}
+      fz={14}
       fw={500}
       c="asxIndigo.8"
       tt="uppercase"
@@ -142,8 +142,8 @@ function ToolSelectorMenu({
             {selected.icon}
 
             <Text
-              size="sm"
-              fw={500}
+              size="16px"
+              fw={400}
               style={{
                 whiteSpace: "nowrap",
               }}

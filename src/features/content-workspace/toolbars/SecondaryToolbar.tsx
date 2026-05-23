@@ -259,7 +259,7 @@ function ToolbarRow({ children }: ToolbarRowProps) {
   return (
     <Flex
       h={52}
-      px="xl"
+      px="lg"
       align="center"
       justify="space-between"
       style={{

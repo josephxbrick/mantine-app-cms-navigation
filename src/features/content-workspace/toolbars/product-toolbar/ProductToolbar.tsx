@@ -101,7 +101,7 @@ function DomainTab({
     <UnstyledButton
       px={16}
       py={7}
-      c={selected ? "asxBlue.9" : "asxGray.0"}
+      c={selected ? "asxGray.8" : "asxGray.0"}
       bg={selected ? "asxBlue.1" : "transparent"}
       style={{
         borderRadius: 999,
@@ -112,7 +112,7 @@ function DomainTab({
     >
       <Group gap={6} wrap="nowrap">
         <Icon size={28} stroke={1.4} />
-        <Text size="md" fw={selected ? 700 : 500}>
+        <Text fz={17} fw={selected ? 500 : 450}>
           {item.label}
         </Text>
       </Group>

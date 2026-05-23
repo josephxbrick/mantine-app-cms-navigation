@@ -154,7 +154,7 @@ function GoToButton({ onClick }: GoToButtonProps) {
         />
 
         <Text
-          size="sm"
+          size="16px"
           fw={400}
           c="asxGray.0"
           style={{ whiteSpace: "nowrap" }}
