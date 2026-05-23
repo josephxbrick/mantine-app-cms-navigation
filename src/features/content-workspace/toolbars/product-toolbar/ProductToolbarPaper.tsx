@@ -330,12 +330,12 @@ export function ProductToolbarPaper({
     <Paper
       radius="xl"
       px={10}
-      py={4}
-      bg="asxBlue.6"
+      py={2}
+      bg="asxBlue.7"
       shadow="xs"
       style={{
         border:
-          "1px solid var(--mantine-color-asxBlue-4)",
+          "1px solid var(--mantine-color-asxBlue-3)",
       }}
     >
       <DisplayGroup>

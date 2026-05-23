@@ -17,8 +17,8 @@ import type { WorkspaceDomain } from "../workspace/types";
 
 type ContentWorkspaceProps = {
   domain: WorkspaceDomain;
-  domainLabel: string;
   selectedNodeLabel: string;
+  selectedNodeXId?: string;
   selectedTool: SelectedToolKey;
   demoWorkspaceVisible: boolean;
   tools: ToolbarTool[];
@@ -127,8 +127,8 @@ function SelectedNodePreview({
 
 export function ContentWorkspace({
   domain,
-  domainLabel,
   selectedNodeLabel,
+  selectedNodeXId,
   selectedTool,
   demoWorkspaceVisible,
   tools,
@@ -142,8 +142,8 @@ export function ContentWorkspace({
   };
 
   const primaryToolbarProps = {
-    domainLabel,
     selectedNodeLabel,
+    selectedNodeXId,
     selectedTool,
     tools,
     onSelectTool,

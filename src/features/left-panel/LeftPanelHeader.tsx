@@ -42,8 +42,8 @@ function HeaderIcon({ icon: Icon }: HeaderIconProps) {
   return (
     <Icon
       size={36}
-      stroke={1.5}
-      color="var(--mantine-color-asxIndigo-7)"
+      stroke={1.3}
+      color="var(--mantine-color-asxGray-8)"
     />
   );
 }
@@ -55,9 +55,9 @@ type TitleProps = {
 function Title({ title }: TitleProps) {
   return (
     <Text
-      size="lg"
-      fw={600}
-      c="asxIndigo.9"
+      fz={22}
+      fw={400}
+      c="asxGray.8"
       truncate
       style={{ textBoxTrim: "trim-both" }}
     >

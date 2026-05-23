@@ -9,120 +9,147 @@ export const editTreeData: SiteTreeNode[] = [
   {
     id: "ingeniux",
     label: "Ingeniux CMS",
+    xId: "x100",
     children: [
       {
         id: "central-university",
         label: "Central University",
+        xId: "x101",
         children: [
           {
             id: "about",
             label: "About",
+            xId: "x102",
             children: [
               {
                 id: "leadership",
                 label: "Leadership",
+                xId: "x103",
               },
               {
                 id: "history",
                 label: "History",
+                xId: "x104",
               },
               {
                 id: "campus-map",
                 label: "Campus Map",
+                xId: "x105",
               },
             ],
           },
           {
             id: "admissions",
             label: "Admissions",
+            xId: "x106",
             children: [
               {
                 id: "undergraduate",
                 label: "Undergraduate",
+                xId: "x107",
               },
               {
                 id: "graduate",
                 label: "Graduate",
+                xId: "x108",
               },
               {
                 id: "tuition-aid",
                 label: "Tuition & Financial Aid",
+                xId: "x109",
               },
             ],
           },
           {
             id: "academics",
             label: "Academics",
+            xId: "x110",
             children: [
               {
                 id: "colleges-schools",
                 label: "Colleges & Schools",
+                xId: "x111",
               },
               {
                 id: "programs",
                 label: "Programs",
+                xId: "x112",
               },
               {
                 id: "library",
                 label: "Library",
+                xId: "x113",
               },
             ],
           },
           {
             id: "student-life",
             label: "Student Life",
+            xId: "x114",
             children: [
               {
                 id: "housing",
                 label: "Housing",
+                xId: "x115",
                 children: [
                   {
                     id: "residence-halls",
                     label: "Residence Halls",
+                    xId: "x116",
                   },
                   {
                     id: "apply-for-housing",
                     label: "Apply for Housing",
+                    xId: "x117",
                   },
                   {
                     id: "housing-rates",
                     label: "Housing Rates",
+                    xId: "x118",
                   },
                   {
                     id: "move-in-info",
                     label: "Move-In Information",
+                    xId: "x119",
                   },
                   {
                     id: "resident-resources",
                     label: "Resident Resources",
+                    xId: "x120",
                   },
                 ],
               },
               {
                 id: "clubs-orgs",
                 label: "Clubs & Organizations",
+                xId: "x121",
               },
               {
                 id: "dining",
                 label: "Dining",
+                xId: "x122",
               },
             ],
           },
           {
             id: "athletics",
             label: "Athletics",
+            xId: "x123",
             children: [
               {
                 id: "mens-sports",
                 label: "Men’s Sports",
+                xId: "x124",
               },
               {
                 id: "womens-sports",
                 label: "Women’s Sports",
+                xId: "x125",
               },
               {
                 id: "tickets",
                 label: "Tickets",
+                xId: "x126",
               },
             ],
           },

@@ -6,7 +6,6 @@
 import {
   Flex,
   Group,
-  Stack,
   Text,
   UnstyledButton,
 } from "@mantine/core";
@@ -40,11 +39,11 @@ type DisplayGroupProps = {
 function DisplayGroup({ children }: DisplayGroupProps) {
   return (
     <Flex
-      h={72}
+      h={68}
       px="xl"
       align="center"
       justify="space-between"
-      bg="asxBlue.8"
+      bg="asxBlue.9"
       c="asxGray.0"
     >
       {children}
@@ -54,15 +53,9 @@ function DisplayGroup({ children }: DisplayGroupProps) {
 
 function ProductIdentity() {
   return (
-    <Stack gap={0}>
-      <Text size="xl" fw={400}>
-        Ingeniux CMS
-      </Text>
-
-      <Text size="s" c="asxBlue.1">
-        Content management workspace
-      </Text>
-    </Stack>
+    <Text fz={24} fw={400}>
+      Ingeniux CMS
+    </Text>
   );
 }
 
@@ -111,9 +104,7 @@ function DomainTab({
       c={selected ? "asxBlue.9" : "asxGray.0"}
       bg={selected ? "asxBlue.1" : "transparent"}
       style={{
-
         borderRadius: 999,
- 
         transition:
           "background-color 120ms ease,color 120ms ease",
       }}

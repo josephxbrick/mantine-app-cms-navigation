@@ -30,8 +30,8 @@ import type {
 } from "./types";
 
 type PrimaryToolbarProps = {
-  domainLabel: string;
   selectedNodeLabel: string;
+  selectedNodeXId?: string;
   selectedTool: SelectedToolKey;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
@@ -61,31 +61,39 @@ function DisplayGroup({ children }: DisplayGroupProps) {
 }
 
 type WorkspaceTitleProps = {
-  domainLabel: string;
   selectedNodeLabel: string;
+  selectedNodeXId?: string;
 };
 
 function WorkspaceTitle({
-  domainLabel,
   selectedNodeLabel,
+  selectedNodeXId,
 }: WorkspaceTitleProps) {
+  const title = selectedNodeXId
+    ? `${selectedNodeLabel} (${selectedNodeXId})`
+    : selectedNodeLabel;
+
   return (
-    <Box>
-      <Group gap={8}>
-        <Text size="lg" fw={500} c="asxIndigo.9">
-          {selectedNodeLabel}
-        </Text>
-
-        <IconInfoCircle
-          size={18}
-          color="var(--mantine-color-asxIndigo-9)"
-        />
-      </Group>
-
-      <Text size="s" c="asxIndigo.8">
-        x5 · {domainLabel} workspace
+    <Group
+      gap={10}
+      wrap="nowrap"
+      style={{ minWidth: 0 }}
+    >
+      <Text
+        fz={22}
+        fw={400}
+        c="asxGray.8"
+        truncate
+      >
+        {title}
       </Text>
-    </Box>
+
+      <IconInfoCircle
+        size={24}
+        stroke={1.2}
+        color="var(--mantine-color-asxGray-8)"
+      />
+    </Group>
   );
 }
 
@@ -126,8 +134,8 @@ function MeasurementProbe({
 }
 
 export function PrimaryToolbar({
-  domainLabel,
   selectedNodeLabel,
+  selectedNodeXId,
   selectedTool,
   tools,
   onSelectTool,
@@ -152,8 +160,8 @@ export function PrimaryToolbar({
   }, [selectedTool, tools]);
 
   const workspaceTitleProps = {
-    domainLabel,
     selectedNodeLabel,
+    selectedNodeXId,
   };
 
   const primaryToolbarPaperProps = {

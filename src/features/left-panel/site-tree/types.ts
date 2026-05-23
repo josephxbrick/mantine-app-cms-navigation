@@ -16,6 +16,7 @@ export type SiteTreeNodeIconKey =
 export type SiteTreeNode = {
   id: string;
   label: string;
+  xId?: string;
   type?: SiteTreeNodeType;
   icon?: SiteTreeNodeIconKey;
   children?: SiteTreeNode[];

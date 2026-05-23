@@ -355,11 +355,17 @@ function ToolbarMenuTabLabel({
 }
 
 function ToolbarActions() {
+  const color = "var(--mantine-color-asxGray-8)";
+
   return (
     <Group gap="lg" wrap="nowrap">
-      <IconRefresh size={28} stroke={1} />
-      <IconDeviceFloppy size={28} stroke={1} />
-      <IconSearch size={28} stroke={1} />
+      <IconRefresh size={28} stroke={1} color={color} />
+      <IconDeviceFloppy
+        size={28}
+        stroke={1}
+        color={color}
+      />
+      <IconSearch size={28} stroke={1} color={color} />
     </Group>
   );
 }

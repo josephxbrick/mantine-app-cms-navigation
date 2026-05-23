@@ -420,7 +420,7 @@ function DisplayGroup({ children }: DisplayGroupProps) {
       bg="gray.0"
       style={{
         display: "grid",
-        gridTemplateRows: "72px minmax(0, 1fr)",
+        gridTemplateRows: "68px minmax(0, 1fr)",
         gridTemplateColumns: "auto 1px minmax(0, 1fr)",
         overflow: "hidden",
         userSelect: "none",
@@ -724,12 +724,12 @@ export function AppShell() {
 
   const contentWorkspaceProps = {
     domain: selectedDomain,
-    domainLabel: domainConfig.label,
     selectedNodeLabel:
       selectedNode?.label ??
       (selectedTreeConfig
         ? "No selection"
         : domainConfig.label),
+    selectedNodeXId: selectedNode?.xId,
     selectedTool,
     demoWorkspaceVisible,
     tools: activeTools,
