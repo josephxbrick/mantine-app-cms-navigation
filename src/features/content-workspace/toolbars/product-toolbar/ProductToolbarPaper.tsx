@@ -22,7 +22,6 @@ import {
   IconChevronDown,
   IconCircleArrowUp,
   IconHelpCircle,
-  IconHistory,
   IconSearch,
   IconUserCircle,
   IconX,
@@ -36,7 +35,7 @@ type ProductToolbarPaperProps = {
   onToggleDemoWorkspace: () => void;
 };
 
-const FIELD_FULL_WIDTH = 360;
+const FIELD_FULL_WIDTH = 240;
 const FIELD_COLLAPSED_WIDTH = 0;
 const ANIMATION_MS = 260;
 
@@ -77,16 +76,6 @@ function GoToButtonGroup({
 }: ToolbarGroupProps) {
   return (
     <Group gap={4} wrap="nowrap">
-      {children}
-    </Group>
-  );
-}
-
-function RecentButtonGroup({
-  children,
-}: ToolbarGroupProps) {
-  return (
-    <Group gap={8} wrap="nowrap">
       {children}
     </Group>
   );
@@ -247,26 +236,6 @@ function SearchFieldSlot({
   );
 }
 
-function RecentMenuButton() {
-  return (
-    <UnstyledButton>
-      <RecentButtonGroup>
-        <IconHistory
-          size={28}
-          stroke={1.3}
-          color="var(--mantine-color-asxGray-0)"
-        />
-
-        <Text size="sm" fw={400} c="asxGray.0">
-          Recent
-        </Text>
-
-        <IconChevronDown size={20} />
-      </RecentButtonGroup>
-    </UnstyledButton>
-  );
-}
-
 function UserMenuButton() {
   return (
     <UnstyledButton>
@@ -372,9 +341,7 @@ export function ProductToolbarPaper({
       <DisplayGroup>
         <GoToSearchControl {...goToSearchControlProps} />
         <ToolbarDelimiter />
-        <RecentMenuButton />
         <UserMenuButton />
-        <ToolbarDelimiter />
         <HelpButton
           active={demoWorkspaceVisible}
           onClick={onToggleDemoWorkspace}

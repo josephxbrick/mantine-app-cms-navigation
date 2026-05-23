@@ -14,7 +14,6 @@ import {
 import {
   IconChevronDown,
   IconExternalLink,
-  IconLayoutSidebarRight,
 } from "@tabler/icons-react";
 
 import type { ToolbarTool, ToolKey } from "./types";
@@ -160,8 +159,8 @@ function ToolSelectorMenu({
         </UnstyledButton>
       </Menu.Target>
 
-      <Menu.Dropdown px={12} pt={16} pb={12}>
-        <MegamenuColumnLayout header="Choose a Tool">
+      <Menu.Dropdown px={12} py={12}>
+        <MegamenuColumnLayout>
           {tools.map((tool) => (
             <ToolSelectorMenuItem
               key={tool.label}
@@ -231,7 +230,7 @@ function ViewMenu() {
               "var(--mantine-color-asxIndigo-7)",
           }}
         >
-          <IconLayoutSidebarRight
+          <IconExternalLink
             size={28}
             stroke={1.3}
             color="var(--mantine-color-asxGray-7)"

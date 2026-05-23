@@ -25,6 +25,7 @@ import {
   IconPhoto,
   IconSearch,
   IconSettings,
+  IconSitemap,
   IconTags,
   IconTarget,
   IconTargetArrow,
@@ -140,7 +141,7 @@ const domainConfigs: Record<
       {
         id: "tree",
         label: "Site Tree",
-        icon: IconLayoutSidebar,
+        icon: IconSitemap,
       },
       {
         id: "assets",
@@ -552,7 +553,7 @@ export function AppShell() {
   const [
     demoWorkspaceVisible,
     setDemoWorkspaceVisible,
-  ] = useState(false);
+  ] = useState(true);
 
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     LEFT_PANEL_INITIAL_WIDTH

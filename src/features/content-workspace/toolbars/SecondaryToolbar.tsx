@@ -21,9 +21,9 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import {
-  IconArrowBackUp,
   IconChevronDown,
   IconDeviceFloppy,
+  IconRefresh,
   IconSearch,
 } from "@tabler/icons-react";
 
@@ -357,7 +357,7 @@ function ToolbarMenuTabLabel({
 function ToolbarActions() {
   return (
     <Group gap="lg" wrap="nowrap">
-      <IconArrowBackUp size={28} stroke={1} />
+      <IconRefresh size={28} stroke={1} />
       <IconDeviceFloppy size={28} stroke={1} />
       <IconSearch size={28} stroke={1} />
     </Group>
@@ -532,7 +532,7 @@ export default function SecondaryToolbar({
       "Index Mode" |
       "Form Mode" |
       "In Context Mode"
-    >("Index Mode");
+    >("Form Mode");
 
   const [showFormIndex, setShowFormIndex] =
     useState(false);

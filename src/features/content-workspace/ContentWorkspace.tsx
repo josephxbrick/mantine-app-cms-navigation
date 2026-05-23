@@ -59,6 +59,12 @@ function SelectedNodePreview({
       : domain === "site" && selectedTool === "Preview"
         ? "/demo/site-preview.png"
         : null;
+  const demoMode =
+    domain === "site" &&
+      (selectedTool === "Edit" ||
+        selectedTool === "Preview")
+      ? selectedTool
+      : null;
 
   return (
     <Box
@@ -76,17 +82,40 @@ function SelectedNodePreview({
       }}
     >
       {demoWorkspaceVisible && demoImage ? (
-        <Box
-          component="img"
-          src={demoImage}
-          alt={previewLabel}
-          w="100%"
-          style={{
-            display: "block",
-            height: "auto",
-            alignSelf: "flex-start",
-          }}
-        />
+        demoMode === "Edit" ? (
+          <Box
+            bg="asxGray.2"
+            p="xl"
+            w="100%"
+            h="100%"
+            style={{
+              overflow: "auto",
+            }}
+          >
+            <Box
+              component="img"
+              src={demoImage}
+              alt={previewLabel}
+              style={{
+                display: "block",
+                height: "auto",
+                maxWidth: "none",
+              }}
+            />
+          </Box>
+        ) : (
+          <Box
+            component="img"
+            src={demoImage}
+            alt={previewLabel}
+            w="100%"
+            style={{
+              display: "block",
+              height: "auto",
+              alignSelf: "flex-start",
+            }}
+          />
+        )
       ) : (
         <Text c="asxGray.6" fw={500} size="xl">
           {previewLabel}

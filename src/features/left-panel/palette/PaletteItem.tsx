@@ -111,9 +111,9 @@ export const PaletteItem = ({
             </Box>
 
             <Text
-                size="sm"
                 fw={isSelected ? 600 : 500}
                 style={{
+                    fontSize: 16,
                     whiteSpace: "nowrap",
                     opacity: expanded ? 1 : 0,
                     transform: expanded
