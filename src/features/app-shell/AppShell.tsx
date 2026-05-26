@@ -648,14 +648,22 @@ export function AppShell() {
     }));
 
     if (nextToolContext !== activeToolContext) {
-      setSelectedTools((current) => ({
-        ...current,
-        [selectedDomain]: {
-          ...current[selectedDomain],
-          [nextToolContext]:
-            nextTools[0]?.label ?? null,
-        },
-      }));
+      setSelectedTools((current) => {
+        const domainCurrent = current[selectedDomain] ?? {};
+
+        // If there's already a selection for the target context, don't overwrite it.
+        if (domainCurrent[nextToolContext]) {
+          return current;
+        }
+
+        return {
+          ...current,
+          [selectedDomain]: {
+            ...domainCurrent,
+            [nextToolContext]: nextTools[0]?.label ?? null,
+          },
+        };
+      });
     }
   };
 
