@@ -3,8 +3,9 @@
  *
  * Imports:
  * - Box, Button, Group, Select, Stack, Text, TextInput, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - IconChevronDown from "@tabler/icons-react" provides icon components used by dropdown-style megamenu actions.
  * - useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
- * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { CSSProperties, ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { MegamenuCheckboxValues, MegamenuColumn, MegamenuConfig, MegamenuFieldValues, MegamenuItem, MegamenuRadioValues, } from "./types" provides shared data types used by this feature.
  */
 import {
@@ -17,8 +18,12 @@ import {
   TextInput,
   UnstyledButton,
 } from "@mantine/core";
+import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
-import type { ReactNode } from "react";
+import type {
+  CSSProperties,
+  ReactNode,
+} from "react";
 
 import type {
   MegamenuCheckboxValues,
@@ -456,15 +461,11 @@ function MenuItemView({
     );
   }
 
-  const Icon = item.icon;
-
   return (
-    <CommandMenuItem onClick={() => onCommand(item.id)}>
-      <CommandIcon Icon={Icon} />
-      <MegamenuCommandLabel>
-        {item.label}
-      </MegamenuCommandLabel>
-    </CommandMenuItem>
+    <MegamenuActionItem
+      item={item}
+      onClick={() => onCommand(item.id)}
+    />
   );
 }
 
@@ -622,38 +623,59 @@ function CheckboxMark({ selected }: CheckboxMarkProps) {
 type CommandMenuItemProps = {
   children: ReactNode;
   onClick: () => void;
+  ariaLabel?: string;
   selected?: boolean;
+  width?: CSSProperties["width"];
+  paddingBlock?: CSSProperties["paddingBlock"];
+  hoverStyle?: CSSProperties;
 };
 
 export function MegamenuCommandItem({
   children,
   onClick,
+  ariaLabel,
   selected = false,
+  width = "100%",
+  paddingBlock,
+  hoverStyle,
 }: CommandMenuItemProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const isHighlighted = selected || isHovered;
+  const hoverBorder =
+    hoverStyle?.border ??
+    "1px solid var(--mantine-color-asxBlue-1)";
+  const hoverBackground =
+    hoverStyle?.background ??
+    "var(--mantine-color-asxBlue-0)";
+  const hoverColor =
+    hoverStyle?.color ??
+    "var(--mantine-color-asxGray-8)";
 
   return (
     <UnstyledButton
+      aria-label={ariaLabel}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        width: "100%",
+        width,
         padding: ITEM_PADDING,
+        paddingBlock,
         borderRadius: 8,
-        border: isHighlighted
-          ? `1px solid var(--mantine-color-${selected ? "indigo-2" : "asxBlue-1"
-          })`
-          : "1px solid transparent",
+        border: selected
+          ? "1px solid var(--mantine-color-indigo-2)"
+          : isHovered
+            ? hoverBorder
+            : "1px solid transparent",
         background: selected
           ? "var(--mantine-color-indigo-1)"
           : isHovered
-            ? "var(--mantine-color-asxBlue-0)"
+            ? hoverBackground
             : "transparent",
         color: selected
           ? "var(--mantine-color-indigo-9)"
-          : "var(--mantine-color-asxGray-8)",
+          : isHovered
+            ? hoverColor
+            : "var(--mantine-color-asxGray-8)",
         fontWeight: selected ? 700 : 500,
       }}
     >
@@ -664,25 +686,53 @@ export function MegamenuCommandItem({
   );
 }
 
-function CommandMenuItem(props: CommandMenuItemProps) {
-  return <MegamenuCommandItem {...props} />;
-}
-
-type CommandIconProps = {
-  Icon: Extract<
+type MegamenuActionItemProps = {
+  item: Extract<
     MegamenuItem,
-    { type: "command" }
-  >["icon"];
+    { type: "command" | "dropdown" }
+  >;
+  onClick: () => void;
+  width?: CSSProperties["width"];
+  paddingBlock?: CSSProperties["paddingBlock"];
+  hoverStyle?: CSSProperties;
+  showLabel?: boolean;
 };
 
-function CommandIcon({ Icon }: CommandIconProps) {
-  return Icon ? (
-    <Icon
-      size={28}
-      stroke={1.3}
-      color="var(--mantine-color-asxGray-7)"
-    />
-  ) : null;
+export function MegamenuActionItem({
+  item,
+  onClick,
+  width,
+  paddingBlock,
+  hoverStyle,
+  showLabel = true,
+}: MegamenuActionItemProps) {
+  const Icon = item.icon;
+
+  return (
+    <MegamenuCommandItem
+      ariaLabel={item.label}
+      width={width}
+      paddingBlock={paddingBlock}
+      hoverStyle={hoverStyle}
+      onClick={onClick}
+    >
+      {Icon ? (
+        <Icon
+          size={28}
+          stroke={1.3}
+          color="var(--mantine-color-asxGray-7)"
+        />
+      ) : null}
+      {showLabel ? (
+        <MegamenuCommandLabel>
+          {item.label}
+        </MegamenuCommandLabel>
+      ) : null}
+      {item.type === "dropdown" ? (
+        <IconChevronDown size={17} stroke={1.5} />
+      ) : null}
+    </MegamenuCommandItem>
+  );
 }
 
 function InlineMenuItemDisplay({

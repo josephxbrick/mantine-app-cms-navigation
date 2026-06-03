@@ -41,6 +41,13 @@ export type CommandMenuItem = {
   icon?: React.ElementType;
 };
 
+export type DropdownMenuItem = {
+  type: "dropdown";
+  id: string;
+  label: string;
+  icon?: React.ElementType;
+};
+
 export type SelectMenuItemOption = {
   value: string;
   label: string;
@@ -71,6 +78,7 @@ export type MegamenuItem =
   | RadioMenuItem
   | CheckboxMenuItem
   | CommandMenuItem
+  | DropdownMenuItem
   | SelectMenuItem
   | TextInputMenuItem
   | ButtonMenuItem;

@@ -12,10 +12,13 @@
  * - type { PreviewDevice } from "../tools/preview/megamenus/PreviewDeviceColumn" provides the shared Preview device type.
  * - ADVANCED_OPTIONS_ID, ADVANCED_SITE_ID, from "../tools/preview/megamenus/advancedMenu" provides Preview Advanced menu configuration and field identifiers.
  * - type { MegamenuFieldValues } from "../megamenus/types" provides the shared megamenu configuration and value types.
+ * - MegamenuActionItem, MegamenuColumnLayout, MegamenuCommandItem, MegamenuCommandLabel, from "../megamenus/MegamenuRenderer" provides the shared megamenu command and dropdown action presentation.
+ * - ToolbarDelimiter from "./ToolbarDelimiter" provides the shared vertical separator between toolbar action groups.
  * - useEffect, useRef, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
- * - IconChevronDown, IconDeviceFloppy, IconRefresh, IconSearch, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
- * - Box, Flex, Group, Paper, Stack, Text, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - IconChevronDown, IconDeviceFloppy, IconLogin, IconRefresh, IconSearch, IconUser, IconUserCheck, IconUserCircle, IconUsers, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - Box, Flex, Group, Menu, Paper, Stack, Text, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - type { MegamenuItem } from "../megamenus/types" provides the shared megamenu configuration and value types.
  * - type { SelectedToolKey, ToolKey, } from "./primary-toolbar/types" provides shared toolbar tool and selection types.
  * - type { WorkspaceDomain } from "../../workspace/types" provides shared workspace domain or utility key types.
  */
@@ -32,6 +35,13 @@ import {
   ADVANCED_SITE_ID,
 } from "../tools/preview/megamenus/advancedMenu";
 import type { MegamenuFieldValues } from "../megamenus/types";
+import {
+  MegamenuActionItem,
+  MegamenuColumnLayout,
+  MegamenuCommandItem,
+  MegamenuCommandLabel,
+} from "../megamenus/MegamenuRenderer";
+import { ToolbarDelimiter } from "./ToolbarDelimiter";
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -39,20 +49,27 @@ import type { ReactNode } from "react";
 import {
   IconChevronDown,
   IconDeviceFloppy,
+  IconLogin,
   IconRefresh,
   IconSearch,
+  IconUser,
+  IconUserCheck,
+  IconUserCircle,
+  IconUsers,
 } from "@tabler/icons-react";
 
 import {
   Box,
   Flex,
   Group,
+  Menu,
   Paper,
   Stack,
   Text,
   UnstyledButton,
 } from "@mantine/core";
 
+import type { MegamenuItem } from "../megamenus/types";
 import type {
   SelectedToolKey,
   ToolKey,
@@ -76,6 +93,11 @@ type SecondaryMenu = {
   label: string;
   renderer: MegamenuRendererKey;
 };
+
+type SecondaryToolbarAction = Extract<
+  MegamenuItem,
+  { type: "command" | "dropdown" }
+>;
 
 type SecondaryToolbarProps = {
   domain: WorkspaceDomain;
@@ -115,6 +137,63 @@ const editMenus: SecondaryMenu[] = [
   },
 ];
 
+const secondaryToolbarActions: SecondaryToolbarAction[] = [
+  {
+    type: "command",
+    id: "secondary-check-in",
+    label: "Check in",
+    icon: IconLogin,
+  },
+  {
+    type: "dropdown",
+    id: "secondary-assign-to",
+    label: "Assign to",
+    icon: IconUserCheck,
+  },
+];
+
+const secondaryToolbarIconActions: SecondaryToolbarAction[] = [
+  {
+    type: "command",
+    id: "secondary-refresh",
+    label: "Refresh",
+    icon: IconRefresh,
+  },
+  {
+    type: "command",
+    id: "secondary-save",
+    label: "Save",
+    icon: IconDeviceFloppy,
+  },
+  {
+    type: "command",
+    id: "secondary-search",
+    label: "Search",
+    icon: IconSearch,
+  },
+];
+
+const assignToOptions: SecondaryToolbarAction[] = [
+  {
+    type: "command",
+    id: "secondary-assign-me",
+    label: "Me",
+    icon: IconUserCircle,
+  },
+  {
+    type: "command",
+    id: "secondary-assign-user",
+    label: "User...",
+    icon: IconUser,
+  },
+  {
+    type: "command",
+    id: "secondary-assign-group",
+    label: "Group...",
+    icon: IconUsers,
+  },
+];
+
 const secondaryMenusByDomain: Record<
   WorkspaceDomain,
   Record<ToolKey, SecondaryMenu[]>
@@ -131,7 +210,7 @@ const secondaryMenusByDomain: Record<
       },
       {
         key: "simulate",
-        label: "Simulate",
+        label: "Preview Settings",
         renderer: "preview-advanced",
       },
       {
@@ -306,7 +385,7 @@ function ToolbarMenuTabs({
   onHoverMenu,
 }: ToolbarMenuTabsProps) {
   return (
-    <Group gap="xl" wrap="nowrap">
+    <Group gap="lg" wrap="nowrap">
       {menus.map((menu) => (
         <ToolbarMenuTab
           key={menu.key}
@@ -370,18 +449,141 @@ function ToolbarMenuTabLabel({
   );
 }
 
-function ToolbarActions() {
-  const color = "var(--mantine-color-asxGray-8)";
+type ToolbarActionButtonProps = {
+  action: SecondaryToolbarAction;
+};
+
+function ToolbarActionButton({
+  action,
+}: ToolbarActionButtonProps) {
+  if (action.type === "dropdown") {
+    return <AssignToMenu action={action} />;
+  }
 
   return (
-    <Group gap="lg" wrap="nowrap">
-      <IconRefresh size={28} stroke={1} color={color} />
-      <IconDeviceFloppy
-        size={28}
-        stroke={1}
-        color={color}
-      />
-      <IconSearch size={28} stroke={1} color={color} />
+    <MegamenuActionItem
+      item={action}
+      width="auto"
+      paddingBlock={4}
+      onClick={() => console.log(action.id)}
+    />
+  );
+}
+
+type AssignToMenuProps = {
+  action: SecondaryToolbarAction;
+};
+
+function AssignToMenu({ action }: AssignToMenuProps) {
+  const [opened, setOpened] = useState(false);
+
+  const handleAssign = (option: SecondaryToolbarAction) => {
+    console.log(option.id);
+    setOpened(false);
+  };
+
+  return (
+    <Menu
+      shadow="md"
+      width="target"
+      position="bottom-end"
+      offset={4}
+      opened={opened}
+      onChange={setOpened}
+    >
+      <Menu.Target>
+        <Box component="span" style={{ display: "inline-flex" }}>
+          <MegamenuActionItem
+            item={action}
+            width="auto"
+            paddingBlock={4}
+            onClick={() => {}}
+          />
+        </Box>
+      </Menu.Target>
+
+      <Menu.Dropdown px={12} py={12}>
+        <MegamenuColumnLayout>
+          {assignToOptions.map((option) => {
+            const Icon = option.icon;
+
+            return (
+              <MegamenuCommandItem
+                key={option.id}
+                onClick={() => handleAssign(option)}
+              >
+                {Icon ? (
+                  <Icon size={28} stroke={1} />
+                ) : null}
+                <MegamenuCommandLabel>
+                  {option.label}
+                </MegamenuCommandLabel>
+              </MegamenuCommandItem>
+            );
+          })}
+        </MegamenuColumnLayout>
+      </Menu.Dropdown>
+    </Menu>
+  );
+}
+
+type ToolbarIconActionButtonProps = {
+  action: SecondaryToolbarAction;
+  onClick?: () => void;
+};
+
+function ToolbarIconActionButton({
+  action,
+  onClick,
+}: ToolbarIconActionButtonProps) {
+  return (
+    <MegamenuActionItem
+      item={action}
+      width="auto"
+      paddingBlock={4}
+      showLabel={false}
+      onClick={onClick ?? (() => console.log(action.id))}
+    />
+  );
+}
+
+type ToolbarActionsProps = {
+  showReviewActions: boolean;
+  onToggleReviewActions: () => void;
+};
+
+function ToolbarActions({
+  showReviewActions,
+  onToggleReviewActions,
+}: ToolbarActionsProps) {
+  return (
+    <Group gap="md" wrap="nowrap">
+      {showReviewActions ? (
+        <>
+          <Group gap={6} wrap="nowrap">
+            {secondaryToolbarActions.map((action) => (
+              <ToolbarActionButton
+                key={action.id}
+                action={action}
+              />
+            ))}
+          </Group>
+          <ToolbarDelimiter />
+        </>
+      ) : null}
+      <Group gap={6} wrap="nowrap">
+        {secondaryToolbarIconActions.map((action) => (
+          <ToolbarIconActionButton
+            key={action.id}
+            action={action}
+            onClick={
+              action.id === "secondary-save"
+                ? onToggleReviewActions
+                : undefined
+            }
+          />
+        ))}
+      </Group>
     </Group>
   );
 }
@@ -588,6 +790,11 @@ export default function SecondaryToolbar({
   const [showAllPages, setShowAllPages] =
     useState(true);
 
+  const [
+    showReviewActions,
+    setShowReviewActions,
+  ] = useState(false);
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setActiveMenu(null);
@@ -655,6 +862,12 @@ export default function SecondaryToolbar({
     onHoverMenu: handleHoverMenu,
   };
 
+  const toolbarActionsProps = {
+    showReviewActions,
+    onToggleReviewActions: () =>
+      setShowReviewActions((current) => !current),
+  };
+
   const activeMegamenuProps = {
     menus,
     activeMenu,
@@ -687,7 +900,7 @@ export default function SecondaryToolbar({
     <DisplayGroup onMouseLeave={handleMouseLeave}>
       <ToolbarRow>
         <ToolbarMenuTabs {...toolbarMenuTabsProps} />
-        <ToolbarActions />
+        <ToolbarActions {...toolbarActionsProps} />
       </ToolbarRow>
       <ActiveMegamenu {...activeMegamenuProps} />
     </DisplayGroup>

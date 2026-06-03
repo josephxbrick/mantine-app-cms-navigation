@@ -28,6 +28,7 @@ The app is a Vite, React, TypeScript, and Mantine prototype. It renders a full-h
 - A left navigation panel with a utility palette and tree/utility content area.
 - A draggable splitter for resizing the left panel.
 - A content workspace with primary and secondary toolbars.
+- Shared megamenu primitives for command, dropdown, radio, checkbox, select, text input, and button controls.
 - Site and asset tree data for testing tree selection behavior.
 - Tool switching that changes based on whether the selected tree node is a folder or content item.
 - Demo workspace images for Site Edit and Site Preview modes when available.
@@ -70,10 +71,22 @@ Folder nodes use folder-oriented tools such as Folder Content and Properties. Co
 The workspace is the main task area. It is composed of:
 
 - Primary toolbar: selected item context and available tools.
-- Secondary toolbar: tool-specific supporting controls.
+- Secondary toolbar: tool-specific supporting controls, including menu tabs and contextual toolbar actions.
 - Content area: either a demo workspace image or a text placeholder representing the current selection/tool.
 
 The Site domain currently supports demo images for Edit and Preview modes via `/demo/site-edit.png` and `/demo/site-preview.png`.
+
+### Secondary Toolbar
+
+The secondary toolbar supports tool-specific megamenu tabs for Site and Assets workflows. Site Edit and Folder Content expose View, Actions, Publish, and New menus. Site Preview exposes View, Preview Settings, Actions, and Publish menus.
+
+The right side of the secondary toolbar includes compact action controls for Refresh, Save, and Search. A review-only control group containing Check in and Assign to can be toggled on and off with the Save icon. This group is hidden by default so it does not affect normal prototype review unless intentionally enabled.
+
+The Assign to toolbar action opens a small dropdown aligned beneath the action itself. The dropdown uses the same megamenu command styling as the Site > Edit menus and contains:
+
+- Me
+- User...
+- Group...
 
 ## Functional Requirements
 
@@ -89,6 +102,9 @@ The Site domain currently supports demo images for Edit and Preview modes via `/
 - Users can resize the left panel with the workspace splitter.
 - Users can toggle demo workspace visibility from the product toolbar.
 - The workspace can fall back to a placeholder label when no demo image applies.
+- Site Edit and Preview secondary toolbar tabs can open tool-specific megamenus.
+- The secondary toolbar Assign to action can open a dropdown for assigning to self, a user, or a group.
+- The secondary toolbar can optionally show review-only Check in and Assign to controls, hidden by default and toggled from the Save icon.
 
 ## Design Requirements
 
@@ -105,6 +121,7 @@ The Site domain currently supports demo images for Edit and Preview modes via `/
 - Use Tabler icons where applicable.
 - Keep feature code organized by shell, left panel, content workspace, toolbars, trees, and workspace types.
 - Keep local component extraction consistent with the project's DisplayGroup convention.
+- Keep shared megamenu item types and renderers reusable across primary toolbar menus, secondary toolbar menus, and toolbar action dropdowns.
 - Validate meaningful changes with `npm run build`.
 
 ## Non-Goals
