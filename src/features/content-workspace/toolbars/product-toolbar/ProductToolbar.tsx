@@ -107,7 +107,7 @@ function DomainTab({
       px={16}
       py={7}
       c={selected ? "asxGray.8" : "asxGray.0"}
-      bg={selected ? "white" : "transparent"}
+      bg={selected ? "asxBlue.1" : "transparent"}
       style={{
         borderRadius: 999,
         transition:
