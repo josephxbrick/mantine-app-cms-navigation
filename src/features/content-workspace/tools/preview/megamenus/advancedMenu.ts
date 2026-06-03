@@ -1,7 +1,8 @@
 /*
- * Preview Advanced megamenu configuration.
- * - Defines the environment, request data, and preview settings columns.
- * - Keeps item ids centralized for caller-owned state wiring.
+ * File purpose: Preview Advanced megamenu configuration and field identifiers.
+ *
+ * Imports:
+ * - type { MegamenuConfig } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
  */
 import type { MegamenuConfig } from "../../../megamenus/types";
 

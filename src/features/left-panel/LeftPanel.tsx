@@ -1,7 +1,16 @@
 /*
- * Left navigation panel.
- * - Displays the active tree header, vertical palette, and tree browser.
- * - Receives sizing and selected-node state from the app shell.
+ * File purpose: Left navigation panel that combines the domain header, utility palette, and tree or utility content.
+ *
+ * Imports:
+ * - Box from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - Text from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { Icon } from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - LeftPanelHeader from "./LeftPanelHeader" provides the title and icon header for the left navigation panel.
+ * - LeftPalette from "./palette/LeftPalette" provides the vertical utility palette in the left panel.
+ * - SiteTree from "./site-tree/SiteTree" provides the tree browser for site or asset nodes.
+ * - type { SiteTreeNode } from "./site-tree/types" provides shared data types used by this feature.
+ * - type { WorkspaceUtilityKey, } from "../workspace/types" provides shared workspace domain or utility key types.
  */
 import { Box } from "@mantine/core";
 import { Text } from "@mantine/core";

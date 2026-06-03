@@ -1,7 +1,8 @@
 /*
- * Left-panel tree sample data.
- * - Provides separate hierarchical nodes for content and asset workspaces.
- * - Includes a helper for resolving the selected node by id.
+ * File purpose: Prototype site and asset tree data plus lookup helpers for selection and expansion.
+ *
+ * Imports:
+ * - type { SiteTreeNode } from "./types" provides shared data types used by this feature.
  */
 import type { SiteTreeNode } from "./types";
 

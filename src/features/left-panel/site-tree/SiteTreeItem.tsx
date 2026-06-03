@@ -1,7 +1,13 @@
 /*
- * Site tree row.
- * - Displays one tree node with indentation, chevron, icon, and label.
- * - Manages open/closed state for child nodes and selection behavior.
+ * File purpose: Recursive tree row component that handles expansion, selection, indentation, and node styling.
+ *
+ * Imports:
+ * - Box, Group, Text, Transition, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - useEffect, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - ChevronClosedIcon, ChevronOpenIcon, TreeNodeIcon, from "./SiteTreeIcons" provides tree node and expansion icons.
+ * - SiteTreeIndent from "./SiteTreeIndent" provides indentation spacing for nested tree rows.
+ * - type { SiteTreeNode, SiteTreeNodeIconKey, } from "./types" provides shared data types used by this feature.
  */
 import {
   Box,

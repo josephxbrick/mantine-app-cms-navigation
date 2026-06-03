@@ -1,7 +1,13 @@
 /*
- * Primary toolbar tool surface.
- * - Displays the Content Tools selector and view-site menu as separate paper controls.
- * - Keeps the toolbar controls readable as named display pieces.
+ * File purpose: Primary toolbar surface for selected-item context, tool buttons, and tool overflow behavior.
+ *
+ * Imports:
+ * - Group, Menu, Paper, Text, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - IconChevronDown, IconExternalLink, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - type { ToolbarTool, ToolKey } from "./types" provides shared data types used by this feature.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - MEGAMENU_COLUMN_WIDTH, MegamenuColumnLayout, MegamenuCommandLabel, MegamenuCommandItem, from "../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
  */
 import {
   Group,

@@ -1,7 +1,9 @@
 /*
- * Resizable workspace divider.
- * - Lets users drag or use arrow keys to resize the left panel.
- * - Displays the vertical splitter line, grabber, and hover/focus affordances.
+ * File purpose: Resizable splitter between the left navigation panel and the content workspace.
+ *
+ * Imports:
+ * - Box from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  */
 import { Box } from "@mantine/core";
 import type { ReactNode } from "react";

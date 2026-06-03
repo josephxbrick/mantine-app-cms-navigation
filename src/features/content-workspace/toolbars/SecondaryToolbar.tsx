@@ -1,7 +1,23 @@
 /*
- * Secondary content toolbar.
- * - Shows menus for the active workspace domain and content tool.
- * - Manages hover/click menu activation and renders the active megamenu panel.
+ * File purpose: Tool-specific secondary toolbar that routes Edit and Preview tools to their megamenu controls.
+ *
+ * Imports:
+ * - MegamenuView from "../tools/edit/megamenus/MegamenuView" provides the Edit View megamenu component.
+ * - MegamenuActions from "../tools/edit/megamenus/MegamenuActions" provides the Edit Actions megamenu component.
+ * - MegamenuPublish from "../tools/edit/megamenus/MegamenuPublish" provides the Edit Publish megamenu component.
+ * - MegamenuNew from "../tools/edit/megamenus/MegamenuNew" provides the Edit New megamenu component.
+ * - MegamenuPreviewActions from "../tools/preview/megamenus/MegamenuPreviewActions" provides the Preview Actions megamenu component.
+ * - MegamenuPreviewAdvanced from "../tools/preview/megamenus/MegamenuPreviewAdvanced" provides the Preview Advanced megamenu component.
+ * - MegamenuPreviewView from "../tools/preview/megamenus/MegamenuPreviewView" provides the Preview View megamenu component.
+ * - type { PreviewDevice } from "../tools/preview/megamenus/PreviewDeviceColumn" provides the shared Preview device type.
+ * - ADVANCED_OPTIONS_ID, ADVANCED_SITE_ID, from "../tools/preview/megamenus/advancedMenu" provides Preview Advanced menu configuration and field identifiers.
+ * - type { MegamenuFieldValues } from "../megamenus/types" provides the shared megamenu configuration and value types.
+ * - useEffect, useRef, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - IconChevronDown, IconDeviceFloppy, IconRefresh, IconSearch, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - Box, Flex, Group, Paper, Stack, Text, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - type { SelectedToolKey, ToolKey, } from "./primary-toolbar/types" provides shared toolbar tool and selection types.
+ * - type { WorkspaceDomain } from "../../workspace/types" provides shared workspace domain or utility key types.
  */
 import MegamenuView from "../tools/edit/megamenus/MegamenuView";
 import MegamenuActions from "../tools/edit/megamenus/MegamenuActions";

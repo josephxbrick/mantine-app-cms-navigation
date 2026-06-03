@@ -1,3 +1,12 @@
+/*
+ * File purpose: Visual product-toolbar surface with search, user/help controls, and demo workspace toggle.
+ *
+ * Imports:
+ * - useEffect, useRef, useState, from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { CSSProperties, ReactNode, } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - ActionIcon, Box, Group, Paper, Text, TextInput, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - IconChevronDown, IconCircleArrowUp, IconHelpCircle, IconSearch, IconUserCircle, IconX, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ */
 import {
   useEffect,
   useRef,

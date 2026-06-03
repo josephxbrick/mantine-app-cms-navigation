@@ -1,3 +1,9 @@
+/*
+ * File purpose: Defines the custom Mantine color scales used throughout the CMS shell.
+ *
+ * Imports:
+ * - type { MantineColorsTuple } from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ */
 import type { MantineColorsTuple } from "@mantine/core";
 
 export const asxGreen: MantineColorsTuple = [

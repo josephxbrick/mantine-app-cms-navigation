@@ -1,7 +1,13 @@
 /*
- * Primary content toolbar.
- * - Shows the selected content node title and workspace context.
- * - Receives selected content-tool state and measures the tool selector width.
+ * File purpose: Primary toolbar controller that measures available space and chooses visible versus overflow tools.
+ *
+ * Imports:
+ * - useEffect, useRef, useState, from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { ReactNode, RefObject } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - Box, Flex, Group, Text, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - IconChevronDown, IconInfoCircle, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - PrimaryToolbarPaper from "./PrimaryToolbarPaper" provides the visual primary toolbar surface.
+ * - type { SelectedToolKey, ToolbarTool, ToolKey, } from "./types" provides shared data types used by this feature.
  */
 import {
   useEffect,

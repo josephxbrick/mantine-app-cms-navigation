@@ -1,7 +1,11 @@
 /*
- * Preview Advanced megamenu content.
- * - Renders environment, request data, and preview settings columns.
- * - Shares the selected preview device with the Preview View menu.
+ * File purpose: Preview Advanced megamenu wrapper that wires advanced field values into the generic renderer.
+ *
+ * Imports:
+ * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - type { MegamenuFieldValues } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
+ * - type { PreviewDevice } from "./PreviewDeviceColumn" provides the shared Preview device type.
+ * - ADVANCED_DEVICE_ID, ADVANCED_INCLUDE_BROWSER_COOKIES_ID, ADVANCED_SHOW_ALL_PAGES_ID, previewAdvancedMenu, from "./advancedMenu" provides Preview Advanced menu configuration and field identifiers.
  */
 import { MegamenuRenderer } from "../../../megamenus/MegamenuRenderer";
 import type { MegamenuFieldValues } from "../../../megamenus/types";

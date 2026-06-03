@@ -1,7 +1,11 @@
 /*
- * Generic megamenu renderer.
- * - Converts megamenu config objects into visible columns and menu items.
- * - Handles radio, checkbox, command, and conditionally visible columns.
+ * File purpose: Generic megamenu renderer for command, radio, checkbox, select, text input, and button menu layouts.
+ *
+ * Imports:
+ * - Box, Button, Group, Select, Stack, Text, TextInput, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { MegamenuCheckboxValues, MegamenuColumn, MegamenuConfig, MegamenuFieldValues, MegamenuItem, MegamenuRadioValues, } from "./types" provides shared data types used by this feature.
  */
 import {
   Box,

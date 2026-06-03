@@ -1,7 +1,10 @@
 /*
- * Preview actions megamenu content.
- * - Mirrors Edit Actions without Page-specific commands.
- * - Currently wires actions to placeholder console logging.
+ * File purpose: Preview Actions megamenu configuration for previewing, validating, and publishing actions.
+ *
+ * Imports:
+ * - IconCalendar, IconRoute, IconTrash, IconUser, IconUsers, IconUserCircle, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - type { MegamenuConfig } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
  */
 import {
   IconCalendar,

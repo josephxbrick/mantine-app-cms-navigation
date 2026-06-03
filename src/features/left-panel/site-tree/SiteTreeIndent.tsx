@@ -1,7 +1,8 @@
 /*
- * Site tree indentation spacer.
- * - Creates horizontal offset based on a node's depth.
- * - Keeps tree item layout math isolated from the row component.
+ * File purpose: Indent spacer component that aligns nested tree rows.
+ *
+ * Imports:
+ * - Box from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
  */
 import { Box } from "@mantine/core";
 

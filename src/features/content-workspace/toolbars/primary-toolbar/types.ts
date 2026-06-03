@@ -1,7 +1,8 @@
 /*
- * Primary toolbar data contracts.
- * - Defines content-tool keys and toolbar tool shape.
- * - Shared by the primary toolbar and its paper control.
+ * File purpose: Shared primary-toolbar tool and selection types.
+ *
+ * Imports:
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  */
 import type { ReactNode } from "react";
 

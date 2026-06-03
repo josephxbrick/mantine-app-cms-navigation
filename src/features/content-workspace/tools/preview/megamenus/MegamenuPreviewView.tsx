@@ -1,7 +1,11 @@
 /*
- * Preview view megamenu content.
- * - Defines preview device selection and preview commands for the shared renderer.
- * - Tracks the selected preview device through caller-owned state.
+ * File purpose: Preview View megamenu configuration for opening preview-related destinations.
+ *
+ * Imports:
+ * - IconExternalLink from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - type { MegamenuConfig } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
+ * - type { PreviewDevice } from "./PreviewDeviceColumn" provides the shared Preview device type.
  */
 import { IconExternalLink } from "@tabler/icons-react";
 

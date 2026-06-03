@@ -1,7 +1,8 @@
 /*
- * Site tree data contracts.
- * - Defines the recursive node shape used by tree data and row renderers.
- * - Keeps tree data typing shared across the left panel.
+ * File purpose: Shared type definitions for site and asset tree nodes.
+ *
+ * Imports:
+ * - None; this file currently defines local types or constants without external dependencies.
  */
 export type SiteTreeNodeType = "folder" | "page";
 

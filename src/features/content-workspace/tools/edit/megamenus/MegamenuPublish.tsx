@@ -1,7 +1,10 @@
 /*
- * Publish megamenu content.
- * - Defines check-in, mark-for-publish, and publish action columns for the shared renderer.
- * - Provides the visual menu options; publish behavior is not implemented yet.
+ * File purpose: Edit Publish megamenu configuration for publish, mark, advance, and workflow actions.
+ *
+ * Imports:
+ * - IconCheck, IconChecks, IconFile, IconFiles, IconFolderCheck, IconHistory, IconLogin, IconRotate, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - type { MegamenuConfig } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
  */
 import {
   IconCheck,

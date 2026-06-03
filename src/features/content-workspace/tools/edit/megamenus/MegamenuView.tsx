@@ -1,7 +1,9 @@
 /*
- * View megamenu content.
- * - Connects View menu state to the generic megamenu renderer.
- * - Handles edit mode radio choices, view option toggles, and preview options.
+ * File purpose: Edit View megamenu wrapper that renders view options through the generic renderer.
+ *
+ * Imports:
+ * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - EDIT_MODE_GROUP_ID, PREVIEW_OPTIONS_COMMAND_ID, SHOW_FORM_INDEX_ID, SHOW_IN_CONTEXT_INDEX_ID, SHOW_PATH_ID, editViewMenu, from "./viewMenu" provides Edit View menu configuration and option identifiers.
  */
 import { MegamenuRenderer } from "../../../megamenus/MegamenuRenderer";
 

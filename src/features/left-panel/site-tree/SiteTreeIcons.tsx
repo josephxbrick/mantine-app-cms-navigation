@@ -1,7 +1,9 @@
 /*
- * Site tree icon set.
- * - Provides consistent chevron, folder, open-folder, and page icons.
- * - Centralizes size/color defaults for tree rows.
+ * File purpose: Icon helpers for folder, page, asset, and chevron states in the site and asset trees.
+ *
+ * Imports:
+ * - IconArchive, IconChevronDown, IconChevronRight, IconFile, IconFileText, IconFolder, IconFolderOpen, IconPhoto, IconVideo, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - type { SiteTreeNodeIconKey } from "./types" provides shared data types used by this feature.
  */
 import {
   IconArchive,

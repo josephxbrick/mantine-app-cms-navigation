@@ -1,7 +1,8 @@
 /*
- * Workspace domain contracts.
- * - Defines the major application domains selected from the product toolbar.
- * - Shared by shell, toolbars, and domain-specific workspace configuration.
+ * File purpose: Shared workspace domain and utility key types used across shell navigation.
+ *
+ * Imports:
+ * - None; this file currently defines local types or constants without external dependencies.
  */
 export type WorkspaceDomain =
   | "dashboard"

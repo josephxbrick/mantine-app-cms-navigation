@@ -1,7 +1,10 @@
 /*
- * Actions megamenu content.
- * - Defines Page, Assign To, and Workflow action columns for the shared renderer.
- * - Currently wires actions to placeholder console logging.
+ * File purpose: Edit Actions megamenu configuration for save, reload, copy, move, delete, and validation actions.
+ *
+ * Imports:
+ * - IconCalendar, IconDeviceFloppy, IconPencilCheck, IconRoute, IconTrash, IconUser, IconUsers, IconUserCircle, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - type { MegamenuColumn, MegamenuConfig, } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
  */
 import {
   IconCalendar,

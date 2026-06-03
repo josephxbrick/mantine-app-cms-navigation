@@ -1,7 +1,12 @@
 /*
- * Site tree browser.
- * - Renders the scrollable tree from caller-provided tree data.
- * - Passes selected-node state and selection callbacks to each tree item.
+ * File purpose: Scrollable tree container that renders the visible site or asset tree.
+ *
+ * Imports:
+ * - Box, ScrollArea from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - SiteTreeItem from "./SiteTreeItem" provides the recursive row renderer for tree nodes.
+ * - getTreeNodeIdsToOpen from "./siteTreeData" provides prototype tree data and lookup helpers for selected nodes.
+ * - type { SiteTreeNode } from "./types" provides shared data types used by this feature.
  */
 import { Box, ScrollArea } from "@mantine/core";
 import type { ReactNode } from "react";

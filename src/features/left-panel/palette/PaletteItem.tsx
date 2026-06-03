@@ -1,7 +1,10 @@
 /*
- * Palette item button.
- * - Renders one icon/label button in the left palette.
- * - Applies selected/unselected styling and notifies the palette when clicked.
+ * File purpose: Single utility-palette button used inside the left navigation panel.
+ *
+ * Imports:
+ * - Box, Text from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - type { Icon } from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  */
 import { Box, Text } from "@mantine/core";
 import type { Icon } from "@tabler/icons-react";

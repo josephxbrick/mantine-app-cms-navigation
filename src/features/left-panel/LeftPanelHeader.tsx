@@ -1,7 +1,10 @@
 /*
- * Left panel header.
- * - Displays the active left-panel view title and icon.
- * - Provides the fixed header band above the palette and tree browser.
+ * File purpose: Header strip for the left navigation panel showing the active domain icon and title.
+ *
+ * Imports:
+ * - Box, Group, Text from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - type { Icon } from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  */
 import { Box, Group, Text } from "@mantine/core";
 import type { Icon } from "@tabler/icons-react";

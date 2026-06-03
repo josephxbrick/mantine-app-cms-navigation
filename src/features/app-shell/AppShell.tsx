@@ -1,7 +1,21 @@
 /*
- * Main CMS shell layout.
- * - Owns top-level workspace state such as selected tree node, active tool, and panel width.
- * - Renders the product toolbar, left panel, splitter, and content workspace.
+ * File purpose: Main CMS shell controller that owns domain, utility, tree selection, toolbar, and panel sizing state.
+ *
+ * Imports:
+ * - useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - Box, Flex from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - IconAccessible, IconBinaryTree2, IconChartBar, IconCircleDot, IconCode, IconCpu, IconEye, IconFileText, IconFolder, IconHistory, IconLayoutDashboard, IconLayoutGridAdd, IconLayoutSidebar, IconPencilCog, IconPhoto, IconSearch, IconSettings, IconSitemap, IconTags, IconTarget, IconTargetArrow, IconUserCheck, IconUserShield, IconWand, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - type { Icon } from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - IconFontAwesomeAi from "./icons/IconFontAwesomeAi" provides the custom AI utility icon used in the Site utility palette.
+ * - ContentWorkspace from "../content-workspace/ContentWorkspace" provides the main content workspace region beside the left panel.
+ * - type { SelectedToolKey, ToolbarTool, ToolKey, } from "../content-workspace/toolbars/primary-toolbar/types" provides shared toolbar tool and selection types.
+ * - LeftPanel from "../left-panel/LeftPanel" provides the resizable left navigation panel.
+ * - assetsTreeData, editTreeData, findTreeNodeById, from "../left-panel/site-tree/siteTreeData" provides prototype tree data and lookup helpers for selected nodes.
+ * - type { SiteTreeNode } from "../left-panel/site-tree/types" provides shared data types used by this feature.
+ * - type { WorkspaceDomain, WorkspaceUtilityKey, } from "../workspace/types" provides shared workspace domain or utility key types.
+ * - ProductToolbar from "../content-workspace/toolbars/product-toolbar/ProductToolbar" provides the top product toolbar component.
+ * - WorkspaceSplitter from "./WorkspaceSplitter" provides the draggable splitter between navigation and workspace regions.
  */
 import { useState } from "react";
 import type { ReactNode } from "react";

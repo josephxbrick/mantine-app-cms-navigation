@@ -1,7 +1,9 @@
 /*
- * AI palette icon.
- * - Wraps the project AI SVG path in the Tabler icon component shape.
- * - Lets palette entries keep using the shared icon contract.
+ * File purpose: Custom AI icon component that adapts a Font Awesome-style mark to Tabler-compatible icon props.
+ *
+ * Imports:
+ * - forwardRef from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { Icon, IconProps, } from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
  */
 import { forwardRef } from "react";
 import type {

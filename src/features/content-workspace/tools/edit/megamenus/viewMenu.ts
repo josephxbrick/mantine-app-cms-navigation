@@ -1,7 +1,9 @@
 /*
- * View megamenu configuration.
- * - Defines ids and menu data for the View dropdown.
- * - Drives radio modes, checkbox toggles, and preview command rendering.
+ * File purpose: Edit View megamenu configuration and option identifiers.
+ *
+ * Imports:
+ * - IconAdjustmentsHorizontal from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - type { MegamenuConfig } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
  */
 import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
 

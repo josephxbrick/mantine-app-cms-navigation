@@ -1,7 +1,14 @@
 /*
- * Left panel palette.
- * - Displays the expandable view rail for the selected workspace domain.
- * - Notifies the app shell when a workspace view is selected.
+ * File purpose: Vertical utility palette for switching the active left-panel utility within a domain.
+ *
+ * Imports:
+ * - Fragment, useEffect, useRef, useState, from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { Icon } from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - Box, Stack from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - PaletteItem from "./PaletteItem" provides the reusable utility palette item component and sizing constants.
+ * - PALETTE_ITEM_SIZE from "./PaletteItem" provides the reusable utility palette item component and sizing constants.
+ * - type { WorkspaceUtilityKey } from "../../workspace/types" provides shared workspace domain or utility key types.
  */
 import {
   Fragment,

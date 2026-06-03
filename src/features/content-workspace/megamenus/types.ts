@@ -1,7 +1,8 @@
 /*
- * Megamenu data contracts.
- * - Defines config, column, item, radio, and checkbox value shapes.
- * - Used by the generic megamenu renderer and edit-menu configs.
+ * File purpose: Shared data model for configurable megamenu columns, items, values, and visibility rules.
+ *
+ * Imports:
+ * - None; this file currently defines local types or constants without external dependencies.
  */
 export type RadioVisibilityRule = {
   source: "radio";
