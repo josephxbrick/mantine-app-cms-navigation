@@ -568,6 +568,12 @@ export function AppShell() {
     demoWorkspaceVisible,
     setDemoWorkspaceVisible,
   ] = useState(true);
+  const [publishTarget, setPublishTarget] =
+    useState("production");
+  const [
+    showPublishingTarget,
+    setShowPublishingTarget,
+  ] = useState(false);
 
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     LEFT_PANEL_INITIAL_WIDTH
@@ -734,8 +740,11 @@ export function AppShell() {
     utilityItems: domainConfig.utilities,
     selectedUtilityId,
     selectedNodeId,
+    publishTarget,
+    showPublishingTarget,
     onSelectUtility: handleSelectUtility,
     onSelectNode: handleSelectNode,
+    onChangePublishTarget: setPublishTarget,
   };
 
   const workspaceSplitterProps = {
@@ -756,6 +765,8 @@ export function AppShell() {
     demoWorkspaceVisible,
     tools: activeTools,
     onSelectTool: handleSelectTool,
+    onTogglePublishingTargetVisibility: () =>
+      setShowPublishingTarget((current) => !current),
   };
 
   return (

@@ -39,10 +39,13 @@ type LeftPanelProps = {
   utilityItems: LeftPanelUtility[];
   selectedUtilityId: WorkspaceUtilityKey;
   selectedNodeId: string | null;
+  publishTarget: string;
+  showPublishingTarget: boolean;
   onSelectUtility: (
     utilityId: WorkspaceUtilityKey
   ) => void;
   onSelectNode: (nodeId: string) => void;
+  onChangePublishTarget: (value: string) => void;
 };
 
 type DisplayGroupProps = {
@@ -88,7 +91,10 @@ type HeaderProps = {
   icon: Icon;
 };
 
-function Header({ title, icon }: HeaderProps) {
+function Header({
+  title,
+  icon,
+}: HeaderProps) {
   return (
     <Box
       style={{
@@ -138,12 +144,20 @@ function PaletteColumn({
 type SiteTreeColumnProps = {
   nodes: SiteTreeNode[] | null;
   selectedNodeId: string | null;
+  showOptions: boolean;
+  publishTarget: string;
+  showPublishingTarget: boolean;
+  onChangePublishTarget: (value: string) => void;
   onSelectNode: (nodeId: string) => void;
 };
 
 function SiteTreeColumn({
   nodes,
   selectedNodeId,
+  showOptions,
+  publishTarget,
+  showPublishingTarget,
+  onChangePublishTarget,
   onSelectNode,
 }: SiteTreeColumnProps) {
   if (!nodes) {
@@ -163,6 +177,10 @@ function SiteTreeColumn({
       <SiteTree
         nodes={nodes}
         selectedNodeId={selectedNodeId}
+        showOptions={showOptions}
+        publishTarget={publishTarget}
+        showPublishingTarget={showPublishingTarget}
+        onChangePublishTarget={onChangePublishTarget}
         onSelectNode={onSelectNode}
       />
     </Box>
@@ -200,8 +218,11 @@ export function LeftPanel({
   utilityItems,
   selectedUtilityId,
   selectedNodeId,
+  publishTarget,
+  showPublishingTarget,
   onSelectUtility,
   onSelectNode,
+  onChangePublishTarget,
 }: LeftPanelProps) {
   const headerProps = {
     title,
@@ -217,6 +238,10 @@ export function LeftPanel({
   const siteTreeColumnProps = {
     nodes,
     selectedNodeId,
+    showOptions: title === "Site",
+    publishTarget,
+    showPublishingTarget,
+    onChangePublishTarget,
     onSelectNode,
   };
 

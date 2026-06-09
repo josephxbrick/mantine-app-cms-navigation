@@ -2,7 +2,7 @@
  * File purpose: Recursive tree row component that handles expansion, selection, indentation, and node styling.
  *
  * Imports:
- * - Box, Group, Text, Transition, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - Box, Group, Text, Tooltip, Transition, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
  * - useEffect, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - ChevronClosedIcon, ChevronOpenIcon, TreeNodeIcon, from "./SiteTreeIcons" provides tree node and expansion icons.
@@ -13,6 +13,7 @@ import {
   Box,
   Group,
   Text,
+  Tooltip,
   Transition,
   UnstyledButton,
 } from "@mantine/core";
@@ -125,7 +126,7 @@ function NodeButtonContent({
       gap={4}
       wrap="nowrap"
       style={{
-        minWidth: "max-content",
+        minWidth: 0,
         userSelect: "none",
       }}
     >
@@ -194,7 +195,8 @@ function NodeIdentity({
       gap={6}
       wrap="nowrap"
       style={{
-        flexShrink: 0,
+        minWidth: 0,
+        flex: 1,
       }}
     >
       <NodeTypeIcon
@@ -203,16 +205,20 @@ function NodeIdentity({
         isOpen={isOpen}
       />
 
-      <Text
-        fz={16}
-        c={isSelected ? "asxIndigo.9" : "asxGray.8"}
-        fw={isSelected ? 500 : 400}
-        style={{
-          whiteSpace: "nowrap",
-        }}
-      >
-        {label}
-      </Text>
+      <Tooltip label={label} openDelay={400}>
+        <Text
+          truncate
+          fz={16}
+          c={isSelected ? "asxIndigo.9" : "asxGray.8"}
+          fw={isSelected ? 500 : 400}
+          style={{
+            minWidth: 0,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {label}
+        </Text>
+      </Tooltip>
     </Group>
   );
 }

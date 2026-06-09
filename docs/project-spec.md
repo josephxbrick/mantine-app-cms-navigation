@@ -76,11 +76,17 @@ The workspace is the main task area. It is composed of:
 
 The Site domain currently supports demo images for Edit and Preview modes via `/demo/site-edit.png` and `/demo/site-preview.png`.
 
+The Site tree shows an Options panel above the tree. The panel remains fixed while the tree itself scrolls independently and defaults closed. Clicking the Options row toggles it open and closed; its filter icon uses selected-state styling while open. Open and close height changes animate at 200ms ease-out, while height changes caused by horizontal resizing and text wrapping animate at 100ms ease-out.
+
+Current options include checkboxes for indicating publishing target roots, region roots, and DITA content. The secondary toolbar Refresh action toggles Publishing Target dropdown visibility in this panel, with the dropdown hidden by default. Publishing Target uses the same reusable custom pill dropdown component as the Content Tools selector rather than a native browser select.
+
+Tree node labels truncate with an ellipsis when clipped and expose the full node name in a tooltip.
+
 ### Secondary Toolbar
 
 The secondary toolbar supports tool-specific megamenu tabs for Site and Assets workflows. Site Edit and Folder Content expose View, Actions, Publish, and New menus. Site Preview exposes View, Preview Settings, Actions, and Publish menus.
 
-The right side of the secondary toolbar includes compact action controls for Refresh, Save, and Search. A review-only control group containing Check in and Assign to can be toggled on and off with the Save icon. This group is hidden by default so it does not affect normal prototype review unless intentionally enabled.
+The right side of the secondary toolbar includes compact action controls for Refresh, Save, and Search. Refresh toggles the Publishing Target dropdown visibility in the Site tree Options panel. A review-only control group containing Check in and Assign to is visible by default and can be toggled on and off with the Save icon.
 
 The Assign to toolbar action opens a small dropdown aligned beneath the action itself. The dropdown uses the same megamenu command styling as the Site > Edit menus and contains:
 
@@ -95,6 +101,9 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Each product domain remembers its selected utility.
 - The Site domain returns to its default Site Tree utility when reselected.
 - Users can select nodes in available trees.
+- Users can select a publishing target without losing tree scroll position.
+- Users can toggle tree options open and closed from the Options row.
+- Users can reveal or hide the Publishing Target dropdown from the secondary toolbar Refresh action.
 - Tree selection updates the workspace label and active tool context.
 - Folder selections expose folder tools when configured.
 - Content selections expose content tools.
@@ -104,7 +113,7 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - The workspace can fall back to a placeholder label when no demo image applies.
 - Site Edit and Preview secondary toolbar tabs can open tool-specific megamenus.
 - The secondary toolbar Assign to action can open a dropdown for assigning to self, a user, or a group.
-- The secondary toolbar can optionally show review-only Check in and Assign to controls, hidden by default and toggled from the Save icon.
+- The secondary toolbar shows review-only Check in and Assign to controls by default, and the Save icon toggles them on and off.
 
 ## Design Requirements
 
@@ -121,7 +130,7 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Use Tabler icons where applicable.
 - Keep feature code organized by shell, left panel, content workspace, toolbars, trees, and workspace types.
 - Keep local component extraction consistent with the project's DisplayGroup convention.
-- Keep shared megamenu item types and renderers reusable across primary toolbar menus, secondary toolbar menus, and toolbar action dropdowns.
+- Keep shared megamenu item types and renderers reusable across primary toolbar menus, secondary toolbar menus, toolbar action dropdowns, and custom toolbar dropdown menus.
 - Validate meaningful changes with `npm run build`.
 
 ## Non-Goals

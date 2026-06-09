@@ -662,17 +662,17 @@ export function MegamenuCommandItem({
         paddingBlock,
         borderRadius: 8,
         border: selected
-          ? "1px solid var(--mantine-color-indigo-2)"
+          ? "1px solid var(--mantine-color-asxIndigo-2)"
           : isHovered
             ? hoverBorder
             : "1px solid transparent",
         background: selected
-          ? "var(--mantine-color-indigo-1)"
+          ? "var(--mantine-color-asxIndigo-0)"
           : isHovered
             ? hoverBackground
             : "transparent",
         color: selected
-          ? "var(--mantine-color-indigo-9)"
+          ? "var(--mantine-color-asxIndigo-9)"
           : isHovered
             ? hoverColor
             : "var(--mantine-color-asxGray-8)",

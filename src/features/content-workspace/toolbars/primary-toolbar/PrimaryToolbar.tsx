@@ -126,10 +126,16 @@ function MeasurementProbe({
         whiteSpace: "nowrap",
       }}
     >
-      <Group gap={8} wrap="nowrap">
+      <Group
+        gap="xs"
+        wrap="nowrap"
+        h={38}
+        px={14}
+        style={{ width: "max-content" }}
+      >
         {selected.icon}
 
-        <Text size="sm" fw={500}>
+        <Text size="16px" fw={400}>
           {selected.label}
         </Text>
 
@@ -159,9 +165,7 @@ export function PrimaryToolbar({
 
   useEffect(() => {
     if (measureRef.current) {
-      setButtonWidth(
-        measureRef.current.offsetWidth + 26
-      );
+      setButtonWidth(measureRef.current.offsetWidth);
     }
   }, [selectedTool, tools]);
 

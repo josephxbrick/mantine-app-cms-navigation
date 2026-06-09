@@ -2,18 +2,18 @@
  * File purpose: Primary toolbar surface for selected-item context, tool buttons, and tool overflow behavior.
  *
  * Imports:
- * - Group, Menu, Paper, Text, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
- * - IconChevronDown, IconExternalLink, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - Group, Menu, Paper, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - IconChevronDown, IconExternalLink from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
  * - type { ToolbarTool, ToolKey } from "./types" provides shared data types used by this feature.
  * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
- * - MEGAMENU_COLUMN_WIDTH, MegamenuColumnLayout, MegamenuCommandLabel, MegamenuCommandItem, from "../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - MegamenuColumnLayout, MegamenuCommandLabel, MegamenuCommandItem, from "../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
+ * - ToolbarSelectMenu from "../ToolbarSelectMenu" provides the reusable custom toolbar dropdown component.
  */
 import {
   Group,
   Menu,
   Paper,
-  Text,
   UnstyledButton,
 } from "@mantine/core";
 
@@ -26,11 +26,11 @@ import type { ToolbarTool, ToolKey } from "./types";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import {
-  MEGAMENU_COLUMN_WIDTH,
   MegamenuColumnLayout,
   MegamenuCommandLabel,
   MegamenuCommandItem,
 } from "../../megamenus/MegamenuRenderer";
+import { ToolbarSelectMenu } from "../ToolbarSelectMenu";
 
 type PrimaryToolbarPaperProps = {
   buttonWidth: number;
@@ -45,8 +45,6 @@ type ToolbarGroupProps = {
 
 type ToolbarBubbleProps = ToolbarGroupProps & {
   px?: number;
-  pl?: number;
-  pr?: number;
   py?: number;
 };
 
@@ -64,146 +62,18 @@ function DisplayGroup({ children }: ToolbarGroupProps) {
 function ToolbarBubble({
   children,
   px = TOOLBAR_BUBBLE_PADDING_X,
-  pl,
-  pr,
   py = TOOLBAR_BUBBLE_PADDING_Y,
 }: ToolbarBubbleProps) {
   return (
     <Paper
       radius="xl"
-      pl={pl ?? px}
-      pr={pr ?? px}
+      px={px}
       py={py}
       bg="white"
       shadow="xs"
     >
       <Group gap="md">{children}</Group>
     </Paper>
-  );
-}
-
-function ContentToolsLabel() {
-  return (
-    <Text
-      fz={14}
-      fw={500}
-      c="asxIndigo.8"
-      tt="uppercase"
-    >
-      Content Tools
-    </Text>
-  );
-}
-
-type ToolSelectorMenuProps = {
-  buttonWidth: number;
-  selected: ToolbarTool;
-  tools: ToolbarTool[];
-  onSelectTool: (tool: ToolKey) => void;
-};
-
-function ToolSelectorMenu({
-  buttonWidth,
-  selected,
-  tools,
-  onSelectTool,
-}: ToolSelectorMenuProps) {
-  const [opened, setOpened] = useState(false);
-
-  const handleSelectTool = (tool: ToolKey) => {
-    onSelectTool(tool);
-    setOpened(false);
-  };
-
-  return (
-    <Menu
-      shadow="md"
-      width={MEGAMENU_COLUMN_WIDTH}
-      position="bottom-end"
-      opened={opened}
-      onChange={setOpened}
-    >
-      <Menu.Target>
-        <UnstyledButton
-          style={{
-            width: buttonWidth,
-            height: 38,
-            paddingInline: 14,
-            borderRadius: 999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            gap: 8,
-            background:
-              "var(--mantine-color-asxIndigo-0)",
-            border:
-              "1px solid var(--mantine-color-asxIndigo-2)",
-            color:
-              "var(--mantine-color-asxGray-7)",
-            transition: "width 180ms ease",
-            overflow: "hidden",
-          }}
-        >
-          <Group gap={8} wrap="nowrap">
-            {selected.icon}
-
-            <Text
-              size="16px"
-              fw={400}
-              style={{
-                whiteSpace: "nowrap",
-              }}
-            >
-              {selected.label}
-            </Text>
-          </Group>
-
-          <IconChevronDown
-            size={20}
-            style={{ flexShrink: 0 }}
-          />
-        </UnstyledButton>
-      </Menu.Target>
-
-      <Menu.Dropdown px={12} py={12}>
-        <MegamenuColumnLayout>
-          {tools.map((tool) => (
-            <ToolSelectorMenuItem
-              key={tool.label}
-              tool={tool}
-              selected={selected}
-              onSelectTool={handleSelectTool}
-            />
-          ))}
-        </MegamenuColumnLayout>
-      </Menu.Dropdown>
-    </Menu>
-  );
-}
-
-type ToolSelectorMenuItemProps = {
-  tool: ToolbarTool;
-  selected: ToolbarTool;
-  onSelectTool: (tool: ToolKey) => void;
-};
-
-function ToolSelectorMenuItem({
-  tool,
-  selected,
-  onSelectTool,
-}: ToolSelectorMenuItemProps) {
-  const isSelected = tool.label === selected.label;
-
-  return (
-    <MegamenuCommandItem
-      selected={isSelected}
-      onClick={() => onSelectTool(tool.label)}
-    >
-      {tool.icon}
-      <MegamenuCommandLabel>
-        {tool.label}
-      </MegamenuCommandLabel>
-    </MegamenuCommandItem>
   );
 }
 
@@ -218,7 +88,6 @@ function ViewMenu() {
   return (
     <Menu
       shadow="md"
-      width={MEGAMENU_COLUMN_WIDTH}
       position="bottom-end"
       opened={opened}
       onChange={setOpened}
@@ -246,7 +115,12 @@ function ViewMenu() {
         </UnstyledButton>
       </Menu.Target>
 
-      <Menu.Dropdown px={12} pt={16} pb={12}>
+      <Menu.Dropdown
+        px={12}
+        pt={16}
+        pb={12}
+        style={{ width: "max-content" }}
+      >
         <MegamenuColumnLayout header="Launch in Browser">
           <MegamenuCommandItem
             onClick={() => handleLaunch("Site in Staging")}
@@ -281,26 +155,22 @@ type ContentToolsBubbleProps = {
 };
 
 function ContentToolsBubble({
-  buttonWidth,
   selected,
   tools,
   onSelectTool,
 }: ContentToolsBubbleProps) {
-  const toolSelectorMenuProps = {
-    buttonWidth,
-    selected,
-    tools,
-    onSelectTool,
-  };
-
   return (
-    <ToolbarBubble
-      pl={18}
-      pr={TOOLBAR_BUBBLE_PADDING_Y}
-    >
-      <ContentToolsLabel />
-      <ToolSelectorMenu {...toolSelectorMenuProps} />
-    </ToolbarBubble>
+    <ToolbarSelectMenu
+      label="Content Tools"
+      mode="surrounded"
+      value={selected.label}
+      options={tools.map((tool) => ({
+        value: tool.label,
+        label: tool.label,
+        icon: tool.icon,
+      }))}
+      onChange={(tool) => onSelectTool(tool as ToolKey)}
+    />
   );
 }
 

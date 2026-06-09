@@ -6,7 +6,11 @@
  * - type { Icon } from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
  * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  */
-import { Box, Group, Text } from "@mantine/core";
+import {
+  Box,
+  Group,
+  Text,
+} from "@mantine/core";
 import type { Icon } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 
@@ -30,7 +34,13 @@ function DisplayGroup({ children }: DisplayGroupProps) {
           "1px solid var(--mantine-color-asxIndigo-3)",
       }}
     >
-      <Group h="100%" gap={6} wrap="nowrap" px="lg">
+      <Group
+        h="100%"
+        gap="lg"
+        wrap="nowrap"
+        px="lg"
+        style={{ minWidth: 0 }}
+      >
         {children}
       </Group>
     </Box>
@@ -75,8 +85,15 @@ export const LeftPanelHeader = ({
 }: LeftPanelHeaderProps) => {
   return (
     <DisplayGroup>
-      <HeaderIcon icon={icon} />
-      <Title title={title} />
+      <Group
+        gap={6}
+        wrap="nowrap"
+        miw={0}
+        style={{ flexShrink: 0 }}
+      >
+        <HeaderIcon icon={icon} />
+        <Title title={title} />
+      </Group>
     </DisplayGroup>
   );
 };

@@ -29,6 +29,7 @@ type ContentWorkspaceProps = {
   demoWorkspaceVisible: boolean;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
+  onTogglePublishingTargetVisibility: () => void;
 };
 
 type DisplayGroupProps = {
@@ -139,6 +140,7 @@ export function ContentWorkspace({
   demoWorkspaceVisible,
   tools,
   onSelectTool,
+  onTogglePublishingTargetVisibility,
 }: ContentWorkspaceProps) {
   const selectedNodePreviewProps = {
     domain,
@@ -158,6 +160,7 @@ export function ContentWorkspace({
   const secondaryToolbarProps = {
     domain,
     tool: selectedTool,
+    onTogglePublishingTargetVisibility,
   };
 
   return (

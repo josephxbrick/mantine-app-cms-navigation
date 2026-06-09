@@ -102,6 +102,7 @@ type SecondaryToolbarAction = Extract<
 type SecondaryToolbarProps = {
   domain: WorkspaceDomain;
   tool: SelectedToolKey;
+  onTogglePublishingTargetVisibility: () => void;
 };
 
 function placeholderMenus(
@@ -550,11 +551,13 @@ function ToolbarIconActionButton({
 type ToolbarActionsProps = {
   showReviewActions: boolean;
   onToggleReviewActions: () => void;
+  onTogglePublishingTargetVisibility: () => void;
 };
 
 function ToolbarActions({
   showReviewActions,
   onToggleReviewActions,
+  onTogglePublishingTargetVisibility,
 }: ToolbarActionsProps) {
   return (
     <Group gap="md" wrap="nowrap">
@@ -579,6 +582,8 @@ function ToolbarActions({
             onClick={
               action.id === "secondary-save"
                 ? onToggleReviewActions
+                : action.id === "secondary-refresh"
+                  ? onTogglePublishingTargetVisibility
                 : undefined
             }
           />
@@ -745,6 +750,7 @@ function PlaceholderMegamenu({
 export default function SecondaryToolbar({
   domain,
   tool,
+  onTogglePublishingTargetVisibility,
 }: SecondaryToolbarProps) {
   const [activeMenu, setActiveMenu] =
     useState<MenuKey>(null);
@@ -793,7 +799,7 @@ export default function SecondaryToolbar({
   const [
     showReviewActions,
     setShowReviewActions,
-  ] = useState(false);
+  ] = useState(true);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -866,6 +872,7 @@ export default function SecondaryToolbar({
     showReviewActions,
     onToggleReviewActions: () =>
       setShowReviewActions((current) => !current),
+    onTogglePublishingTargetVisibility,
   };
 
   const activeMegamenuProps = {

@@ -66,3 +66,38 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - The secondary toolbar `Assign to` dropdown has no header and uses `width="target"` so it matches the toolbar item width.
 - The review controls are prototype-only visibility affordances for meeting review and are intentionally toggled with the Save icon.
 - Verification: `npm run build` passed after the implementation updates.
+
+## 2026-06-09 - Publishing Target Tree Control
+
+### Summary
+
+- Added a fixed Site tree Options panel above the scrollable tree, defaulting closed.
+- Added animated Options panel open/close behavior with selected-state filter icon styling.
+- Added tree option checkboxes for publishing target root, region root, and DITA content indicators.
+- Added a Publishing Target dropdown with QA, Staging, and Production options; Production is the selected value by default, and the dropdown itself is hidden by default.
+- Wired the secondary toolbar Refresh action to toggle Publishing Target dropdown visibility.
+- Replaced native Publishing Target selects with a reusable custom pill dropdown shared with the Content Tools selector.
+- Updated custom dropdown menus so surrounded controls use the whole control width, dropdown-only controls use a top label, trigger/menu icons are optional, selected/hover states match tree colors, and Launch in Browser hugs its content.
+- Added ellipsis truncation plus full-name tooltips for clipped tree node labels.
+- Changed the secondary toolbar Check in and Assign to review controls to start visible by default.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/features/app-shell/AppShell.tsx`
+- `src/features/content-workspace/ContentWorkspace.tsx`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/content-workspace/toolbars/primary-toolbar/PrimaryToolbar.tsx`
+- `src/features/content-workspace/toolbars/primary-toolbar/PrimaryToolbarPaper.tsx`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+- `src/features/content-workspace/toolbars/ToolbarSelectMenu.tsx`
+- `src/features/left-panel/LeftPanel.tsx`
+- `src/features/left-panel/LeftPanelHeader.tsx`
+- `src/features/left-panel/site-tree/SiteTree.tsx`
+- `src/features/left-panel/site-tree/SiteTreeItem.tsx`
+
+### Notes
+
+- The selector is local prototype state and does not connect to live publishing behavior.
+- Verification: `npm run build` passed after the implementation updates.
