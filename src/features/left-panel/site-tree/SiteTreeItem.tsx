@@ -3,7 +3,7 @@
  *
  * Imports:
  * - Box, Group, Text, Tooltip, Transition, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
- * - useEffect, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - useCallback, useEffect, useRef, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - ChevronClosedIcon, ChevronOpenIcon, TreeNodeIcon, from "./SiteTreeIcons" provides tree node and expansion icons.
  * - SiteTreeIndent from "./SiteTreeIndent" provides indentation spacing for nested tree rows.
@@ -17,7 +17,12 @@ import {
   Transition,
   UnstyledButton,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
 
 import {
@@ -205,21 +210,69 @@ function NodeIdentity({
         isOpen={isOpen}
       />
 
-      <Tooltip label={label} openDelay={400}>
-        <Text
-          truncate
-          fz={16}
-          c={isSelected ? "asxIndigo.9" : "asxGray.8"}
-          fw={isSelected ? 500 : 400}
-          style={{
-            minWidth: 0,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {label}
-        </Text>
-      </Tooltip>
+      <NodeLabel label={label} isSelected={isSelected} />
     </Group>
+  );
+}
+
+type NodeLabelProps = {
+  label: string;
+  isSelected: boolean;
+};
+
+function NodeLabel({ label, isSelected }: NodeLabelProps) {
+  const labelRef = useRef<HTMLParagraphElement | null>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  const updateTruncation = useCallback(() => {
+    const element = labelRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    setIsTruncated(element.scrollWidth > element.clientWidth);
+  }, []);
+
+  useEffect(() => {
+    const element = labelRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateTruncation();
+    });
+
+    resizeObserver.observe(element);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [updateTruncation]);
+
+  return (
+    <Tooltip
+      label={label}
+      openDelay={400}
+      disabled={!isTruncated}
+    >
+      <Text
+        ref={labelRef}
+        truncate
+        fz={16}
+        c={isSelected ? "asxIndigo.9" : "asxGray.8"}
+        fw={isSelected ? 500 : 400}
+        onMouseEnter={updateTruncation}
+        style={{
+          minWidth: 0,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {label}
+      </Text>
+    </Tooltip>
   );
 }
 
