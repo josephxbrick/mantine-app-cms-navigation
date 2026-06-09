@@ -101,3 +101,25 @@ This log tracks project decisions, documentation updates, implementation notes, 
 
 - The selector is local prototype state and does not connect to live publishing behavior.
 - Verification: `npm run build` passed after the implementation updates.
+
+## 2026-06-09 - New Chat Handoff Checkpoint
+
+### Summary
+
+- Prepared the project for a clean follow-up chat.
+- Confirmed the current product spec already reflects the latest implemented CMS navigation prototype behavior.
+- Confirmed the working tree was clean before the handoff update.
+- Fixed a React Hooks lint issue in the Site tree Options panel animation by moving the open/close transition reset into the toggle path while keeping resize-driven height transitions handled by the resize observer.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `src/features/left-panel/site-tree/SiteTree.tsx`
+- `dist/index.html`
+- `dist/assets/index-DRAmBAso.js`
+
+### Notes
+
+- Next chat should start by reading `docs/project-spec.md` and this session log.
+- Current branch: `main`.
+- Verification: `npm run build` and `npm run lint` passed.

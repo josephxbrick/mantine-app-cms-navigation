@@ -80,6 +80,13 @@ function DisplayGroup({
   onChangePublishTarget,
 }: DisplayGroupProps) {
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [optionsTransitionMs, setOptionsTransitionMs] =
+    useState(200);
+
+  const handleToggleOptions = () => {
+    setOptionsTransitionMs(200);
+    setOptionsOpen((current) => !current);
+  };
 
   return (
     <Box
@@ -98,11 +105,11 @@ function DisplayGroup({
       {showOptions ? (
         <OptionsPanel
           open={optionsOpen}
+          heightTransitionMs={optionsTransitionMs}
           publishTarget={publishTarget}
           showPublishingTarget={showPublishingTarget}
-          onToggleOpen={() =>
-            setOptionsOpen((current) => !current)
-          }
+          onToggleOpen={handleToggleOptions}
+          onChangeHeightTransitionMs={setOptionsTransitionMs}
           onChangePublishTarget={onChangePublishTarget}
         />
       ) : null}
@@ -115,17 +122,21 @@ function DisplayGroup({
 
 type OptionsPanelProps = {
   open: boolean;
+  heightTransitionMs: number;
   publishTarget: string;
   showPublishingTarget: boolean;
   onToggleOpen: () => void;
+  onChangeHeightTransitionMs: (value: number) => void;
   onChangePublishTarget: (value: string) => void;
 };
 
 function OptionsPanel({
   open,
+  heightTransitionMs,
   publishTarget,
   showPublishingTarget,
   onToggleOpen,
+  onChangeHeightTransitionMs,
   onChangePublishTarget,
 }: OptionsPanelProps) {
   return (
@@ -146,7 +157,13 @@ function OptionsPanel({
           open={open}
           onToggleOpen={onToggleOpen}
         />
-        <AnimatedOptionsContent open={open}>
+        <AnimatedOptionsContent
+          open={open}
+          heightTransitionMs={heightTransitionMs}
+          onChangeHeightTransitionMs={
+            onChangeHeightTransitionMs
+          }
+        >
           <OptionsControls
             publishTarget={publishTarget}
             showPublishingTarget={showPublishingTarget}
@@ -212,23 +229,24 @@ function OptionsHeader({
 
 type AnimatedOptionsContentProps = {
   children: ReactNode;
+  heightTransitionMs: number;
   open: boolean;
+  onChangeHeightTransitionMs: (value: number) => void;
 };
 
 function AnimatedOptionsContent({
   children,
+  heightTransitionMs,
   open,
+  onChangeHeightTransitionMs,
 }: AnimatedOptionsContentProps) {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [contentHeight, setContentHeight] = useState(0);
   const contentHeightRef = useRef(0);
   const openRef = useRef(open);
-  const [heightTransitionMs, setHeightTransitionMs] =
-    useState(200);
 
   useEffect(() => {
     openRef.current = open;
-    setHeightTransitionMs(200);
   }, [open]);
 
   useEffect(() => {
@@ -246,7 +264,7 @@ function AnimatedOptionsContent({
         contentHeightRef.current !== 0 &&
         nextHeight !== contentHeightRef.current
       ) {
-        setHeightTransitionMs(100);
+        onChangeHeightTransitionMs(100);
       }
 
       contentHeightRef.current = nextHeight;
@@ -261,7 +279,7 @@ function AnimatedOptionsContent({
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [onChangeHeightTransitionMs]);
 
   return (
     <Box
