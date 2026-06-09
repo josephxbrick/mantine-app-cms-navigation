@@ -133,6 +133,22 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Keep shared megamenu item types and renderers reusable across primary toolbar menus, secondary toolbar menus, toolbar action dropdowns, and custom toolbar dropdown menus.
 - Validate meaningful changes with `npm run build`.
 
+## Deployment
+
+The staging prototype is deployed to `stage.josephbrick.com` with `npm run deploy:stage`.
+
+The deploy script builds the Vite app, syncs `dist/` to `s3://stage.josephbrick.com/`, deletes stale S3 files, and creates a CloudFront invalidation for `/*`.
+
+Current staging architecture:
+
+- S3 bucket: `stage.josephbrick.com`
+- CloudFront distribution: `ES6M0K6KPAGL3`
+- CloudFront alias: `stage.josephbrick.com`
+- CloudFront Basic Auth is handled outside the React app by a CloudFront Function.
+- CloudFront currently uses the S3 website endpoint origin, so deployed S3 objects must be uploaded with `public-read` ACLs.
+
+The deploy IAM user needs S3 permissions for `ListBucket`, `PutObject`, `PutObjectAcl`, and `DeleteObject`, plus CloudFront permissions for `ListDistributions`, `CreateInvalidation`, and `GetInvalidation`.
+
 ## Non-Goals
 
 - Connecting to live Ingeniux CMS APIs.

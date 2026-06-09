@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# Ingeniux CMS Navigation Prototype
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a Vite, React, TypeScript, and Mantine prototype for exploring a redesigned Ingeniux CMS navigation shell.
 
-Currently, two official plugins are available:
+## Local Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Verification
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm run build
+npm run lint
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Staging Deploy
+
+Deploy the current prototype to the staging CloudFront/S3 site:
+
+```bash
+npm run deploy:stage
+```
+
+The script:
+
+- runs `npm run build`;
+- syncs `dist/` to `s3://stage.josephbrick.com/` with stale files deleted;
+- uploads objects with `public-read` ACLs because the CloudFront origin uses the S3 website endpoint;
+- looks up the CloudFront distribution by the `stage.josephbrick.com` alias;
+- invalidates `/*`.
+
+The deploy assumes AWS CLI v2 is installed and configured. The deploy IAM policy needs S3 permissions for `ListBucket`, `PutObject`, `PutObjectAcl`, and `DeleteObject` on `stage.josephbrick.com`, plus CloudFront permissions for `ListDistributions`, `CreateInvalidation`, and `GetInvalidation`.
+
+Optional overrides:
+
+```bash
+AWS_CLOUDFRONT_DISTRIBUTION_ID=ES6M0K6KPAGL3 npm run deploy:stage
+AWS_STAGE_BUCKET=stage.josephbrick.com AWS_CLOUDFRONT_ALIAS=stage.josephbrick.com npm run deploy:stage
 ```

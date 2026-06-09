@@ -123,3 +123,30 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Next chat should start by reading `docs/project-spec.md` and this session log.
 - Current branch: `main`.
 - Verification: `npm run build` and `npm run lint` passed.
+
+## 2026-06-09 - Staging Deploy Script and AWS Setup
+
+### Summary
+
+- Added a reusable staging deployment script and `npm run deploy:stage` command.
+- Configured the script to build the prototype, sync `dist/` to `s3://stage.josephbrick.com/`, delete stale S3 files, and invalidate CloudFront paths.
+- Set up the deploy around CloudFront distribution `ES6M0K6KPAGL3` and alias `stage.josephbrick.com`.
+- Created and refined the IAM policy requirements for the deploy user, including `s3:PutObjectAcl` and `cloudfront:GetInvalidation`.
+- Diagnosed a post-auth `403` after the first successful upload: CloudFront Basic Auth was working, but the S3 website endpoint origin required public-readable objects.
+- Updated the deploy script to use `--acl public-read`, redeployed, and confirmed the S3 website endpoint returned `200 OK` for `index.html`.
+- Confirmed the latest CloudFront invalidation completed.
+
+### Files Updated
+
+- `README.md`
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `package.json`
+- `scripts/deploy-stage.sh`
+
+### Notes
+
+- Latest successful deploy invalidation: `I895R4OVPLQ83HTTJA93VCFAQI`.
+- The CloudFront Basic Auth challenge still returns `401` before valid credentials, which is expected.
+- Current staging architecture uses the S3 website endpoint origin. If staging is later moved to CloudFront Origin Access Control, remove `--acl public-read` from `scripts/deploy-stage.sh` and update the S3 bucket policy instead.
+- Verification: `npm run deploy:stage` completed successfully, and `aws cloudfront get-invalidation --distribution-id ES6M0K6KPAGL3 --id I895R4OVPLQ83HTTJA93VCFAQI` returned `Completed`.
