@@ -1,106 +1,938 @@
 /*
- * File purpose: Edit Publish megamenu configuration for publish, mark, advance, and workflow actions.
+ * File purpose: Edit Publish megamenu guided flow for checking in, marking for publish, and publishing page content.
  *
  * Imports:
- * - IconCheck, IconChecks, IconFile, IconFiles, IconFolderCheck, IconHistory, IconLogin, IconRotate, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
- * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
- * - type { MegamenuConfig } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
+ * - Box, Button, Group, Loader, Menu, Stack, Text, UnstyledButton from "@mantine/core" provides Mantine UI primitives used by the custom publish flow.
+ * - IconCheck, IconChevronDown from "@tabler/icons-react" provides the completed step icon and picker chevron.
+ * - useEffect, useLayoutEffect, useRef, useState from "react" provides local completion and scope state for the guided publish flow.
+ * - MegamenuColumnLayout, MegamenuCommandItem, MegamenuCommandLabel from "../../../megamenus/MegamenuRenderer" provides shared dropdown menu presentation.
  */
 import {
+  Box,
+  Button,
+  Group,
+  Loader,
+  Menu,
+  Stack,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
+import {
+  IconChevronDown,
   IconCheck,
-  IconChecks,
-  IconFile,
-  IconFiles,
-  IconFolderCheck,
-  IconHistory,
-  IconLogin,
-  IconRotate,
 } from "@tabler/icons-react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import type {
+  CSSProperties,
+  Ref,
+} from "react";
 
-import { MegamenuRenderer } from "../../../megamenus/MegamenuRenderer";
-import type { MegamenuConfig } from "../../../megamenus/types";
+import {
+  MegamenuColumnLayout,
+  MegamenuCommandItem,
+  MegamenuCommandLabel,
+} from "../../../megamenus/MegamenuRenderer";
 
-const publishMenu: MegamenuConfig = {
-  id: "edit-publish",
-  columns: [
-    {
-      id: "actions",
-      header: "Actions",
-      items: [
-        {
-          type: "command",
-          id: "publish-check-in",
-          label: "Check In",
-          icon: IconLogin,
-        },
-        {
-          type: "command",
-          id: "publish-undo-checkout",
-          label: "Undo Checkout",
-          icon: IconRotate,
-        },
-        {
-          type: "command",
-          id: "publish-rollback",
-          label: "Rollback",
-          icon: IconHistory,
-        },
-      ],
-    },
-    {
-      id: "mark-for-publish",
-      header: "Mark for Publish",
-      items: [
-        {
-          type: "command",
-          id: "publish-mark-page",
-          label: "Mark Page",
-          icon: IconCheck,
-        },
-        {
-          type: "command",
-          id: "publish-mark-page-children",
-          label: "Mark Page & Children",
-          icon: IconChecks,
-        },
-      ],
-    },
-    {
-      id: "publish",
-      header: "Publish",
-      items: [
-        {
-          type: "command",
-          id: "publish-page",
-          label: "Publish Page",
-          icon: IconFile,
-        },
-        {
-          type: "command",
-          id: "publish-page-children",
-          label: "Publish Page & Children",
-          icon: IconFiles,
-        },
-        {
-          type: "command",
-          id: "publish-site",
-          label: "Publish Site",
-          icon: IconFolderCheck,
-        },
-      ],
-    },
-  ],
+type PublishStepId = "check-in" | "mark" | "publish";
+type PublishScope = "page" | "descendants";
+type PublishTarget = "qa" | "staging" | "production";
+
+type PublishFlowState = {
+  completedSteps: Set<PublishStepId>;
+  pendingUntil: Partial<Record<PublishStepId, number>>;
+  checkInScope: PublishScope;
+  markScope: PublishScope;
+  publishTarget: PublishTarget;
+  publishTargetChanged: boolean;
 };
 
-export default function MegamenuPublish() {
+type PublishStep = {
+  id: PublishStepId;
+  title: string;
+  actionLabel: string;
+};
+
+type PublishStepLayout = {
+  stepWidth: number;
+  stepGap: number;
+};
+
+type PublishStepGapRatio = {
+  step: number;
+  gap: number;
+};
+
+const PUBLISH_STEP_PENDING_MS = 3100;
+const PUBLISH_STEP_RATIO = 7;
+const PUBLISH_GAP_RATIO = 1;
+const PUBLISH_STEP_GAP_RATIO = {
+  step: PUBLISH_STEP_RATIO,
+  gap: PUBLISH_GAP_RATIO,
+} satisfies PublishStepGapRatio;
+const PUBLISH_COMPLETE_STATUS_BACKGROUND =
+  "var(--mantine-color-green-0)";
+const PUBLISH_COMPLETE_STATUS_BORDER =
+  "1px solid var(--mantine-color-green-3)";
+const PUBLISH_COMPLETE_STATUS_TEXT =
+  "var(--mantine-color-green-8)";
+
+const publishFlowState: PublishFlowState = {
+  completedSteps: new Set(),
+  pendingUntil: {},
+  checkInScope: "page",
+  markScope: "page",
+  publishTarget: "production",
+  publishTargetChanged: false,
+};
+
+function normalizePublishFlowState() {
+  const now = Date.now();
+
+  Object.entries(publishFlowState.pendingUntil).forEach(
+    ([stepId, finishTime]) => {
+      if (
+        !isPublishStepId(stepId) ||
+        typeof finishTime !== "number" ||
+        finishTime > now
+      ) {
+        return;
+      }
+
+      delete publishFlowState.pendingUntil[stepId];
+      publishFlowState.completedSteps.add(stepId);
+    }
+  );
+}
+
+export function isPublishWizardComplete() {
+  normalizePublishFlowState();
+  return publishFlowState.completedSteps.has("publish");
+}
+
+const publishSteps: PublishStep[] = [
+  {
+    id: "check-in",
+    title: "Check In",
+    actionLabel: "Check In",
+  },
+  {
+    id: "mark",
+    title: "Mark for Publish",
+    actionLabel: "Mark",
+  },
+  {
+    id: "publish",
+    title: "Publish",
+    actionLabel: "Publish",
+  },
+];
+
+const publishTargetOptions: {
+  value: PublishTarget;
+  label: string;
+}[] = [
+  {
+    value: "qa",
+    label: "QA",
+  },
+  {
+    value: "staging",
+    label: "Staging",
+  },
+  {
+    value: "production",
+    label: "Production",
+  },
+];
+
+function getPublishStepLayout(
+  availableWidth: number,
+  ratio: PublishStepGapRatio
+): PublishStepLayout {
+  const stepCount = publishSteps.length;
+  const betweenStepGapCount = Math.max(stepCount - 1, 0);
+  const outsideGapCount = 2;
+  const totalGapCount =
+    betweenStepGapCount + outsideGapCount;
+  const totalUnits =
+    stepCount * ratio.step + totalGapCount * ratio.gap;
+  const stepWidth =
+    (availableWidth * ratio.step) / totalUnits;
+
+  return {
+    stepWidth,
+    stepGap: (stepWidth * ratio.gap) / ratio.step,
+  };
+}
+
+const commandMessages: Record<string, string> = {
+  "publish-check-in-page": "Check In Page",
+  "publish-check-in-descendants":
+    "Check In Page and Descendants",
+  "publish-mark-page": "Mark Page for Publish",
+  "publish-mark-descendants":
+    "Mark Page and Descendants for Publish",
+  "publish-page": "Publish",
+};
+
+function getCommandId(
+  stepId: PublishStepId,
+  scope: PublishScope
+) {
+  if (stepId === "check-in") {
+    return scope === "page"
+      ? "publish-check-in-page"
+      : "publish-check-in-descendants";
+  }
+
+  if (stepId === "mark") {
+    return scope === "page"
+      ? "publish-mark-page"
+      : "publish-mark-descendants";
+  }
+
+  return "publish-page";
+}
+
+function isStepReady(
+  stepId: PublishStepId,
+  completedSteps: Set<PublishStepId>
+) {
+  if (stepId === "check-in") {
+    return true;
+  }
+
+  if (stepId === "mark") {
+    return completedSteps.has("check-in");
+  }
+
+  return completedSteps.has("mark");
+}
+
+function isPublishStepId(
+  value: string
+): value is PublishStepId {
+  return publishSteps.some((step) => step.id === value);
+}
+
+function isPublishTarget(
+  value: string
+): value is PublishTarget {
+  return publishTargetOptions.some(
+    (option) => option.value === value
+  );
+}
+
+type MegamenuPublishProps = {
+  sitePublishTarget: string;
+};
+
+export default function MegamenuPublish({
+  sitePublishTarget,
+}: MegamenuPublishProps) {
+  normalizePublishFlowState();
+  const stepsContainerRef =
+    useRef<HTMLDivElement | null>(null);
+  const normalizedSitePublishTarget = isPublishTarget(
+    sitePublishTarget
+  )
+    ? sitePublishTarget
+    : "production";
+
+  if (!publishFlowState.publishTargetChanged) {
+    publishFlowState.publishTarget =
+      normalizedSitePublishTarget;
+  }
+
+  const pendingTimeoutsRef = useRef<
+    ReturnType<typeof window.setTimeout>[]
+  >([]);
+  const pendingUntilRef = useRef<
+    Partial<Record<PublishStepId, number>>
+  >(publishFlowState.pendingUntil);
+  const [completedSteps, setCompletedSteps] = useState<
+    Set<PublishStepId>
+  >(() => new Set(publishFlowState.completedSteps));
+  const [pendingSteps, setPendingSteps] = useState<
+    Set<PublishStepId>
+  >(
+    () =>
+      new Set(
+        Object.keys(publishFlowState.pendingUntil).filter(
+          isPublishStepId
+        )
+      )
+  );
+  const [checkInScope, setCheckInScope] =
+    useState<PublishScope>(publishFlowState.checkInScope);
+  const [markScope, setMarkScope] =
+    useState<PublishScope>(publishFlowState.markScope);
+  const [publishTarget, setPublishTarget] =
+    useState<PublishTarget>(
+      publishFlowState.publishTarget
+    );
+  const [stepLayout, setStepLayout] =
+    useState<PublishStepLayout>(() =>
+      getPublishStepLayout(
+        320 * publishSteps.length +
+          ((320 * PUBLISH_GAP_RATIO) /
+            PUBLISH_STEP_RATIO) *
+            (publishSteps.length + 1),
+        PUBLISH_STEP_GAP_RATIO
+      )
+    );
+
+  const scopes: Record<PublishStepId, PublishScope> = {
+    "check-in": checkInScope,
+    mark: markScope,
+    publish: "page",
+  };
+
+  const scopeSetters: Partial<
+    Record<
+      PublishStepId,
+      (scope: PublishScope) => void
+    >
+  > = {
+    "check-in": setCheckInScope,
+    mark: setMarkScope,
+  };
+
+  function finishPendingStep(stepId: PublishStepId) {
+    delete pendingUntilRef.current[stepId];
+    delete publishFlowState.pendingUntil[stepId];
+    setPendingSteps((current) => {
+      const next = new Set(current);
+      next.delete(stepId);
+      return next;
+    });
+    setCompletedSteps((current) => {
+      const next = new Set(current);
+      next.add(stepId);
+      publishFlowState.completedSteps = next;
+      return next;
+    });
+
+    if (
+      stepId === "check-in" &&
+      checkInScope === "descendants" &&
+      markScope !== "descendants"
+    ) {
+      const timeoutId = window.setTimeout(() => {
+        publishFlowState.markScope = "descendants";
+        setMarkScope("descendants");
+      }, 80);
+
+      pendingTimeoutsRef.current.push(timeoutId);
+    }
+  }
+
+  useEffect(() => {
+    Object.entries(pendingUntilRef.current).forEach(
+      ([stepId, finishTime]) => {
+        if (
+          !isPublishStepId(stepId) ||
+          typeof finishTime !== "number"
+        ) {
+          return;
+        }
+
+        const timeoutId = window.setTimeout(
+          () => finishPendingStep(stepId),
+          Math.max(0, finishTime - Date.now())
+        );
+
+        pendingTimeoutsRef.current.push(timeoutId);
+      }
+    );
+
+    return () => {
+      pendingTimeoutsRef.current.forEach((timeoutId) =>
+        window.clearTimeout(timeoutId)
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    publishFlowState.completedSteps = completedSteps;
+    publishFlowState.pendingUntil = pendingUntilRef.current;
+    publishFlowState.checkInScope = checkInScope;
+    publishFlowState.markScope = markScope;
+    publishFlowState.publishTarget = publishTarget;
+  }, [
+    completedSteps,
+    pendingSteps,
+    checkInScope,
+    markScope,
+    publishTarget,
+  ]);
+
+  useEffect(() => {
+    if (publishFlowState.publishTargetChanged) {
+      return;
+    }
+
+    publishFlowState.publishTarget =
+      normalizedSitePublishTarget;
+    setPublishTarget(normalizedSitePublishTarget);
+  }, [normalizedSitePublishTarget]);
+
+  useLayoutEffect(() => {
+    const element = stepsContainerRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const updateLayout = () => {
+      setStepLayout(
+        getPublishStepLayout(
+          element.getBoundingClientRect().width,
+          PUBLISH_STEP_GAP_RATIO
+        )
+      );
+    };
+
+    updateLayout();
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateLayout);
+
+    resizeObserver?.observe(element);
+    window.addEventListener("resize", updateLayout);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, []);
+
+  const handleChangePublishTarget = (
+    value: PublishTarget
+  ) => {
+    publishFlowState.publishTargetChanged = true;
+    publishFlowState.publishTarget = value;
+    setPublishTarget(value);
+  };
+
+  function completeStep(stepId: PublishStepId) {
+    if (pendingSteps.has(stepId)) {
+      return;
+    }
+
+    const commandId = getCommandId(
+      stepId,
+      scopes[stepId]
+    );
+
+    console.log(commandMessages[commandId] ?? commandId);
+    pendingUntilRef.current[stepId] =
+      Date.now() + PUBLISH_STEP_PENDING_MS;
+    publishFlowState.pendingUntil = pendingUntilRef.current;
+    setPendingSteps((current) => {
+      const next = new Set(current);
+      next.add(stepId);
+      return next;
+    });
+    const timeoutId = window.setTimeout(() => {
+      finishPendingStep(stepId);
+    }, PUBLISH_STEP_PENDING_MS);
+
+    pendingTimeoutsRef.current.push(timeoutId);
+  }
+
   return (
-    <MegamenuRenderer
-      config={publishMenu}
-      radioValues={{}}
-      checkboxValues={{}}
-      onRadioChange={() => {}}
-      onCheckboxChange={() => {}}
-      onCommand={(itemId) => console.log(itemId)}
-    />
+    <Box
+      ref={stepsContainerRef}
+      w="100%"
+      style={{
+        boxSizing: "border-box",
+        paddingInline: stepLayout.stepGap,
+      }}
+    >
+      <Group
+        align="stretch"
+        wrap="nowrap"
+        style={{ gap: stepLayout.stepGap }}
+      >
+        {publishSteps.map((step, index) => {
+          const completed = completedSteps.has(step.id);
+          const pending = pendingSteps.has(step.id);
+          const ready = isStepReady(
+            step.id,
+            completedSteps
+          );
+          const scopeSetter = scopeSetters[step.id];
+
+          return (
+            <Group key={step.id} gap={0} wrap="nowrap">
+              <PublishStepCard
+                step={step}
+                stepNumber={index + 1}
+                stepWidth={stepLayout.stepWidth}
+                completed={completed}
+                pending={pending}
+                ready={ready}
+                scope={scopes[step.id]}
+                publishTarget={publishTarget}
+                onScopeChange={scopeSetter}
+                onChangePublishTarget={
+                  handleChangePublishTarget
+                }
+                onComplete={() => completeStep(step.id)}
+              />
+            </Group>
+          );
+        })}
+      </Group>
+    </Box>
+  );
+}
+
+type PublishStepCardProps = {
+  step: PublishStep;
+  stepNumber: number;
+  stepWidth: number;
+  completed: boolean;
+  pending: boolean;
+  ready: boolean;
+  scope: PublishScope;
+  publishTarget: PublishTarget;
+  onScopeChange?: (scope: PublishScope) => void;
+  onChangePublishTarget: (value: PublishTarget) => void;
+  onComplete: () => void;
+};
+
+function PublishStepCard({
+  step,
+  stepNumber,
+  stepWidth,
+  completed,
+  pending,
+  ready,
+  scope,
+  publishTarget,
+  onScopeChange,
+  onChangePublishTarget,
+  onComplete,
+}: PublishStepCardProps) {
+  const tone = completed
+    ? "var(--mantine-color-green-6)"
+    : pending
+      ? "var(--mantine-color-orange-6)"
+      : "var(--mantine-color-asxBlue-6)";
+  const isCurrentStep = ready && !completed;
+
+  return (
+    <Stack
+      gap={14}
+      w={stepWidth}
+    >
+      <Group align="center" gap={12} wrap="nowrap">
+        <StepBadge
+          completed={completed}
+          pending={pending}
+          ready={ready}
+          stepNumber={stepNumber}
+          tone={tone}
+        />
+        <Stack gap={2} style={{ minWidth: 0 }}>
+          <Text
+            fz={12}
+            fw={700}
+            lh={1}
+            c="asxGray.5"
+            tt="uppercase"
+          >
+            Step {stepNumber}
+          </Text>
+          <Text
+            fz={19}
+            fw={700}
+            lh={1.15}
+            c={isCurrentStep ? "asxGray.9" : "asxGray.7"}
+          >
+            {step.title}
+          </Text>
+        </Stack>
+      </Group>
+
+      {onScopeChange ? (
+        <ScopePicker
+          value={scope}
+          disabled={!ready || completed}
+          onChange={onScopeChange}
+        />
+      ) : step.id === "publish" ? (
+        <PublishTargetPicker
+          value={publishTarget}
+          disabled={!ready || completed}
+          onChange={onChangePublishTarget}
+        />
+      ) : null}
+
+      <PublishStepButton
+        label={completed ? "Done" : step.actionLabel}
+        completed={completed}
+        disabled={!ready || pending}
+        onClick={onComplete}
+      />
+    </Stack>
+  );
+}
+
+type StepBadgeProps = {
+  completed: boolean;
+  pending: boolean;
+  ready: boolean;
+  stepNumber: number;
+  tone: string;
+};
+
+function StepBadge({
+  completed,
+  pending,
+  ready,
+  stepNumber,
+  tone,
+}: StepBadgeProps) {
+  const outlined = !completed && !pending && !ready;
+
+  return (
+    <Box
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: 999,
+        display: "grid",
+        placeItems: "center",
+        border: outlined ? `1px solid ${tone}` : "none",
+        background: outlined ? "transparent" : tone,
+        color: outlined ? tone : "white",
+        fontSize: 16,
+        fontWeight: 800,
+        flexShrink: 0,
+      }}
+    >
+      {pending ? (
+        <Loader color="white" size={18} />
+      ) : completed ? (
+        <IconCheck size={21} stroke={2.8} />
+      ) : (
+        stepNumber
+      )}
+    </Box>
+  );
+}
+
+type ScopePickerProps = {
+  value: PublishScope;
+  disabled: boolean;
+  onChange: (scope: PublishScope) => void;
+};
+
+function ScopePicker({
+  value,
+  disabled,
+  onChange,
+}: ScopePickerProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const pageChoiceRef =
+    useRef<HTMLButtonElement | null>(null);
+  const descendantsChoiceRef =
+    useRef<HTMLButtonElement | null>(null);
+  const [indicatorStyle, setIndicatorStyle] =
+    useState<CSSProperties>({
+      left: 3,
+      width: "calc(50% - 3px)",
+    });
+
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const container = containerRef.current;
+      const selectedChoice =
+        value === "page"
+          ? pageChoiceRef.current
+          : descendantsChoiceRef.current;
+
+      if (!container || !selectedChoice) {
+        return;
+      }
+
+      const containerRect =
+        container.getBoundingClientRect();
+      const selectedRect =
+        selectedChoice.getBoundingClientRect();
+
+      setIndicatorStyle({
+        left: selectedRect.left - containerRect.left,
+        width: selectedRect.width,
+      });
+    };
+
+    updateIndicator();
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateIndicator);
+
+    if (resizeObserver && containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    window.addEventListener("resize", updateIndicator);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener(
+        "resize",
+        updateIndicator
+      );
+    };
+  }, [value]);
+
+  return (
+    <Box
+      ref={containerRef}
+      style={{
+        width: "100%",
+        padding: 3,
+        borderRadius: 10,
+        background: disabled
+          ? "rgba(255, 255, 255, 0.28)"
+          : "rgba(255, 255, 255, 0.4)",
+        border: "1px solid var(--mantine-color-asxGray-5)",
+        position: "relative",
+        display: "grid",
+        gridTemplateColumns: "minmax(max-content, 1fr) minmax(max-content, 1fr)",
+      }}
+    >
+      <Box
+        style={{
+          position: "absolute",
+          top: 3,
+          bottom: 3,
+          left: indicatorStyle.left,
+          width: indicatorStyle.width,
+          borderRadius: 8,
+          border: disabled
+            ? "1px solid var(--mantine-color-asxGray-4)"
+            : "1px solid var(--mantine-color-asxGray-5)",
+          background: disabled
+            ? "rgba(255, 255, 255, 0.72)"
+            : "var(--mantine-color-asxBlue-0)",
+          boxShadow: disabled
+            ? "none"
+            : "0 1px 4px rgba(15, 23, 42, 0.1)",
+          transition:
+            "left 180ms ease, width 180ms ease",
+          pointerEvents: "none",
+        }}
+      />
+      <ScopeChoice
+        choiceRef={pageChoiceRef}
+        label="Page"
+        selected={value === "page"}
+        disabled={disabled}
+        onClick={() => onChange("page")}
+      />
+      <ScopeChoice
+        choiceRef={descendantsChoiceRef}
+        label="Page & Children"
+        selected={value === "descendants"}
+        disabled={disabled}
+        onClick={() => onChange("descendants")}
+      />
+    </Box>
+  );
+}
+
+type ScopeChoiceProps = {
+  label: string;
+  selected: boolean;
+  disabled: boolean;
+  onClick: () => void;
+  choiceRef: Ref<HTMLButtonElement>;
+};
+
+function ScopeChoice({
+  label,
+  selected,
+  disabled,
+  onClick,
+  choiceRef,
+}: ScopeChoiceProps) {
+  return (
+    <UnstyledButton
+      ref={choiceRef}
+      disabled={disabled}
+      onClick={onClick}
+      style={{
+        minHeight: 36,
+        paddingInline: 12,
+        borderRadius: 8,
+        border: "1px solid transparent",
+        background: "transparent",
+        color: disabled
+          ? selected
+            ? "var(--mantine-color-asxGray-6)"
+            : "var(--mantine-color-asxGray-5)"
+          : selected
+            ? "var(--mantine-color-asxBlue-8)"
+            : "var(--mantine-color-asxGray-7)",
+        fontSize: 14,
+        fontWeight: 400,
+        textAlign: "center",
+        cursor: disabled ? "default" : "pointer",
+        position: "relative",
+        zIndex: 1,
+        flex: "1 1 0",
+        minWidth: "max-content",
+      }}
+    >
+      {label}
+    </UnstyledButton>
+  );
+}
+
+type PublishTargetPickerProps = {
+  value: PublishTarget;
+  disabled: boolean;
+  onChange: (value: PublishTarget) => void;
+};
+
+function PublishTargetPicker({
+  value,
+  disabled,
+  onChange,
+}: PublishTargetPickerProps) {
+  const selected =
+    publishTargetOptions.find(
+      (option) => option.value === value
+    ) ?? publishTargetOptions[0];
+  const [opened, setOpened] = useState(false);
+
+  const handleChange = (nextValue: PublishTarget) => {
+    onChange(nextValue);
+    setOpened(false);
+  };
+
+  return (
+    <Menu
+      shadow="md"
+      width="target"
+      position="bottom-end"
+      offset={4}
+      withinPortal={false}
+      opened={opened}
+      onChange={setOpened}
+    >
+      <Menu.Target>
+        <UnstyledButton
+          disabled={disabled}
+          style={{
+            width: "100%",
+            height: 44,
+            paddingInline: 12,
+            borderRadius: 10,
+            background: "white",
+            border:
+              "1px solid var(--mantine-color-asxGray-4)",
+            color: disabled
+              ? "var(--mantine-color-asxGray-6)"
+              : "var(--mantine-color-asxGray-8)",
+            cursor: disabled ? "default" : "pointer",
+          }}
+        >
+          <Group justify="space-between" wrap="nowrap">
+            <Text fz={14} fw={400}>
+              {selected.label}
+            </Text>
+            <IconChevronDown size={18} stroke={1.6} />
+          </Group>
+        </UnstyledButton>
+      </Menu.Target>
+
+      <Menu.Dropdown px={12} py={12}>
+        <MegamenuColumnLayout>
+          {publishTargetOptions.map((option) => (
+            <MegamenuCommandItem
+              key={option.value}
+              selected={option.value === selected.value}
+              onClick={() => handleChange(option.value)}
+            >
+              <MegamenuCommandLabel>
+                {option.label}
+              </MegamenuCommandLabel>
+            </MegamenuCommandItem>
+          ))}
+        </MegamenuColumnLayout>
+      </Menu.Dropdown>
+    </Menu>
+  );
+}
+
+type PublishStepButtonProps = {
+  label: string;
+  completed: boolean;
+  disabled: boolean;
+  onClick: () => void;
+};
+
+function PublishStepButton({
+  label,
+  completed,
+  disabled,
+  onClick,
+}: PublishStepButtonProps) {
+  if (completed) {
+    return (
+      <Group
+        justify="center"
+        gap={6}
+        h={40}
+        w="100%"
+        style={{
+          borderRadius: 8,
+          border: PUBLISH_COMPLETE_STATUS_BORDER,
+          background: PUBLISH_COMPLETE_STATUS_BACKGROUND,
+          color: PUBLISH_COMPLETE_STATUS_TEXT,
+          fontSize: 14,
+          fontWeight: 700,
+        }}
+      >
+        <IconCheck size={16} stroke={2.4} />
+        <span>{label}</span>
+      </Group>
+    );
+  }
+
+  return (
+    <Button
+      variant="light"
+      color="asxBlue"
+      disabled={disabled}
+      onClick={onClick}
+      fullWidth
+      radius={8}
+      size="sm"
+      fw={700}
+      styles={{
+        root: {
+          minHeight: 40,
+          border: "1px solid var(--mantine-color-asxBlue-2)",
+        },
+      }}
+    >
+      {label}
+    </Button>
   );
 }

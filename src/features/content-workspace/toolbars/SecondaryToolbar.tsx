@@ -15,7 +15,7 @@
  * - MegamenuActionItem, MegamenuColumnLayout, MegamenuCommandItem, MegamenuCommandLabel, from "../megamenus/MegamenuRenderer" provides the shared megamenu command and dropdown action presentation.
  * - ToolbarDelimiter from "./ToolbarDelimiter" provides the shared vertical separator between toolbar action groups.
  * - useEffect, useRef, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
- * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - type { ReactNode, RefObject } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - IconChevronDown, IconDeviceFloppy, IconLogin, IconRefresh, IconSearch, IconUser, IconUserCheck, IconUserCircle, IconUsers, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
  * - Box, Flex, Group, Menu, Paper, Stack, Text, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
  * - type { MegamenuItem } from "../megamenus/types" provides the shared megamenu configuration and value types.
@@ -24,7 +24,9 @@
  */
 import MegamenuView from "../tools/edit/megamenus/MegamenuView";
 import MegamenuActions from "../tools/edit/megamenus/MegamenuActions";
-import MegamenuPublish from "../tools/edit/megamenus/MegamenuPublish";
+import MegamenuPublish, {
+  isPublishWizardComplete,
+} from "../tools/edit/megamenus/MegamenuPublish";
 import MegamenuNew from "../tools/edit/megamenus/MegamenuNew";
 import MegamenuPreviewActions from "../tools/preview/megamenus/MegamenuPreviewActions";
 import MegamenuPreviewAdvanced from "../tools/preview/megamenus/MegamenuPreviewAdvanced";
@@ -44,7 +46,10 @@ import {
 import { ToolbarDelimiter } from "./ToolbarDelimiter";
 
 import { useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type {
+  ReactNode,
+  RefObject,
+} from "react";
 
 import {
   IconChevronDown,
@@ -78,6 +83,9 @@ import type { WorkspaceDomain } from "../../workspace/types";
 
 type MenuKey = string | null;
 
+const MEGAMENU_CLOSE_DELAY_MS = 400;
+const PUBLISH_MENU_KEY = "publish";
+
 type MegamenuRendererKey =
   | "edit-view"
   | "preview-view"
@@ -102,6 +110,7 @@ type SecondaryToolbarAction = Extract<
 type SecondaryToolbarProps = {
   domain: WorkspaceDomain;
   tool: SelectedToolKey;
+  publishTarget: string;
   onTogglePublishingTargetVisibility: () => void;
 };
 
@@ -325,16 +334,22 @@ const secondaryMenusByDomain: Record<
 
 type DisplayGroupProps = {
   children: ReactNode;
+  containerRef: RefObject<HTMLDivElement | null>;
+  onMouseEnter: () => void;
   onMouseLeave: () => void;
 };
 
 function DisplayGroup({
   children,
+  containerRef,
+  onMouseEnter,
   onMouseLeave,
 }: DisplayGroupProps) {
   return (
     <Box
+      ref={containerRef}
       bg="white"
+      onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
         position: "relative",
@@ -597,6 +612,7 @@ type ActiveMegamenuProps = {
   menus: SecondaryMenu[];
   activeMenu: MenuKey;
   tool: SelectedToolKey;
+  publishTarget: string;
   selectedViewMode:
     | "Index Mode"
     | "Form Mode"
@@ -630,6 +646,7 @@ function ActiveMegamenu({
   menus,
   activeMenu,
   tool,
+  publishTarget,
   selectedViewMode,
   onSelectViewMode,
   showFormIndex,
@@ -655,10 +672,13 @@ function ActiveMegamenu({
     return null;
   }
 
+  const activeMenuIsPublishWizard =
+    activeMenuConfig.renderer === "edit-publish";
+
   return (
     <Paper
       radius={0}
-      px="xl"
+      px={activeMenuIsPublishWizard ? 0 : "xl"}
       py="lg"
       bg="gray.0"
       style={{
@@ -720,7 +740,7 @@ function ActiveMegamenu({
           <MegamenuPreviewActions />
         ) : activeMenuConfig.renderer ===
           "edit-publish" ? (
-          <MegamenuPublish />
+          <MegamenuPublish sitePublishTarget={publishTarget} />
         ) : activeMenuConfig.renderer === "edit-new" ? (
           <MegamenuNew />
         ) : (
@@ -750,12 +770,16 @@ function PlaceholderMegamenu({
 export default function SecondaryToolbar({
   domain,
   tool,
+  publishTarget,
   onTogglePublishingTargetVisibility,
 }: SecondaryToolbarProps) {
   const [activeMenu, setActiveMenu] =
     useState<MenuKey>(null);
 
   const hoverTimeoutRef = useRef<number | null>(null);
+  const closeTimeoutRef = useRef<number | null>(null);
+  const toolbarContainerRef =
+    useRef<HTMLDivElement | null>(null);
 
   const [selectedViewMode, setSelectedViewMode] =
     useState<
@@ -814,18 +838,84 @@ export default function SecondaryToolbar({
   const clearHoverTimeout = () => {
     if (hoverTimeoutRef.current) {
       window.clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
     }
+  };
+
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearHoverTimeout();
+      clearCloseTimeout();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeMenu) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const container = toolbarContainerRef.current;
+
+      if (
+        container &&
+        event.target instanceof Node &&
+        container.contains(event.target)
+      ) {
+        return;
+      }
+
+      clearHoverTimeout();
+      clearCloseTimeout();
+      setActiveMenu(null);
+    };
+
+    document.addEventListener(
+      "pointerdown",
+      handlePointerDown
+    );
+
+    return () => {
+      document.removeEventListener(
+        "pointerdown",
+        handlePointerDown
+      );
+    };
+  }, [activeMenu]);
+
+  const handleMouseEnter = () => {
+    clearCloseTimeout();
   };
 
   const handleMouseLeave = () => {
     clearHoverTimeout();
-    setActiveMenu(null);
+    clearCloseTimeout();
+
+    if (
+      activeMenu === PUBLISH_MENU_KEY &&
+      !isPublishWizardComplete()
+    ) {
+      return;
+    }
+
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setActiveMenu(null);
+      closeTimeoutRef.current = null;
+    }, MEGAMENU_CLOSE_DELAY_MS);
   };
 
   const handleActivateMenu = (
     menu: SecondaryMenu
   ) => {
     clearHoverTimeout();
+    clearCloseTimeout();
     setActiveMenu(menu.key);
   };
 
@@ -833,6 +923,7 @@ export default function SecondaryToolbar({
     menu: SecondaryMenu
   ) => {
     clearHoverTimeout();
+    clearCloseTimeout();
 
     if (activeMenu) {
       setActiveMenu(menu.key);
@@ -879,6 +970,7 @@ export default function SecondaryToolbar({
     menus,
     activeMenu,
     tool,
+    publishTarget,
     selectedViewMode,
     onSelectViewMode: setSelectedViewMode,
     showFormIndex,
@@ -904,7 +996,11 @@ export default function SecondaryToolbar({
   };
 
   return (
-    <DisplayGroup onMouseLeave={handleMouseLeave}>
+    <DisplayGroup
+      containerRef={toolbarContainerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <ToolbarRow>
         <ToolbarMenuTabs {...toolbarMenuTabsProps} />
         <ToolbarActions {...toolbarActionsProps} />

@@ -173,3 +173,32 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Source commit for the behavior change: `cfe630b Show tree tooltips only when truncated`.
 - Latest staging invalidation: `IDFV83BKAQ0PXY5BBYEM7DTDJO`.
 - Verification: `npm run build`, `npm run lint`, and `npm run deploy:stage` passed. `aws cloudfront get-invalidation --distribution-id ES6M0K6KPAGL3 --id IDFV83BKAQ0PXY5BBYEM7DTDJO` returned `Completed`.
+
+## 2026-06-10 - Publish Megamenu Wizard
+
+### Summary
+
+- Replaced the Edit Publish megamenu contents with a guided three-step publish flow for Check In, Mark for Publish, and Publish.
+- Added scoped Page vs Page & Children toggle controls, animated step completion with spinner/check states, and a publish target picker that defaults from Site Settings.
+- Added in-memory wizard state so switching tabs does not reset progress, while refresh still resets the flow.
+- Updated publish megamenu layout to fill available width using a configurable step/gap ratio, with outside padding treated as equal visual gaps.
+- Adjusted megamenu column sizing to fit content width and refined Actions megamenu content by moving Check In, Undo Checkout, and Rollback into a Versioning column.
+- Added delayed megamenu mouse-away behavior, with Publish staying open until the wizard completes or the user clicks elsewhere.
+- Added the repo-local `close-session` skill for session wrap-up, cautious git review, session logging, commit/push, and AWS deployment handoff.
+
+### Files Updated
+
+- `.agents/skills/close-session/SKILL.md`
+- `docs/chat-session-log.md`
+- `src/features/app-shell/AppShell.tsx`
+- `src/features/content-workspace/ContentWorkspace.tsx`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuActions.tsx`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuPublish.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification: `git diff --check` passed. No build was run because this close-out did not explicitly request one.
+- Left local demo image artifacts uncommitted: `public/demo/site-edit.local-before-pull.png` and `public/demo/site-edit.png.png`.

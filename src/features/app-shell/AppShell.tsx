@@ -763,6 +763,7 @@ export function AppShell() {
     selectedNodeXId: selectedNode?.xId,
     selectedTool,
     demoWorkspaceVisible,
+    publishTarget,
     tools: activeTools,
     onSelectTool: handleSelectTool,
     onTogglePublishingTargetVisibility: () =>

@@ -27,6 +27,7 @@ type ContentWorkspaceProps = {
   selectedNodeXId?: string;
   selectedTool: SelectedToolKey;
   demoWorkspaceVisible: boolean;
+  publishTarget: string;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
   onTogglePublishingTargetVisibility: () => void;
@@ -138,6 +139,7 @@ export function ContentWorkspace({
   selectedNodeXId,
   selectedTool,
   demoWorkspaceVisible,
+  publishTarget,
   tools,
   onSelectTool,
   onTogglePublishingTargetVisibility,
@@ -160,6 +162,7 @@ export function ContentWorkspace({
   const secondaryToolbarProps = {
     domain,
     tool: selectedTool,
+    publishTarget,
     onTogglePublishingTargetVisibility,
   };
 

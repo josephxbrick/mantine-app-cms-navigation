@@ -4,7 +4,7 @@
  * Imports:
  * - Box, Button, Group, Select, Stack, Text, TextInput, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
  * - IconChevronDown from "@tabler/icons-react" provides icon components used by dropdown-style megamenu actions.
- * - useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - useEffect, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { CSSProperties, ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { MegamenuCheckboxValues, MegamenuColumn, MegamenuConfig, MegamenuFieldValues, MegamenuItem, MegamenuRadioValues, } from "./types" provides shared data types used by this feature.
  */
@@ -19,7 +19,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconChevronDown } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   CSSProperties,
   ReactNode,
@@ -34,11 +34,210 @@ import type {
   MegamenuRadioValues,
 } from "./types";
 
-export const MEGAMENU_COLUMN_WIDTH = 280;
-const COLUMN_GAP = 48;
+const MIN_COLUMN_GAP = 32;
+const MAX_COLUMN_GAP = 64;
+const VIEWPORT_HORIZONTAL_MARGIN = 32;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
 const ITEM_PADDING = "8px 10px";
+const ITEM_INLINE_GAP = 10;
+const ITEM_HORIZONTAL_PADDING = 20;
+const COMMAND_ICON_WIDTH = 28;
+const DROPDOWN_ICON_WIDTH = 17;
+const CHECKBOX_MARK_WIDTH = 16;
+const DEFAULT_TEXT_WIDTH_MULTIPLIER = 8;
+
+let measurementContext: CanvasRenderingContext2D | null =
+  null;
+
+function getMeasurementContext() {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  if (!measurementContext) {
+    measurementContext = document
+      .createElement("canvas")
+      .getContext("2d");
+  }
+
+  return measurementContext;
+}
+
+function getMenuFontFamily() {
+  if (typeof window === "undefined") {
+    return "Arial, sans-serif";
+  }
+
+  return (
+    window.getComputedStyle(document.body).fontFamily ||
+    "Arial, sans-serif"
+  );
+}
+
+function measureMenuText(
+  text: string,
+  size: number,
+  weight: number
+) {
+  const context = getMeasurementContext();
+
+  if (!context) {
+    return text.length * DEFAULT_TEXT_WIDTH_MULTIPLIER;
+  }
+
+  context.font = `${weight} ${size}px ${getMenuFontFamily()}`;
+
+  return context.measureText(text).width;
+}
+
+function getItemMeasurementLabel(item: MegamenuItem) {
+  if (item.type === "select") {
+    const labels = [
+      item.label,
+      item.placeholder ?? "",
+      ...item.options.map((option) => option.label),
+    ];
+
+    return labels.reduce(
+      (longest, label) =>
+        label.length > longest.length ? label : longest,
+      ""
+    );
+  }
+
+  if (item.type === "text-input") {
+    return item.placeholder &&
+      item.placeholder.length > item.label.length
+      ? item.placeholder
+      : item.label;
+  }
+
+  return item.label;
+}
+
+function getMenuItemWidth(item: MegamenuItem) {
+  const labelWidth = measureMenuText(
+    getItemMeasurementLabel(item),
+    16,
+    500
+  );
+
+  if (item.type === "command") {
+    const iconWidth = item.icon
+      ? COMMAND_ICON_WIDTH + ITEM_INLINE_GAP
+      : 0;
+
+    return (
+      labelWidth + iconWidth + ITEM_HORIZONTAL_PADDING
+    );
+  }
+
+  if (item.type === "dropdown") {
+    const iconWidth = item.icon
+      ? COMMAND_ICON_WIDTH + ITEM_INLINE_GAP
+      : 0;
+
+    return (
+      labelWidth +
+      iconWidth +
+      ITEM_INLINE_GAP +
+      DROPDOWN_ICON_WIDTH +
+      ITEM_HORIZONTAL_PADDING
+    );
+  }
+
+  if (item.type === "checkbox") {
+    return (
+      labelWidth +
+      CHECKBOX_MARK_WIDTH +
+      ITEM_INLINE_GAP +
+      ITEM_HORIZONTAL_PADDING
+    );
+  }
+
+  if (item.type === "button") {
+    return labelWidth + ITEM_HORIZONTAL_PADDING;
+  }
+
+  return labelWidth + ITEM_HORIZONTAL_PADDING;
+}
+
+function getMegamenuColumnWidth(column: MegamenuColumn) {
+  const headerWidth = column.header
+    ? measureMenuText(column.header.toUpperCase(), 15, 700)
+    : 0;
+  const itemWidth = column.items.reduce(
+    (widest, item) =>
+      Math.max(widest, getMenuItemWidth(item)),
+    0
+  );
+
+  return Math.ceil(Math.max(headerWidth, itemWidth));
+}
+
+function getResponsiveColumnGap(
+  totalColumnWidth: number,
+  visibleColumnCount: number,
+  viewportWidth: number
+) {
+  const gapCount = Math.max(visibleColumnCount - 1, 0);
+
+  if (gapCount === 0) {
+    return 0;
+  }
+
+  const availableWidth = Math.max(
+    0,
+    viewportWidth - VIEWPORT_HORIZONTAL_MARGIN
+  );
+  const preferredWidth =
+    totalColumnWidth + gapCount * MAX_COLUMN_GAP;
+
+  if (preferredWidth <= availableWidth) {
+    return MAX_COLUMN_GAP;
+  }
+
+  const availableGap =
+    (availableWidth - totalColumnWidth) / gapCount;
+
+  return Math.max(
+    MIN_COLUMN_GAP,
+    Math.min(MAX_COLUMN_GAP, availableGap)
+  );
+}
+
+function useResponsiveColumnGap(
+  totalColumnWidth: number,
+  visibleColumnCount: number
+) {
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window === "undefined"
+      ? Number.POSITIVE_INFINITY
+      : window.innerWidth
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleResize = () =>
+      setViewportWidth(window.innerWidth);
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () =>
+      window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return getResponsiveColumnGap(
+    totalColumnWidth,
+    visibleColumnCount,
+    viewportWidth
+  );
+}
 
 type MegamenuRendererProps = {
   config: MegamenuConfig;
@@ -104,52 +303,86 @@ function MenuColumnSlots({
     onFieldChange,
     onCommand,
   };
+  const slotViews = slots.map((slot) => {
+    const visibleColumn =
+      slot.columns.find((column) =>
+        isColumnVisible(
+          column,
+          radioValues,
+          checkboxValues
+        )
+      ) ?? null;
+
+    return {
+      slot,
+      visibleColumn,
+      columnWidth: visibleColumn
+        ? getMegamenuColumnWidth(visibleColumn)
+        : 0,
+    };
+  });
+  const visibleColumnCount = slotViews.filter(
+    ({ visibleColumn }) => Boolean(visibleColumn)
+  ).length;
+  const totalColumnWidth = slotViews.reduce(
+    (total, { columnWidth }) => total + columnWidth,
+    0
+  );
+  const columnGap = useResponsiveColumnGap(
+    totalColumnWidth,
+    visibleColumnCount
+  );
+  let visibleColumnIndex = 0;
 
   return (
     <>
-      {slots.map((slot, index) => {
-        const visibleColumn =
-          slot.columns.find((column) =>
-            isColumnVisible(
-              column,
-              radioValues,
-              checkboxValues
-            )
-          ) ?? null;
+      {slotViews.map(
+        ({ slot, visibleColumn, columnWidth }) => {
+          const hasLeadingGap =
+            Boolean(visibleColumn) && visibleColumnIndex > 0;
 
-        if (slot.animated) {
+          if (visibleColumn) {
+            visibleColumnIndex += 1;
+          }
+
+          if (slot.animated) {
+            return (
+              <AnimatedColumnSlot
+                key={slot.key}
+                visible={Boolean(visibleColumn)}
+                hasLeadingGap={hasLeadingGap}
+                columnGap={columnGap}
+                columnWidth={columnWidth}
+              >
+                {visibleColumn ? (
+                  <MenuColumnView
+                    column={visibleColumn}
+                    {...columnViewProps}
+                  />
+                ) : null}
+              </AnimatedColumnSlot>
+            );
+          }
+
+          if (!visibleColumn) {
+            return null;
+          }
+
           return (
-            <AnimatedColumnSlot
+            <StaticColumnSlot
               key={slot.key}
-              visible={Boolean(visibleColumn)}
-              hasLeadingGap={index > 0}
+              hasLeadingGap={hasLeadingGap}
+              columnGap={columnGap}
+              columnWidth={columnWidth}
             >
-              {visibleColumn ? (
-                <MenuColumnView
-                  column={visibleColumn}
-                  {...columnViewProps}
-                />
-              ) : null}
-            </AnimatedColumnSlot>
+              <MenuColumnView
+                column={visibleColumn}
+                {...columnViewProps}
+              />
+            </StaticColumnSlot>
           );
         }
-
-        if (!visibleColumn) {
-          return null;
-        }
-
-        return (
-          <StaticColumnSlot
-            key={slot.key}
-            hasLeadingGap={index > 0}
-          >
-            <MenuColumnView
-              column={visibleColumn}
-              {...columnViewProps}
-            />
-          </StaticColumnSlot>
-        );
-      })}
+      )}
     </>
   );
 }
@@ -157,16 +390,20 @@ function MenuColumnSlots({
 type StaticColumnSlotProps = {
   children: ReactNode;
   hasLeadingGap: boolean;
+  columnGap: number;
+  columnWidth: number;
 };
 
 function ColumnSlotDisplay({
   children,
   hasLeadingGap,
+  columnGap,
+  columnWidth,
 }: StaticColumnSlotProps) {
   return (
     <Box
-      w={MEGAMENU_COLUMN_WIDTH}
-      ml={hasLeadingGap ? COLUMN_GAP : 0}
+      w={columnWidth}
+      ml={hasLeadingGap ? columnGap : 0}
       style={{ flexShrink: 0 }}
     >
       {children}
@@ -183,20 +420,25 @@ function StaticColumnSlot(
 function AnimatedColumnSlot({
   visible,
   hasLeadingGap,
+  columnGap,
+  columnWidth,
   children,
 }: {
   visible: boolean;
   hasLeadingGap: boolean;
+  columnGap: number;
+  columnWidth: number;
   children: React.ReactNode;
 }) {
   const expandedWidth =
-    MEGAMENU_COLUMN_WIDTH +
-    (hasLeadingGap ? COLUMN_GAP : 0);
+    columnWidth + (hasLeadingGap ? columnGap : 0);
 
   const displayGroupProps = {
     visible,
     expandedWidth,
     hasLeadingGap,
+    columnGap,
+    columnWidth,
   };
 
   return (
@@ -211,6 +453,8 @@ type AnimatedColumnDisplayProps = {
   visible: boolean;
   expandedWidth: number;
   hasLeadingGap: boolean;
+  columnGap: number;
+  columnWidth: number;
 };
 
 function AnimatedColumnDisplay({
@@ -218,6 +462,8 @@ function AnimatedColumnDisplay({
   visible,
   expandedWidth,
   hasLeadingGap,
+  columnGap,
+  columnWidth,
 }: AnimatedColumnDisplayProps) {
   return (
     <Box
@@ -229,8 +475,8 @@ function AnimatedColumnDisplay({
       }}
     >
       <Box
-        ml={hasLeadingGap ? COLUMN_GAP : 0}
-        w={MEGAMENU_COLUMN_WIDTH}
+        ml={hasLeadingGap ? columnGap : 0}
+        w={columnWidth}
         style={{
           transform: visible
             ? "translateX(0)"

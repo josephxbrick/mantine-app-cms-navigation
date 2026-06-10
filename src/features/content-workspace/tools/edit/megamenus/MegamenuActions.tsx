@@ -2,14 +2,17 @@
  * File purpose: Edit Actions megamenu configuration for save, reload, copy, move, delete, and validation actions.
  *
  * Imports:
- * - IconCalendar, IconDeviceFloppy, IconPencilCheck, IconRoute, IconTrash, IconUser, IconUsers, IconUserCircle, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - IconCalendar, IconDeviceFloppy, IconHistory, IconLogin, IconPencilCheck, IconRotate, IconRoute, IconTrash, IconUser, IconUsers, IconUserCircle, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
  * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
  * - type { MegamenuColumn, MegamenuConfig, } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
  */
 import {
   IconCalendar,
   IconDeviceFloppy,
+  IconHistory,
+  IconLogin,
   IconPencilCheck,
+  IconRotate,
   IconRoute,
   IconTrash,
   IconUser,
@@ -36,6 +39,10 @@ const REMOVE_WORKFLOW_COMMAND_ID =
   "edit-actions-remove-workflow";
 const WORKFLOW_HISTORY_COMMAND_ID =
   "edit-actions-workflow-history";
+const CHECK_IN_COMMAND_ID = "edit-actions-check-in";
+const UNDO_CHECKOUT_COMMAND_ID =
+  "edit-actions-undo-checkout";
+const ROLLBACK_COMMAND_ID = "edit-actions-rollback";
 
 const actionColumns: MegamenuColumn[] = [
   {
@@ -110,6 +117,30 @@ const actionColumns: MegamenuColumn[] = [
       },
     ],
   },
+  {
+    id: "publishing-actions",
+    header: "Versioning",
+    items: [
+      {
+        type: "command",
+        id: CHECK_IN_COMMAND_ID,
+        label: "Check In",
+        icon: IconLogin,
+      },
+      {
+        type: "command",
+        id: UNDO_CHECKOUT_COMMAND_ID,
+        label: "Undo Checkout",
+        icon: IconRotate,
+      },
+      {
+        type: "command",
+        id: ROLLBACK_COMMAND_ID,
+        label: "Rollback",
+        icon: IconHistory,
+      },
+    ],
+  },
 ];
 
 const commandMessages: Record<string, string> = {
@@ -122,6 +153,9 @@ const commandMessages: Record<string, string> = {
   [ADVANCE_COMMAND_ID]: "Advance",
   [REMOVE_WORKFLOW_COMMAND_ID]: "Remove from Workflow",
   [WORKFLOW_HISTORY_COMMAND_ID]: "Show Workflow History",
+  [CHECK_IN_COMMAND_ID]: "Check In",
+  [UNDO_CHECKOUT_COMMAND_ID]: "Undo Checkout",
+  [ROLLBACK_COMMAND_ID]: "Rollback",
 };
 
 type MegamenuActionsProps = {
