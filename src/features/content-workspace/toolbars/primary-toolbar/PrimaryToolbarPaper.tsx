@@ -33,7 +33,6 @@ import {
 import { ToolbarSelectMenu } from "../ToolbarSelectMenu";
 
 type PrimaryToolbarPaperProps = {
-  buttonWidth: number;
   selected: ToolbarTool | null;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
@@ -148,7 +147,6 @@ function ViewMenu() {
 }
 
 type ContentToolsBubbleProps = {
-  buttonWidth: number;
   selected: ToolbarTool;
   tools: ToolbarTool[];
   onSelectTool: (tool: ToolKey) => void;
@@ -164,6 +162,7 @@ function ContentToolsBubble({
       label="Content Tools"
       mode="surrounded"
       value={selected.label}
+      animateWidthToContent
       options={tools.map((tool) => ({
         value: tool.label,
         label: tool.label,
@@ -183,7 +182,6 @@ function ViewSiteBubble() {
 }
 
 export function PrimaryToolbarPaper({
-  buttonWidth,
   selected,
   tools,
   onSelectTool,
@@ -197,7 +195,6 @@ export function PrimaryToolbarPaper({
   }
 
   const contentToolsBubbleProps = {
-    buttonWidth,
     selected,
     tools,
     onSelectTool,

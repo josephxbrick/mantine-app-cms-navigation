@@ -308,7 +308,7 @@ function OptionsControls({
   onChangePublishTarget,
 }: OptionsControlsProps) {
   return (
-    <Stack gap="sm">
+    <Stack gap="md">
       {showPublishingTarget ? (
         <ToolbarSelectMenu
           label="Publishing Target"
@@ -324,26 +324,28 @@ function OptionsControls({
           onChange={onChangePublishTarget}
         />
       ) : null}
-      <Stack gap="xs">
-        <Checkbox
-          label="Indicate publishing target root"
-          size="md"
-          color="asxIndigo"
-          styles={checkboxStyles}
-        />
-        <Checkbox
-          label="Indicate region root"
-          size="md"
-          color="asxIndigo"
-          styles={checkboxStyles}
-        />
-        <Checkbox
-          label="Indicate DITA content"
-          size="md"
-          color="asxIndigo"
-          styles={checkboxStyles}
-        />
-      </Stack>
+      <Box>
+        <Stack gap="xs">
+          <Checkbox
+            label="Indicate publishing target root"
+            size="md"
+            color="asxIndigo"
+            styles={checkboxStyles}
+          />
+          <Checkbox
+            label="Indicate region root"
+            size="md"
+            color="asxIndigo"
+            styles={checkboxStyles}
+          />
+          <Checkbox
+            label="Indicate DITA content"
+            size="md"
+            color="asxIndigo"
+            styles={checkboxStyles}
+          />
+        </Stack>
+      </Box>
     </Stack>
   );
 }
