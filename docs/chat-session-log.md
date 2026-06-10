@@ -290,3 +290,25 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Verification during session: repeated `npx tsc -b` checks passed. `npm run deploy:stage` completed successfully and created CloudFront invalidation `IE0L04EDI960WWAA0ZZH9BTKDX`.
 - Deploy-generated `dist` changes were restored/removed before commit.
 - Existing local demo image artifacts remain uncommitted.
+
+## 2026-06-10 - Session Skill Bookends
+
+### Summary
+
+- Renamed the repo-local session startup skill from `study-project-first` to `session-start`.
+- Renamed the repo-local close-out skill from `close-session` to `session-end`.
+- Updated the skill frontmatter, descriptions, and headings so the two workflow skills read as a matched session-start/session-end pair.
+- Synced the updated `session-start` skill and installed the new `session-end` skill in the global user skills directory for future chats.
+
+### Files Updated
+
+- `.agents/skills/session-end/SKILL.md`
+- `.agents/skills/session-start/SKILL.md`
+- `docs/chat-session-log.md`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification: no build or tests were run because the close-out request did not ask for them and the committed changes only affect Codex workflow skill metadata/docs.
+- Project spec status: already current; this session changed repo workflow skills, not prototype product behavior.
+- Left local demo image artifacts uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.

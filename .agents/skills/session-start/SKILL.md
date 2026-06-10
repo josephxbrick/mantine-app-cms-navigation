@@ -1,9 +1,9 @@
 ---
-name: study-project-first
-description: Use when starting a repo task where Codex should read project docs, config, and relevant source code before implementing changes; especially when the user asks to study the docs and codebase first, follow existing patterns, avoid unrelated refactors, and verify afterward.
+name: session-start
+description: Use when beginning a new repo chat or coding session where Codex should orient itself by reading project docs, config, and relevant source code before implementing changes; especially when the user asks to start a session, study the repo first, follow existing patterns, avoid unrelated refactors, and verify afterward.
 ---
 
-# Study Project First
+# Session Start
 
 Before implementing changes:
 

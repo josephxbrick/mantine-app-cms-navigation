@@ -1,9 +1,9 @@
 ---
-name: close-session
-description: Use when the user asks to close, wrap up, finish, or hand off a coding session: update project docs/spec when behavior changed, summarize work in a session log, verify git state, optionally build/test when requested, commit and push only after cautious review, and ask whether to deploy without deploying automatically.
+name: session-end
+description: Use when the user asks to end, close, wrap up, finish, or hand off a coding session: update project docs/spec when behavior changed, summarize work in a session log, verify git state, optionally build/test when requested, commit and push only after cautious review, and ask whether to deploy without deploying automatically.
 ---
 
-# Close Session
+# Session End
 
 Use this skill to end a repo session cleanly.
 
