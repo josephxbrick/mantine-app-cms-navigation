@@ -47,6 +47,7 @@ import { ToolbarDelimiter } from "./ToolbarDelimiter";
 
 import { useEffect, useRef, useState } from "react";
 import type {
+  MouseEvent,
   ReactNode,
   RefObject,
 } from "react";
@@ -640,6 +641,7 @@ type ActiveMegamenuProps = {
   onToggleIncludeBrowserCookies: () => void;
   showAllPages: boolean;
   onToggleShowAllPages: () => void;
+  onDismiss: () => void;
 };
 
 function ActiveMegamenu({
@@ -663,6 +665,7 @@ function ActiveMegamenu({
   onToggleIncludeBrowserCookies,
   showAllPages,
   onToggleShowAllPages,
+  onDismiss,
 }: ActiveMegamenuProps) {
   const activeMenuConfig =
     menus.find((menu) => menu.key === activeMenu) ??
@@ -674,20 +677,32 @@ function ActiveMegamenu({
 
   const activeMenuUsesOwnPadding =
     activeMenuConfig.renderer !== "placeholder";
+  const handleClick = (
+    event: MouseEvent<HTMLDivElement>
+  ) => {
+    const target = event.target;
+
+    if (
+      target instanceof Element &&
+      target.closest('[data-megamenu-command="true"]')
+    ) {
+      onDismiss();
+    }
+  };
 
   return (
     <Paper
       radius={0}
       px={activeMenuUsesOwnPadding ? 0 : "xl"}
       bg="gray.0"
+      onClick={handleClick}
       style={{
         position: "absolute",
         top: 52,
         left: 0,
         right: 0,
         zIndex: 20,
-        paddingBlock:
-          "calc(var(--mantine-spacing-lg) + 16px)",
+        paddingBlock: "var(--mantine-spacing-lg)",
         borderBottom:
           "1px solid var(--mantine-color-indigo-2)",
         boxShadow: "0 12px 28px rgba(61,68,109,0.12)",
@@ -994,6 +1009,11 @@ export default function SecondaryToolbar({
     showAllPages,
     onToggleShowAllPages: () =>
       setShowAllPages((current) => !current),
+    onDismiss: () => {
+      clearHoverTimeout();
+      clearCloseTimeout();
+      setActiveMenu(null);
+    },
   };
 
   return (

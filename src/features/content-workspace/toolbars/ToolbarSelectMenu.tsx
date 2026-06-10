@@ -57,6 +57,7 @@ type ToolbarSelectMenuProps = {
   pillStroke?: CSSProperties["border"];
   showTriggerIcon?: boolean;
   showMenuIcons?: boolean;
+  withinPortal?: boolean;
 };
 
 const TOOLBAR_BUBBLE_PADDING_Y = 6;
@@ -276,6 +277,7 @@ type SelectorMenuProps = {
   target: ReactNode;
   menuWidth: number | "target";
   showMenuIcons: boolean;
+  withinPortal: boolean;
   onChange: (value: string) => void;
 };
 
@@ -285,6 +287,7 @@ function SelectorMenu({
   target,
   menuWidth,
   showMenuIcons,
+  withinPortal,
   onChange,
 }: SelectorMenuProps) {
   const [opened, setOpened] = useState(false);
@@ -300,17 +303,23 @@ function SelectorMenu({
       width={menuWidth}
       position="bottom-end"
       offset={4}
+      withinPortal={withinPortal}
       opened={opened}
       onChange={setOpened}
     >
       <Menu.Target>{target}</Menu.Target>
 
-      <Menu.Dropdown px={12} py={12}>
+      <Menu.Dropdown
+        px={12}
+        py={12}
+        onClick={(event) => event.stopPropagation()}
+      >
         <MegamenuColumnLayout>
           {options.map((option) => (
             <MegamenuCommandItem
               key={option.value}
               selected={option.value === selected.value}
+              closeParentMegamenu={false}
               onClick={() => handleSelect(option.value)}
             >
               {showMenuIcons ? option.icon : null}
@@ -339,6 +348,7 @@ export function ToolbarSelectMenu({
   pillStroke = "1px solid var(--mantine-color-asxIndigo-2)",
   showTriggerIcon = true,
   showMenuIcons = true,
+  withinPortal = true,
 }: ToolbarSelectMenuProps) {
   const selected =
     options.find((option) => option.value === value) ??
@@ -364,6 +374,7 @@ export function ToolbarSelectMenu({
     options,
     menuWidth,
     showMenuIcons,
+    withinPortal,
     onChange,
   };
 

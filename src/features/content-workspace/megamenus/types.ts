@@ -2,8 +2,9 @@
  * File purpose: Shared data model for configurable megamenu columns, items, values, and visibility rules.
  *
  * Imports:
- * - None; this file currently defines local types or constants without external dependencies.
+ * - type { ElementType, ReactNode } from "react" provides React types used by megamenu configuration.
  */
+import type { ElementType, ReactNode } from "react";
 export type RadioVisibilityRule = {
   source: "radio";
   radioGroupId: string;
@@ -38,14 +39,14 @@ export type CommandMenuItem = {
   type: "command";
   id: string;
   label: string;
-  icon?: React.ElementType;
+  icon?: ElementType;
 };
 
 export type DropdownMenuItem = {
   type: "dropdown";
   id: string;
   label: string;
-  icon?: React.ElementType;
+  icon?: ElementType;
 };
 
 export type SelectMenuItemOption = {
@@ -74,6 +75,11 @@ export type ButtonMenuItem = {
   label: string;
 };
 
+export type DelimiterMenuItem = {
+  type: "delimiter";
+  id: string;
+};
+
 export type MegamenuItem =
   | RadioMenuItem
   | CheckboxMenuItem
@@ -81,14 +87,17 @@ export type MegamenuItem =
   | DropdownMenuItem
   | SelectMenuItem
   | TextInputMenuItem
-  | ButtonMenuItem;
+  | ButtonMenuItem
+  | DelimiterMenuItem;
 
 export type MegamenuColumn = {
   id: string;
   header?: string;
   items: MegamenuItem[];
+  content?: ReactNode;
   slotId?: string;
   visibleWhen?: MenuVisibilityRule;
+  width?: number;
 };
 
 export type MegamenuConfig = {

@@ -34,9 +34,9 @@ import type {
   MegamenuRadioValues,
 } from "./types";
 
-const MIN_COLUMN_GAP = 56;
-const MAX_COLUMN_GAP = 88;
-const COLUMN_OUTER_PADDING_RATIO = 0.6;
+const MIN_COLUMN_GAP = 40;
+const MAX_COLUMN_GAP = 72;
+const COLUMN_OUTER_PADDING_RATIO = 0.512;
 const VIEWPORT_HORIZONTAL_MARGIN = 32;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
@@ -94,6 +94,10 @@ function measureMenuText(
 }
 
 function getItemMeasurementLabel(item: MegamenuItem) {
+  if (item.type === "delimiter") {
+    return "";
+  }
+
   if (item.type === "select") {
     const labels = [
       item.label,
@@ -172,6 +176,10 @@ function getMenuItemWidth(item: MegamenuItem) {
 }
 
 function getMegamenuColumnWidth(column: MegamenuColumn) {
+  if (column.width) {
+    return column.width;
+  }
+
   const headerWidth = column.header
     ? measureMenuText(column.header.toUpperCase(), 15, 700)
     : 0;
@@ -355,18 +363,19 @@ function MenuColumnSlots({
     totalColumnWidth,
     visibleColumnCount
   );
-  let visibleColumnIndex = 0;
 
   return (
     <ColumnDisplayGroup columnGap={columnGap}>
       {slotViews.map(
-        ({ slot, visibleColumn, columnWidth }) => {
+        ({ slot, visibleColumn, columnWidth }, index) => {
+          const visibleColumnsBefore = slotViews
+            .slice(0, index)
+            .filter(({ visibleColumn: previousColumn }) =>
+              Boolean(previousColumn)
+            ).length;
           const hasLeadingGap =
-            Boolean(visibleColumn) && visibleColumnIndex > 0;
-
-          if (visibleColumn) {
-            visibleColumnIndex += 1;
-          }
+            Boolean(visibleColumn) &&
+            visibleColumnsBefore > 0;
 
           if (slot.animated) {
             return (
@@ -549,7 +558,7 @@ function MenuColumnView({
 
   return (
     <MegamenuColumnLayout header={column.header}>
-      <MenuItems {...menuItemsProps} />
+      {column.content ?? <MenuItems {...menuItemsProps} />}
     </MegamenuColumnLayout>
   );
 }
@@ -637,19 +646,23 @@ function MenuItemView({
   onFieldChange,
   onCommand,
 }: MenuItemViewProps) {
+  if (item.type === "delimiter") {
+    return <MegamenuDelimiter />;
+  }
+
   if (item.type === "radio") {
     const selected =
       radioValues[item.groupId] === item.value;
 
     return (
-      <RadioMenuItem
+      <MegamenuRadioItem
         selected={selected}
         onClick={() =>
           onRadioChange(item.groupId, item.value)
         }
       >
         <Text size="16px">{item.label}</Text>
-      </RadioMenuItem>
+      </MegamenuRadioItem>
     );
   }
 
@@ -767,13 +780,26 @@ function FieldMenuItem({
   );
 }
 
+export function MegamenuDelimiter() {
+  return (
+    <Box
+      my={6}
+      style={{
+        height: 1,
+        background: "var(--mantine-color-asxGray-3)",
+        width: "100%",
+      }}
+    />
+  );
+}
+
 type RadioMenuItemProps = {
   children: ReactNode;
   selected: boolean;
   onClick: () => void;
 };
 
-function RadioMenuItem({
+export function MegamenuRadioItem({
   children,
   selected,
   onClick,
@@ -895,6 +921,7 @@ type CommandMenuItemProps = {
   children: ReactNode;
   onClick: () => void;
   ariaLabel?: string;
+  closeParentMegamenu?: boolean;
   selected?: boolean;
   width?: CSSProperties["width"];
   paddingBlock?: CSSProperties["paddingBlock"];
@@ -905,6 +932,7 @@ export function MegamenuCommandItem({
   children,
   onClick,
   ariaLabel,
+  closeParentMegamenu = true,
   selected = false,
   width = "100%",
   paddingBlock,
@@ -924,6 +952,9 @@ export function MegamenuCommandItem({
   return (
     <UnstyledButton
       aria-label={ariaLabel}
+      data-megamenu-command={
+        closeParentMegamenu ? "true" : undefined
+      }
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

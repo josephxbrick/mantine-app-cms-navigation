@@ -312,3 +312,32 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Verification: no build or tests were run because the close-out request did not ask for them and the committed changes only affect Codex workflow skill metadata/docs.
 - Project spec status: already current; this session changed repo workflow skills, not prototype product behavior.
 - Left local demo image artifacts uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.
+
+## 2026-06-10 - Actions Publishing Commands
+
+### Summary
+
+- Added Mark for Publish and Publish columns to the Site Edit and Site Preview Actions megamenus.
+- Made the new Actions publishing controls command-based rather than radio-based.
+- Added a Publishing Target dropdown inside the Actions Publish column, with the dropdown filling the measured column width and staying inside the parent megamenu.
+- Updated shared megamenu command behavior so command rows dismiss the active megamenu, while dropdown option selection can opt out and remain open in parent megamenu contexts.
+- Added shared megamenu support for delimiter rows and custom column content, with custom columns still able to size from their underlying item definitions.
+- Tightened shared column-based megamenu spacing and active megamenu padding.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/content-workspace/megamenus/types.ts`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+- `src/features/content-workspace/toolbars/ToolbarSelectMenu.tsx`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuActions.tsx`
+- `src/features/content-workspace/tools/preview/megamenus/MegamenuPreviewActions.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification during session: repeated `npx tsc -b` checks passed. No additional build/test was run during session-end because it was not requested.
+- Project spec updated to capture the new Actions publishing columns and command-dismiss behavior.
+- Existing local demo image artifacts remain uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.

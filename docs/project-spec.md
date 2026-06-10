@@ -86,11 +86,11 @@ Tree node labels truncate with an ellipsis when clipped and expose the full node
 
 The secondary toolbar supports tool-specific megamenu tabs for Site and Assets workflows. Site Edit and Folder Content expose View, New, Actions, and Publish menus. Site Preview exposes View, Preview Settings, Actions, and Publish menus.
 
-Column-based megamenus size columns to fit their widest header or item, including selected radio and checkbox font weight. They use responsive inter-column spacing and apply left/right padding as a proportion of that computed gap. Radio and checkbox selected rows share the Site tree selected-row border/background treatment while retaining their own control affordances. Command/action rows use 20px icons with tighter vertical padding so command, radio, and checkbox rows align visually. Megamenus use a short mouse-away grace period before closing. The Publish megamenu has its own guided wizard layout and remains open while incomplete when the user mouses away; it closes only after completion or when the user clicks elsewhere.
+Column-based megamenus size columns to fit their widest header or item, including selected radio and checkbox font weight. They use responsive inter-column spacing and apply left/right padding as a proportion of that computed gap. Radio and checkbox selected rows share the Site tree selected-row border/background treatment while retaining their own control affordances. Command/action rows use 20px icons with tighter vertical padding so command, radio, and checkbox rows align visually. Megamenus use a short mouse-away grace period before closing, and clicking a command row closes the active megamenu. The Publish megamenu has its own guided wizard layout and remains open while incomplete when the user mouses away; it closes only after completion or when the user clicks elsewhere.
 
-The Site Edit Actions megamenu includes a Versioning column for Check In, Undo Checkout, and Rollback.
+The Site Edit Actions megamenu includes Mark for Publish and Publish columns. Mark for Publish exposes commands to mark or unmark the current page or the current page and children. Publish exposes a Publishing Target dropdown followed by commands for publishing the current page, the current page and children, or the site. The Publish column sizes to its longest command label, and its dropdown fills that measured column width without closing the parent megamenu when a target is selected. Site Edit Actions also includes a Versioning column for Check In, Undo Checkout, and Rollback.
 
-The Site Preview Actions megamenu also includes a final Versioning column for Check In, Undo Checkout, and Rollback.
+The Site Preview Actions megamenu includes the same Mark for Publish, Publish, and Versioning columns as Site Edit Actions.
 
 The Publish megamenu presents a three-step guided page publishing flow:
 
@@ -127,6 +127,8 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - The workspace can fall back to a placeholder label when no demo image applies.
 - Site Edit and Preview secondary toolbar tabs can open tool-specific megamenus.
 - Site Edit secondary toolbar tabs appear in the order View, New, Actions, Publish.
+- Site Edit and Preview Actions megamenus expose Mark for Publish and Publish command columns.
+- Clicking a command row in a normal megamenu closes the active megamenu.
 - Normal megamenus close after a short mouse-away grace period; the incomplete Publish wizard remains open on mouse-away and closes by outside click or after the wizard is complete.
 - Users can complete the guided Publish flow by checking in, marking for publish, and publishing from left to right.
 - Users can choose whether Check In and Mark for Publish apply to the page only or to the page and descendants.
