@@ -78,17 +78,19 @@ The Site domain currently supports demo images for Edit and Preview modes via `/
 
 The Site tree shows an Options panel above the tree. The panel remains fixed while the tree itself scrolls independently and defaults closed. Clicking the Options row toggles it open and closed; its filter icon uses selected-state styling while open. Open and close height changes animate at 200ms ease-out, while height changes caused by horizontal resizing and text wrapping animate at 100ms ease-out.
 
-Current options include checkboxes for indicating publishing target roots, region roots, and DITA content. These options use the same custom checkbox row styling as the Edit > View megamenu for consistency and clearer selected states. The secondary toolbar Refresh action toggles Publishing Target dropdown visibility in this panel, with the dropdown hidden by default. Publishing Target uses the same reusable custom pill dropdown component as the Content Tools selector rather than a native browser select.
+Current options include a Publishing Target dropdown plus checkboxes for indicating publishing target roots, region roots, and DITA content. These options use the same custom checkbox row styling as the Edit > View megamenu for consistency and clearer selected states. The Publishing Target dropdown is visible by default, and the secondary toolbar Refresh action toggles its visibility in this panel. Publishing Target uses the same reusable custom pill dropdown component as the Content Tools selector rather than a native browser select.
 
 Tree node labels truncate with an ellipsis when clipped and expose the full node name in a tooltip only when the rendered label is actually truncated.
 
 ### Secondary Toolbar
 
-The secondary toolbar supports tool-specific megamenu tabs for Site and Assets workflows. Site Edit and Folder Content expose View, Actions, Publish, and New menus. Site Preview exposes View, Preview Settings, Actions, and Publish menus.
+The secondary toolbar supports tool-specific megamenu tabs for Site and Assets workflows. Site Edit and Folder Content expose View, New, Actions, and Publish menus. Site Preview exposes View, Preview Settings, Actions, and Publish menus.
 
-Column-based megamenus size columns to fit their widest header or item, use responsive inter-column spacing, and apply left/right padding as a proportion of that computed gap. Megamenus use a short mouse-away grace period before closing. The Publish megamenu has its own guided wizard layout and remains open while incomplete when the user mouses away; it closes only after completion or when the user clicks elsewhere.
+Column-based megamenus size columns to fit their widest header or item, including selected radio and checkbox font weight. They use responsive inter-column spacing and apply left/right padding as a proportion of that computed gap. Radio and checkbox selected rows share the Site tree selected-row border/background treatment while retaining their own control affordances. Command/action rows use 20px icons with tighter vertical padding so command, radio, and checkbox rows align visually. Megamenus use a short mouse-away grace period before closing. The Publish megamenu has its own guided wizard layout and remains open while incomplete when the user mouses away; it closes only after completion or when the user clicks elsewhere.
 
 The Site Edit Actions megamenu includes a Versioning column for Check In, Undo Checkout, and Rollback.
+
+The Site Preview Actions megamenu also includes a final Versioning column for Check In, Undo Checkout, and Rollback.
 
 The Publish megamenu presents a three-step guided page publishing flow:
 
@@ -96,7 +98,7 @@ The Publish megamenu presents a three-step guided page publishing flow:
 2. Mark the current page for publish, or the current page and its descendants.
 3. Publish to the selected target.
 
-Each publish step starts numbered, enters a timed spinner state after action, and then shows a completed check state. Page vs Page & Children choices use a custom toggle control rather than native browser inputs. The Publish step includes a target picker aligned with the step controls and defaults to the Publishing Target selected in Site Settings unless changed in the wizard. Wizard progress is preserved while switching tabs in the running app, but resets on browser refresh.
+Each publish step starts numbered, enters a timed spinner state after action, and then shows a completed check state with plain-language status text. Page vs Page & Children choices use a custom toggle control rather than native browser inputs. Completed status boxes and incomplete action buttons share the tallest status height and animate height changes at 150ms ease-out so wrapped status messages keep the wizard controls aligned. The Publish completed state includes a subtle View publish details link. The Publish step includes a target picker aligned with the step controls and defaults to the Publishing Target selected in Site Settings unless changed in the wizard. Wizard progress is preserved while switching tabs in the running app, but resets on browser refresh.
 
 The right side of the secondary toolbar includes compact action controls for Refresh, Save, and Search. Refresh toggles the Publishing Target dropdown visibility in the Site tree Options panel. A review-only control group containing Check in and Assign to is visible by default and can be toggled on and off with the Save icon.
 
@@ -115,7 +117,7 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Users can select nodes in available trees.
 - Users can select a publishing target without losing tree scroll position.
 - Users can toggle tree options open and closed from the Options row.
-- Users can reveal or hide the Publishing Target dropdown from the secondary toolbar Refresh action.
+- Users see the Publishing Target dropdown in Site tree Options by default and can reveal or hide it from the secondary toolbar Refresh action.
 - Tree selection updates the workspace label and active tool context.
 - Folder selections expose folder tools when configured.
 - Content selections expose content tools.
@@ -124,10 +126,12 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Users can toggle demo workspace visibility from the product toolbar.
 - The workspace can fall back to a placeholder label when no demo image applies.
 - Site Edit and Preview secondary toolbar tabs can open tool-specific megamenus.
+- Site Edit secondary toolbar tabs appear in the order View, New, Actions, Publish.
 - Normal megamenus close after a short mouse-away grace period; the incomplete Publish wizard remains open on mouse-away and closes by outside click or after the wizard is complete.
 - Users can complete the guided Publish flow by checking in, marking for publish, and publishing from left to right.
 - Users can choose whether Check In and Mark for Publish apply to the page only or to the page and descendants.
 - Users can choose a publish target in the final Publish step, defaulting to the Site Settings publishing target unless overridden in the wizard.
+- Users can see publish completion status text and a View publish details link after publishing.
 - The secondary toolbar Assign to action can open a dropdown for assigning to self, a user, or a group.
 - The secondary toolbar shows review-only Check in and Assign to controls by default, and the Save icon toggles them on and off.
 

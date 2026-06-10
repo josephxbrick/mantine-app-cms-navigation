@@ -2,12 +2,15 @@
  * File purpose: Preview Actions megamenu configuration for previewing, validating, and publishing actions.
  *
  * Imports:
- * - IconCalendar, IconRoute, IconTrash, IconUser, IconUsers, IconUserCircle, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
+ * - IconCalendar, IconHistory, IconLogin, IconRotate, IconRoute, IconTrash, IconUser, IconUsers, IconUserCircle, from "@tabler/icons-react" provides icon components or icon types used by the CMS navigation UI.
  * - MegamenuRenderer from "../../../megamenus/MegamenuRenderer" provides the shared renderer for configurable megamenu columns and items.
  * - type { MegamenuConfig } from "../../../megamenus/types" provides the shared megamenu configuration and value types.
  */
 import {
   IconCalendar,
+  IconHistory,
+  IconLogin,
+  IconRotate,
   IconRoute,
   IconTrash,
   IconUser,
@@ -69,6 +72,30 @@ const previewActionsMenu: MegamenuConfig = {
         },
       ],
     },
+    {
+      id: "versioning",
+      header: "Versioning",
+      items: [
+        {
+          type: "command",
+          id: "preview-actions-check-in",
+          label: "Check In",
+          icon: IconLogin,
+        },
+        {
+          type: "command",
+          id: "preview-actions-undo-checkout",
+          label: "Undo Checkout",
+          icon: IconRotate,
+        },
+        {
+          type: "command",
+          id: "preview-actions-rollback",
+          label: "Rollback",
+          icon: IconHistory,
+        },
+      ],
+    },
   ],
 };
 
@@ -81,6 +108,9 @@ const commandMessages: Record<string, string> = {
     "Remove from Workflow",
   "preview-actions-workflow-history":
     "Show Workflow History",
+  "preview-actions-check-in": "Check In",
+  "preview-actions-undo-checkout": "Undo Checkout",
+  "preview-actions-rollback": "Rollback",
 };
 
 export default function MegamenuPreviewActions() {

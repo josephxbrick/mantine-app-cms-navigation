@@ -573,7 +573,7 @@ export function AppShell() {
   const [
     showPublishingTarget,
     setShowPublishingTarget,
-  ] = useState(false);
+  ] = useState(true);
 
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     LEFT_PANEL_INITIAL_WIDTH

@@ -41,9 +41,10 @@ const VIEWPORT_HORIZONTAL_MARGIN = 32;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
 const ITEM_PADDING = "8px 10px";
+const COMMAND_ITEM_PADDING = "6px 10px";
 const ITEM_INLINE_GAP = 10;
 const ITEM_HORIZONTAL_PADDING = 20;
-const COMMAND_ICON_WIDTH = 28;
+const COMMAND_ICON_WIDTH = 20;
 const DROPDOWN_ICON_WIDTH = 17;
 const CHECKBOX_MARK_WIDTH = 16;
 const DEFAULT_TEXT_WIDTH_MULTIPLIER = 8;
@@ -117,11 +118,17 @@ function getItemMeasurementLabel(item: MegamenuItem) {
   return item.label;
 }
 
+function getItemMeasurementWeight(item: MegamenuItem) {
+  return item.type === "radio" || item.type === "checkbox"
+    ? 700
+    : 500;
+}
+
 function getMenuItemWidth(item: MegamenuItem) {
   const labelWidth = measureMenuText(
     getItemMeasurementLabel(item),
     16,
-    500
+    getItemMeasurementWeight(item)
   );
 
   if (item.type === "command") {
@@ -784,21 +791,22 @@ function RadioMenuItem({
         padding: ITEM_PADDING,
         borderRadius: 8,
         border: isHighlighted
-          ? `1px solid var(--mantine-color-${selected ? "indigo-2" : "asxBlue-1"
-          })`
+          ? `1px solid var(--mantine-color-${
+              selected ? "asxIndigo-2" : "asxBlue-1"
+            })`
           : "1px solid transparent",
         borderLeft: selected
-          ? "3px solid var(--mantine-color-indigo-6)"
+          ? "4px solid var(--mantine-color-indigo-6)"
           : isHovered
             ? "3px solid var(--mantine-color-asxBlue-1)"
             : "3px solid transparent",
         background: selected
-          ? "var(--mantine-color-indigo-1)"
+          ? "var(--mantine-color-asxIndigo-0)"
           : isHovered
             ? "var(--mantine-color-asxBlue-0)"
             : "transparent",
         color: selected
-          ? "var(--mantine-color-indigo-9)"
+          ? "var(--mantine-color-asxGray-8)"
           : "var(--mantine-color-asxGray-7)",
         fontWeight: selected ? 700 : 500,
       }}
@@ -834,17 +842,16 @@ export function CheckboxMenuItem({
         padding: ITEM_PADDING,
         borderRadius: 8,
         border: isHighlighted
-          ? `1px solid var(--mantine-color-${selected ? "indigo-2" : "asxBlue-1"
-          })`
+          ? `1px solid var(--mantine-color-${
+              selected ? "asxIndigo-2" : "asxBlue-1"
+            })`
           : "1px solid transparent",
         background: selected
-          ? "var(--mantine-color-indigo-1)"
+          ? "var(--mantine-color-asxIndigo-0)"
           : isHovered
             ? "var(--mantine-color-asxBlue-0)"
             : "transparent",
-        color: selected
-          ? "var(--mantine-color-indigo-9)"
-          : "var(--mantine-color-asxGray-8)",
+        color: "var(--mantine-color-asxGray-8)",
         fontWeight: selected ? 700 : 500,
       }}
     >
@@ -922,7 +929,7 @@ export function MegamenuCommandItem({
       onMouseLeave={() => setIsHovered(false)}
       style={{
         width,
-        padding: ITEM_PADDING,
+        padding: COMMAND_ITEM_PADDING,
         paddingBlock,
         borderRadius: 8,
         border: selected
@@ -982,7 +989,7 @@ export function MegamenuActionItem({
     >
       {Icon ? (
         <Icon
-          size={28}
+          size={20}
           stroke={1.3}
           color="var(--mantine-color-asxGray-7)"
         />

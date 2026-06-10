@@ -79,7 +79,8 @@ const PUBLISH_COMPLETE_STATUS_BACKGROUND =
 const PUBLISH_COMPLETE_STATUS_BORDER =
   "1px solid var(--mantine-color-green-4)";
 const PUBLISH_COMPLETE_STATUS_TEXT =
-  "var(--mantine-color-green-8)";
+  "var(--mantine-color-asxGray-8)";
+const PUBLISH_COMPLETE_STATUS_VERTICAL_PADDING = 12;
 const PUBLISH_STEP_TITLE_PRIMARY_COLOR = "asxGray.9";
 const PUBLISH_STEP_TITLE_SECONDARY_COLOR = "asxGray.6";
 
@@ -201,6 +202,31 @@ function getCommandId(
   return "publish-page";
 }
 
+function getCompletedStepLabel(
+  stepId: PublishStepId,
+  scope: PublishScope,
+  publishTarget: PublishTarget
+) {
+  if (stepId === "check-in") {
+    return scope === "page"
+      ? "This page is checked in."
+      : "This page and its children are checked in.";
+  }
+
+  if (stepId === "mark") {
+    return scope === "page"
+      ? "This page is marked."
+      : "This page and its children are marked.";
+  }
+
+  const selectedTarget =
+    publishTargetOptions.find(
+      (option) => option.value === publishTarget
+    ) ?? publishTargetOptions[0];
+
+  return `Marked pages were published to ${selectedTarget.label}.`;
+}
+
 function isStepReady(
   stepId: PublishStepId,
   completedSteps: Set<PublishStepId>
@@ -288,6 +314,11 @@ export default function MegamenuPublish({
         PUBLISH_STEP_GAP_RATIO
       )
     );
+  const [completedStatusMinHeight, setCompletedStatusMinHeight] =
+    useState(40);
+  const completedStatusHeightsRef = useRef<
+    Partial<Record<PublishStepId, number>>
+  >({});
 
   const scopes: Record<PublishStepId, PublishScope> = {
     "check-in": checkInScope,
@@ -303,6 +334,26 @@ export default function MegamenuPublish({
   > = {
     "check-in": setCheckInScope,
     mark: setMarkScope,
+  };
+
+  const handleCompletedStatusHeightChange = (
+    stepId: PublishStepId,
+    height: number
+  ) => {
+    completedStatusHeightsRef.current[stepId] = height;
+
+    const nextMinHeight = Math.max(
+      40,
+      ...Object.values(
+        completedStatusHeightsRef.current
+      ).filter((value): value is number =>
+        typeof value === "number"
+      )
+    );
+
+    setCompletedStatusMinHeight((current) =>
+      current === nextMinHeight ? current : nextMinHeight
+    );
   };
 
   function finishPendingStep(stepId: PublishStepId) {
@@ -484,9 +535,18 @@ export default function MegamenuPublish({
                 ready={ready}
                 scope={scopes[step.id]}
                 publishTarget={publishTarget}
+                completedStatusMinHeight={
+                  completedStatusMinHeight
+                }
                 onScopeChange={scopeSetter}
                 onChangePublishTarget={
                   handleChangePublishTarget
+                }
+                onCompletedStatusHeightChange={(height) =>
+                  handleCompletedStatusHeightChange(
+                    step.id,
+                    height
+                  )
                 }
                 onComplete={() => completeStep(step.id)}
               />
@@ -507,8 +567,10 @@ type PublishStepCardProps = {
   ready: boolean;
   scope: PublishScope;
   publishTarget: PublishTarget;
+  completedStatusMinHeight: number;
   onScopeChange?: (scope: PublishScope) => void;
   onChangePublishTarget: (value: PublishTarget) => void;
+  onCompletedStatusHeightChange: (height: number) => void;
   onComplete: () => void;
 };
 
@@ -521,8 +583,10 @@ function PublishStepCard({
   ready,
   scope,
   publishTarget,
+  completedStatusMinHeight,
   onScopeChange,
   onChangePublishTarget,
+  onCompletedStatusHeightChange,
   onComplete,
 }: PublishStepCardProps) {
   const tone = completed
@@ -585,9 +649,22 @@ function PublishStepCard({
       ) : null}
 
       <PublishStepButton
-        label={completed ? "Done" : step.actionLabel}
+        stepId={step.id}
+        label={
+          completed
+            ? getCompletedStepLabel(
+                step.id,
+                scope,
+                publishTarget
+              )
+            : step.actionLabel
+        }
         completed={completed}
+        minHeight={completedStatusMinHeight}
         disabled={!ready || pending}
+        onCompletedHeightChange={
+          onCompletedStatusHeightChange
+        }
         onClick={onComplete}
       />
     </Stack>
@@ -887,36 +964,122 @@ function PublishTargetPicker({
 }
 
 type PublishStepButtonProps = {
+  stepId: PublishStepId;
   label: string;
   completed: boolean;
+  minHeight: number;
   disabled: boolean;
+  onCompletedHeightChange: (height: number) => void;
   onClick: () => void;
 };
 
 function PublishStepButton({
+  stepId,
   label,
   completed,
+  minHeight,
   disabled,
+  onCompletedHeightChange,
   onClick,
 }: PublishStepButtonProps) {
+  const completedStatusContentRef =
+    useRef<HTMLDivElement | null>(null);
+  const showPublishDetailsLink =
+    completed && stepId === "publish";
+
+  useLayoutEffect(() => {
+    if (!completed || !completedStatusContentRef.current) {
+      return;
+    }
+
+    const element = completedStatusContentRef.current;
+    const updateHeight = () => {
+      onCompletedHeightChange(
+        Math.ceil(
+          element.scrollHeight +
+            PUBLISH_COMPLETE_STATUS_VERTICAL_PADDING
+        )
+      );
+    };
+
+    updateHeight();
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateHeight);
+
+    resizeObserver?.observe(element);
+
+    return () => {
+      resizeObserver?.disconnect();
+    };
+  }, [completed, label, onCompletedHeightChange]);
+
   if (completed) {
     return (
       <Group
         justify="center"
-        gap={6}
-        h={40}
+        h={minHeight}
         w="100%"
+        px={8}
+        py={6}
         style={{
           borderRadius: 8,
           border: PUBLISH_COMPLETE_STATUS_BORDER,
           background: PUBLISH_COMPLETE_STATUS_BACKGROUND,
           color: PUBLISH_COMPLETE_STATUS_TEXT,
-          fontSize: 14,
-          fontWeight: 700,
+          fontSize: 15,
+          fontWeight: 500,
+          lineHeight: 1.2,
+          overflow: "hidden",
+          transition: "height 150ms ease-out",
         }}
       >
-        <IconCheck size={16} stroke={2.4} />
-        <span>{label}</span>
+        <Group
+          ref={completedStatusContentRef}
+          gap={6}
+          align="flex-start"
+          wrap="nowrap"
+          w="100%"
+          style={{ minWidth: 0 }}
+        >
+          <IconCheck
+            size={17}
+            stroke={2.4}
+            style={{ flexShrink: 0 }}
+          />
+          <Box
+            style={{
+              flex: 1,
+              minWidth: 0,
+              textAlign: "left",
+              overflowWrap: "anywhere",
+            }}
+          >
+            <Box component="span">{label}</Box>
+            {showPublishDetailsLink ? (
+              <UnstyledButton
+                onClick={() =>
+                  console.log("View publish details")
+                }
+                style={{
+                  display: "block",
+                  marginTop: 4,
+                  color:
+                    "var(--mantine-color-asxBlue-8)",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                  textDecoration: "underline",
+                  textUnderlineOffset: 2,
+                }}
+              >
+                View publish details
+              </UnstyledButton>
+            ) : null}
+          </Box>
+        </Group>
       </Group>
     );
   }
@@ -930,11 +1093,14 @@ function PublishStepButton({
       fullWidth
       radius={8}
       size="sm"
-      fw={700}
+      c="asxGray.8"
+      fz={15}
+      fw={500}
       styles={{
         root: {
-          minHeight: 40,
+          height: minHeight,
           border: "1px solid var(--mantine-color-asxBlue-2)",
+          transition: "height 150ms ease-out",
         },
       }}
     >

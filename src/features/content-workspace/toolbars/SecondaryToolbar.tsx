@@ -131,6 +131,11 @@ const editMenus: SecondaryMenu[] = [
     renderer: "edit-view",
   },
   {
+    key: "new",
+    label: "New",
+    renderer: "edit-new",
+  },
+  {
     key: "actions",
     label: "Actions",
     renderer: "edit-actions",
@@ -139,11 +144,6 @@ const editMenus: SecondaryMenu[] = [
     key: "publish",
     label: "Publish",
     renderer: "edit-publish",
-  },
-  {
-    key: "new",
-    label: "New",
-    renderer: "edit-new",
   },
 ];
 

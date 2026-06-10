@@ -261,3 +261,32 @@ This log tracks project decisions, documentation updates, implementation notes, 
 
 - Current branch: `experiment/major-change`.
 - Verification: `npm run build` passed after close-out review.
+
+## 2026-06-10 - Toolbar and Publish Wizard Polish
+
+### Summary
+
+- Made the Site tree Options Publishing Target dropdown visible by default while preserving the secondary toolbar Refresh toggle.
+- Updated shared megamenu selected radio and checkbox row styling to match selected tree-node border/background colors, with normal text color for selected labels.
+- Adjusted megamenu sizing so selected radio/checkbox labels are measured at selected weight, and tuned command/action rows to use 20px icons with tighter padding for row-height alignment.
+- Reordered Site Edit secondary tabs to View, New, Actions, Publish.
+- Added a Versioning column to Site Preview Actions with Check In, Undo Checkout, and Rollback.
+- Refined the Publish wizard completed states with sentence-style status text, selected-target publish copy, shared animated button/status heights, normal text treatment, and a View publish details link.
+- Deployed the updated prototype to staging at `https://stage.josephbrick.com`.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/features/app-shell/AppShell.tsx`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuPublish.tsx`
+- `src/features/content-workspace/tools/preview/megamenus/MegamenuPreviewActions.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification during session: repeated `npx tsc -b` checks passed. `npm run deploy:stage` completed successfully and created CloudFront invalidation `IE0L04EDI960WWAA0ZZH9BTKDX`.
+- Deploy-generated `dist` changes were restored/removed before commit.
+- Existing local demo image artifacts remain uncommitted.
