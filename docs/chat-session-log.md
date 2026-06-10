@@ -150,3 +150,26 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - The CloudFront Basic Auth challenge still returns `401` before valid credentials, which is expected.
 - Current staging architecture uses the S3 website endpoint origin. If staging is later moved to CloudFront Origin Access Control, remove `--acl public-read` from `scripts/deploy-stage.sh` and update the S3 bucket policy instead.
 - Verification: `npm run deploy:stage` completed successfully, and `aws cloudfront get-invalidation --distribution-id ES6M0K6KPAGL3 --id I895R4OVPLQ83HTTJA93VCFAQI` returned `Completed`.
+
+## 2026-06-09 - Conditional Tree Label Tooltips
+
+### Summary
+
+- Updated Site tree node labels so the full-label tooltip only appears when the rendered text is actually truncated with an ellipsis.
+- Added measured overflow detection using the label element's `scrollWidth` and `clientWidth`, with resize observation so the tooltip state follows left-panel width changes.
+- Rebuilt, committed, pushed, and deployed the update to `stage.josephbrick.com`.
+- Confirmed the CloudFront invalidation for the deploy completed.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/features/left-panel/site-tree/SiteTreeItem.tsx`
+- `dist/index.html`
+- `dist/assets/index-3lgj3OkO.js`
+
+### Notes
+
+- Source commit for the behavior change: `cfe630b Show tree tooltips only when truncated`.
+- Latest staging invalidation: `IDFV83BKAQ0PXY5BBYEM7DTDJO`.
+- Verification: `npm run build`, `npm run lint`, and `npm run deploy:stage` passed. `aws cloudfront get-invalidation --distribution-id ES6M0K6KPAGL3 --id IDFV83BKAQ0PXY5BBYEM7DTDJO` returned `Completed`.

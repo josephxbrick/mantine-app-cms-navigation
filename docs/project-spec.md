@@ -80,7 +80,7 @@ The Site tree shows an Options panel above the tree. The panel remains fixed whi
 
 Current options include checkboxes for indicating publishing target roots, region roots, and DITA content. The secondary toolbar Refresh action toggles Publishing Target dropdown visibility in this panel, with the dropdown hidden by default. Publishing Target uses the same reusable custom pill dropdown component as the Content Tools selector rather than a native browser select.
 
-Tree node labels truncate with an ellipsis when clipped and expose the full node name in a tooltip.
+Tree node labels truncate with an ellipsis when clipped and expose the full node name in a tooltip only when the rendered label is actually truncated.
 
 ### Secondary Toolbar
 
