@@ -86,6 +86,18 @@ Tree node labels truncate with an ellipsis when clipped and expose the full node
 
 The secondary toolbar supports tool-specific megamenu tabs for Site and Assets workflows. Site Edit and Folder Content expose View, Actions, Publish, and New menus. Site Preview exposes View, Preview Settings, Actions, and Publish menus.
 
+Column-based megamenus size columns to fit their widest header or item, use responsive inter-column spacing, and apply left/right padding as a proportion of that computed gap. Megamenus use a short mouse-away grace period before closing. The Publish megamenu has its own guided wizard layout and remains open while incomplete when the user mouses away; it closes only after completion or when the user clicks elsewhere.
+
+The Site Edit Actions megamenu includes a Versioning column for Check In, Undo Checkout, and Rollback.
+
+The Publish megamenu presents a three-step guided page publishing flow:
+
+1. Check in the current page, or the current page and its descendants.
+2. Mark the current page for publish, or the current page and its descendants.
+3. Publish to the selected target.
+
+Each publish step starts numbered, enters a timed spinner state after action, and then shows a completed check state. Page vs Page & Children choices use a custom toggle control rather than native browser inputs. The Publish step includes a target picker aligned with the step controls and defaults to the Publishing Target selected in Site Settings unless changed in the wizard. Wizard progress is preserved while switching tabs in the running app, but resets on browser refresh.
+
 The right side of the secondary toolbar includes compact action controls for Refresh, Save, and Search. Refresh toggles the Publishing Target dropdown visibility in the Site tree Options panel. A review-only control group containing Check in and Assign to is visible by default and can be toggled on and off with the Save icon.
 
 The Assign to toolbar action opens a small dropdown aligned beneath the action itself. The dropdown uses the same megamenu command styling as the Site > Edit menus and contains:
@@ -112,6 +124,10 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Users can toggle demo workspace visibility from the product toolbar.
 - The workspace can fall back to a placeholder label when no demo image applies.
 - Site Edit and Preview secondary toolbar tabs can open tool-specific megamenus.
+- Normal megamenus close after a short mouse-away grace period; the incomplete Publish wizard remains open on mouse-away and closes by outside click or after the wizard is complete.
+- Users can complete the guided Publish flow by checking in, marking for publish, and publishing from left to right.
+- Users can choose whether Check In and Mark for Publish apply to the page only or to the page and descendants.
+- Users can choose a publish target in the final Publish step, defaulting to the Site Settings publishing target unless overridden in the wizard.
 - The secondary toolbar Assign to action can open a dropdown for assigning to self, a user, or a group.
 - The secondary toolbar shows review-only Check in and Assign to controls by default, and the Save icon toggles them on and off.
 

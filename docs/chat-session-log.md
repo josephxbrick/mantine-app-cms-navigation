@@ -224,3 +224,20 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Current branch: `experiment/major-change`.
 - Verification: `npm run build` passed after close-out review.
 - Existing local demo image artifacts remain uncommitted.
+
+## 2026-06-10 - Close Session Spec Update
+
+### Summary
+
+- Updated the project spec to capture the guided Publish megamenu wizard, Versioning actions column, responsive megamenu column spacing, and mouse-away behavior.
+- Confirmed the close-session skill now requires checking and updating project docs/spec before committing.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification: `git diff --check` passed. No build was run because this was a docs-only close-session correction.
