@@ -200,5 +200,5 @@ This log tracks project decisions, documentation updates, implementation notes, 
 ### Notes
 
 - Current branch: `experiment/major-change`.
-- Verification: `git diff --check` passed. No build was run because this close-out did not explicitly request one.
+- Verification: `git diff --check` passed. `npm run build` passed after close-out review.
 - Left local demo image artifacts uncommitted: `public/demo/site-edit.local-before-pull.png` and `public/demo/site-edit.png.png`.
