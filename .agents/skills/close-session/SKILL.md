@@ -1,6 +1,6 @@
 ---
 name: close-session
-description: Use when the user asks to close, wrap up, finish, or hand off a coding session: summarize work in a session log, verify git state, optionally build/test when requested, commit and push only after cautious review, and ask whether to deploy without deploying automatically.
+description: Use when the user asks to close, wrap up, finish, or hand off a coding session: update project docs/spec when behavior changed, summarize work in a session log, verify git state, optionally build/test when requested, commit and push only after cautious review, and ask whether to deploy without deploying automatically.
 ---
 
 # Close Session
@@ -25,24 +25,30 @@ Use this skill to end a repo session cleanly.
    - If none exists, create or append to a concise repo-local log such as `SESSION_LOG.md`.
    - Include date, branch, summary of changes, verification performed, uncommitted/untracked files considered, and next steps.
 
-4. Verify.
+4. Update project docs/spec.
+   - Look for the project spec or equivalent product documentation, such as `docs/project-spec.md`, `README.md`, or architecture notes.
+   - If the session changed product behavior, UI behavior, workflow rules, configuration, deployment process, or important implementation constraints, update the relevant docs before committing.
+   - If the docs are already current, record that explicitly in the session log notes instead of making a no-op edit.
+   - Include the docs/spec update, or the "already current" note, in the close-out summary.
+
+5. Verify.
    - Run requested checks, such as `npm run build`.
    - If a check creates generated artifacts that are not meant to be committed, restore/remove only those generated files after explaining it.
    - Do not run extra expensive or artifact-producing checks unless requested or clearly necessary.
 
-5. Commit cautiously.
+6. Commit cautiously.
    - Re-check `git status --short --branch`.
    - Stage only intentional files.
    - Do not stage unrelated user changes unless the user clearly asked for "everything" and the files are appropriate to commit.
    - Use a concise commit message that describes the session outcome.
    - Run `git diff --cached --stat` before committing.
 
-6. Push.
+7. Push.
    - Push the current branch.
    - If push fails because the remote is behind, fetch/pull cautiously according to the repo's normal workflow and avoid overwriting user work.
 
-7. Close with a clear handoff.
-   - Mention branch, commit hash, pushed remote/branch, checks run and result, and any files intentionally left uncommitted.
+8. Close with a clear handoff.
+   - Mention branch, commit hash, pushed remote/branch, checks run and result, docs/spec status, and any files intentionally left uncommitted.
    - Ask: "Do you want to deploy this to AWS?" if the user has deployment set up elsewhere.
 
 ## Guardrails
