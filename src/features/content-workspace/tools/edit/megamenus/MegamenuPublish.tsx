@@ -944,12 +944,17 @@ function PublishTargetPicker({
         </UnstyledButton>
       </Menu.Target>
 
-      <Menu.Dropdown px={12} py={12}>
+      <Menu.Dropdown
+        px={12}
+        py={12}
+        onClick={(event) => event.stopPropagation()}
+      >
         <MegamenuColumnLayout>
           {publishTargetOptions.map((option) => (
             <MegamenuCommandItem
               key={option.value}
               selected={option.value === selected.value}
+              closeParentMegamenu={false}
               onClick={() => handleChange(option.value)}
             >
               <MegamenuCommandLabel>

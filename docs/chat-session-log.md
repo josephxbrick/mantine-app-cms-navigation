@@ -341,3 +341,22 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Verification during session: repeated `npx tsc -b` checks passed. No additional build/test was run during session-end because it was not requested.
 - Project spec updated to capture the new Actions publishing columns and command-dismiss behavior.
 - Existing local demo image artifacts remain uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.
+
+## 2026-06-10 - Publish Wizard Target Picker Fix
+
+### Summary
+
+- Fixed the Publish wizard Publishing Target picker so choosing QA, Staging, or Production closes only the nested picker menu and does not dismiss the parent Publish megamenu.
+- Matched the existing nested dropdown pattern by stopping click propagation from the picker dropdown and marking its option rows as non-dismissing parent megamenu commands.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuPublish.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification during session: `npm run build` and `git diff --check` passed after the fix. No additional build/test was run during session-end because it was not requested.
+- Project spec status: already current; it already states the incomplete Publish wizard remains open except for completion or outside click.
+- Existing local demo image artifacts remain uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.
