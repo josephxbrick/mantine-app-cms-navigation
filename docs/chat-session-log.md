@@ -241,3 +241,23 @@ This log tracks project decisions, documentation updates, implementation notes, 
 
 - Current branch: `experiment/major-change`.
 - Verification: `git diff --check` passed. No build was run because this was a docs-only close-session correction.
+
+## 2026-06-10 - Options Checkbox Styling
+
+### Summary
+
+- Replaced native Mantine checkboxes in the Site tree Options panel with the shared megamenu checkbox row and mark styling.
+- Kept the Options checkbox rows full-width, tightened row spacing to 8px, and darkened the unchecked checkbox border for better visibility.
+- Exported the shared checkbox row and mark components from the megamenu renderer so the Options panel can reuse them.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/left-panel/site-tree/SiteTree.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification: `npm run build` passed after close-out review.

@@ -2,7 +2,7 @@
  * File purpose: Scrollable tree container that renders the visible site or asset tree.
  *
  * Imports:
- * - Box, Checkbox, Group, ScrollArea, Stack, Text, UnstyledButton from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
+ * - Box, Group, ScrollArea, Stack, Text, UnstyledButton from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
  * - IconFilter2 from "@tabler/icons-react" provides icon components used by the CMS navigation UI.
  * - useEffect, useRef, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
@@ -13,7 +13,6 @@
  */
 import {
   Box,
-  Checkbox,
   Group,
   ScrollArea,
   Stack,
@@ -28,6 +27,10 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 
+import {
+  CheckboxMark,
+  CheckboxMenuItem,
+} from "../../content-workspace/megamenus/MegamenuRenderer";
 import { ToolbarSelectMenu } from "../../content-workspace/toolbars/ToolbarSelectMenu";
 import { SiteTreeItem } from "./SiteTreeItem";
 import { getTreeNodeIdsToOpen } from "./siteTreeData";
@@ -65,12 +68,6 @@ const publishTargetOptions = [
     label: "Production",
   },
 ];
-
-const checkboxStyles = {
-  label: {
-    color: "var(--mantine-color-asxGray-8)",
-  },
-};
 
 function DisplayGroup({
   children,
@@ -307,6 +304,31 @@ function OptionsControls({
   showPublishingTarget,
   onChangePublishTarget,
 }: OptionsControlsProps) {
+  const [optionCheckboxValues, setOptionCheckboxValues] =
+    useState<Record<string, boolean>>({});
+
+  const optionCheckboxes = [
+    {
+      id: "publishing-target-root",
+      label: "Indicate publishing target root",
+    },
+    {
+      id: "region-root",
+      label: "Indicate region root",
+    },
+    {
+      id: "dita-content",
+      label: "Indicate DITA content",
+    },
+  ];
+
+  const handleToggleOptionCheckbox = (itemId: string) => {
+    setOptionCheckboxValues((current) => ({
+      ...current,
+      [itemId]: !current[itemId],
+    }));
+  };
+
   return (
     <Stack gap="md">
       {showPublishingTarget ? (
@@ -325,25 +347,25 @@ function OptionsControls({
         />
       ) : null}
       <Box>
-        <Stack gap="xs">
-          <Checkbox
-            label="Indicate publishing target root"
-            size="md"
-            color="asxIndigo"
-            styles={checkboxStyles}
-          />
-          <Checkbox
-            label="Indicate region root"
-            size="md"
-            color="asxIndigo"
-            styles={checkboxStyles}
-          />
-          <Checkbox
-            label="Indicate DITA content"
-            size="md"
-            color="asxIndigo"
-            styles={checkboxStyles}
-          />
+        <Stack gap={8}>
+          {optionCheckboxes.map((item) => {
+            const selected = Boolean(
+              optionCheckboxValues[item.id]
+            );
+
+            return (
+              <CheckboxMenuItem
+                key={item.id}
+                selected={selected}
+                onClick={() =>
+                  handleToggleOptionCheckbox(item.id)
+                }
+              >
+                <CheckboxMark selected={selected} />
+                <Text size="16px">{item.label}</Text>
+              </CheckboxMenuItem>
+            );
+          })}
         </Stack>
       </Box>
     </Stack>

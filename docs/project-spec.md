@@ -78,7 +78,7 @@ The Site domain currently supports demo images for Edit and Preview modes via `/
 
 The Site tree shows an Options panel above the tree. The panel remains fixed while the tree itself scrolls independently and defaults closed. Clicking the Options row toggles it open and closed; its filter icon uses selected-state styling while open. Open and close height changes animate at 200ms ease-out, while height changes caused by horizontal resizing and text wrapping animate at 100ms ease-out.
 
-Current options include checkboxes for indicating publishing target roots, region roots, and DITA content. The secondary toolbar Refresh action toggles Publishing Target dropdown visibility in this panel, with the dropdown hidden by default. Publishing Target uses the same reusable custom pill dropdown component as the Content Tools selector rather than a native browser select.
+Current options include checkboxes for indicating publishing target roots, region roots, and DITA content. These options use the same custom checkbox row styling as the Edit > View megamenu for consistency and clearer selected states. The secondary toolbar Refresh action toggles Publishing Target dropdown visibility in this panel, with the dropdown hidden by default. Publishing Target uses the same reusable custom pill dropdown component as the Content Tools selector rather than a native browser select.
 
 Tree node labels truncate with an ellipsis when clipped and expose the full node name in a tooltip only when the rendered label is actually truncated.
 

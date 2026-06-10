@@ -812,12 +812,14 @@ type CheckboxMenuItemProps = {
   children: ReactNode;
   selected: boolean;
   onClick: () => void;
+  width?: CSSProperties["width"];
 };
 
-function CheckboxMenuItem({
+export function CheckboxMenuItem({
   children,
   selected,
   onClick,
+  width = "100%",
 }: CheckboxMenuItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isHighlighted = selected || isHovered;
@@ -828,7 +830,7 @@ function CheckboxMenuItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        width: "100%",
+        width,
         padding: ITEM_PADDING,
         borderRadius: 8,
         border: isHighlighted
@@ -857,7 +859,7 @@ type CheckboxMarkProps = {
   selected: boolean;
 };
 
-function CheckboxMark({ selected }: CheckboxMarkProps) {
+export function CheckboxMark({ selected }: CheckboxMarkProps) {
   return (
     <Box
       style={{
@@ -866,7 +868,7 @@ function CheckboxMark({ selected }: CheckboxMarkProps) {
         borderRadius: 4,
         border: selected
           ? "1px solid var(--mantine-color-indigo-6)"
-          : "1px solid var(--mantine-color-asxGray-4)",
+          : "1px solid var(--mantine-color-asxGray-6)",
         background: selected
           ? "var(--mantine-color-indigo-6)"
           : "transparent",
