@@ -34,8 +34,9 @@ import type {
   MegamenuRadioValues,
 } from "./types";
 
-const MIN_COLUMN_GAP = 32;
-const MAX_COLUMN_GAP = 64;
+const MIN_COLUMN_GAP = 56;
+const MAX_COLUMN_GAP = 88;
+const COLUMN_OUTER_PADDING_RATIO = 0.6;
 const VIEWPORT_HORIZONTAL_MARGIN = 32;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
@@ -256,7 +257,12 @@ type ColumnSlot = {
   animated: boolean;
 };
 
-type DisplayGroupProps = {
+type ColumnDisplayGroupProps = {
+  children: ReactNode;
+  columnGap: number;
+};
+
+type InlineMenuItemDisplayProps = {
   children: ReactNode;
 };
 
@@ -265,9 +271,19 @@ type MegamenuColumnLayoutProps = {
   header?: string;
 };
 
-function DisplayGroup({ children }: DisplayGroupProps) {
+function ColumnDisplayGroup({
+  children,
+  columnGap,
+}: ColumnDisplayGroupProps) {
   return (
-    <Group align="stretch" gap={0}>
+    <Group
+      align="stretch"
+      gap={0}
+      style={{
+        paddingInline:
+          columnGap * COLUMN_OUTER_PADDING_RATIO,
+      }}
+    >
       {children}
     </Group>
   );
@@ -335,7 +351,7 @@ function MenuColumnSlots({
   let visibleColumnIndex = 0;
 
   return (
-    <>
+    <ColumnDisplayGroup columnGap={columnGap}>
       {slotViews.map(
         ({ slot, visibleColumn, columnWidth }) => {
           const hasLeadingGap =
@@ -383,7 +399,7 @@ function MenuColumnSlots({
           );
         }
       )}
-    </>
+    </ColumnDisplayGroup>
   );
 }
 
@@ -983,7 +999,7 @@ export function MegamenuActionItem({
 
 function InlineMenuItemDisplay({
   children,
-}: DisplayGroupProps) {
+}: InlineMenuItemDisplayProps) {
   return (
     <Group gap="xs" wrap="nowrap">
       {children}
@@ -1071,9 +1087,5 @@ export function MegamenuRenderer({
     onCommand,
   };
 
-  return (
-    <DisplayGroup>
-      <MenuColumnSlots {...menuColumnSlotsProps} />
-    </DisplayGroup>
-  );
+  return <MenuColumnSlots {...menuColumnSlotsProps} />;
 }

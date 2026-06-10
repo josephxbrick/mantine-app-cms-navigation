@@ -202,3 +202,25 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Current branch: `experiment/major-change`.
 - Verification: `git diff --check` passed. `npm run build` passed after close-out review.
 - Left local demo image artifacts uncommitted: `public/demo/site-edit.local-before-pull.png` and `public/demo/site-edit.png.png`.
+
+## 2026-06-10 - Megamenu Spacing Polish
+
+### Summary
+
+- Tuned normal megamenu mouse-off timing to 250ms while preserving the Publish wizard exception.
+- Increased normal column-based megamenu gaps and made their left/right padding 60% of the computed gap.
+- Increased active megamenu vertical padding by 16px.
+- Refined Publish wizard step spacing, badge sizing, spinner timing, completed status border color, and active-vs-secondary title colors.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuPublish.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification: `npm run build` passed after close-out review.
+- Existing local demo image artifacts remain uncommitted.

@@ -67,7 +67,7 @@ type PublishStepGapRatio = {
   gap: number;
 };
 
-const PUBLISH_STEP_PENDING_MS = 3100;
+const PUBLISH_STEP_PENDING_MS = 3350;
 const PUBLISH_STEP_RATIO = 7;
 const PUBLISH_GAP_RATIO = 1;
 const PUBLISH_STEP_GAP_RATIO = {
@@ -77,9 +77,11 @@ const PUBLISH_STEP_GAP_RATIO = {
 const PUBLISH_COMPLETE_STATUS_BACKGROUND =
   "var(--mantine-color-green-0)";
 const PUBLISH_COMPLETE_STATUS_BORDER =
-  "1px solid var(--mantine-color-green-3)";
+  "1px solid var(--mantine-color-green-4)";
 const PUBLISH_COMPLETE_STATUS_TEXT =
   "var(--mantine-color-green-8)";
+const PUBLISH_STEP_TITLE_PRIMARY_COLOR = "asxGray.9";
+const PUBLISH_STEP_TITLE_SECONDARY_COLOR = "asxGray.6";
 
 const publishFlowState: PublishFlowState = {
   completedSteps: new Set(),
@@ -532,7 +534,7 @@ function PublishStepCard({
 
   return (
     <Stack
-      gap={14}
+      gap={20}
       w={stepWidth}
     >
       <Group align="center" gap={12} wrap="nowrap">
@@ -543,7 +545,7 @@ function PublishStepCard({
           stepNumber={stepNumber}
           tone={tone}
         />
-        <Stack gap={2} style={{ minWidth: 0 }}>
+        <Stack gap={4} style={{ minWidth: 0 }}>
           <Text
             fz={12}
             fw={700}
@@ -557,7 +559,11 @@ function PublishStepCard({
             fz={19}
             fw={700}
             lh={1.15}
-            c={isCurrentStep ? "asxGray.9" : "asxGray.7"}
+            c={
+              isCurrentStep
+                ? PUBLISH_STEP_TITLE_PRIMARY_COLOR
+                : PUBLISH_STEP_TITLE_SECONDARY_COLOR
+            }
           >
             {step.title}
           </Text>
@@ -608,23 +614,23 @@ function StepBadge({
   return (
     <Box
       style={{
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
         borderRadius: 999,
         display: "grid",
         placeItems: "center",
         border: outlined ? `1px solid ${tone}` : "none",
         background: outlined ? "transparent" : tone,
         color: outlined ? tone : "white",
-        fontSize: 16,
+        fontSize: 17,
         fontWeight: 800,
         flexShrink: 0,
       }}
     >
       {pending ? (
-        <Loader color="white" size={18} />
+        <Loader color="white" size={20} />
       ) : completed ? (
-        <IconCheck size={21} stroke={2.8} />
+        <IconCheck size={24} stroke={2.8} />
       ) : (
         stepNumber
       )}

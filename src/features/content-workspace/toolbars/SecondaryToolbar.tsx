@@ -83,7 +83,7 @@ import type { WorkspaceDomain } from "../../workspace/types";
 
 type MenuKey = string | null;
 
-const MEGAMENU_CLOSE_DELAY_MS = 400;
+const MEGAMENU_CLOSE_DELAY_MS = 250;
 const PUBLISH_MENU_KEY = "publish";
 
 type MegamenuRendererKey =
@@ -672,14 +672,13 @@ function ActiveMegamenu({
     return null;
   }
 
-  const activeMenuIsPublishWizard =
-    activeMenuConfig.renderer === "edit-publish";
+  const activeMenuUsesOwnPadding =
+    activeMenuConfig.renderer !== "placeholder";
 
   return (
     <Paper
       radius={0}
-      px={activeMenuIsPublishWizard ? 0 : "xl"}
-      py="lg"
+      px={activeMenuUsesOwnPadding ? 0 : "xl"}
       bg="gray.0"
       style={{
         position: "absolute",
@@ -687,6 +686,8 @@ function ActiveMegamenu({
         left: 0,
         right: 0,
         zIndex: 20,
+        paddingBlock:
+          "calc(var(--mantine-spacing-lg) + 16px)",
         borderBottom:
           "1px solid var(--mantine-color-indigo-2)",
         boxShadow: "0 12px 28px rgba(61,68,109,0.12)",
