@@ -62,19 +62,9 @@ type PublishStepLayout = {
   stepGap: number;
 };
 
-type PublishStepGapRatio = {
-  step: number;
-  gap: number;
-};
-
 const PUBLISH_STEP_PENDING_MS = 3350;
-const PUBLISH_STEP_RATIO = 7;
-const PUBLISH_GAP_RATIO = 1;
+const PUBLISH_STEP_GAP = 48;
 const PUBLISH_VERTICAL_PADDING = 32;
-const PUBLISH_STEP_GAP_RATIO = {
-  step: PUBLISH_STEP_RATIO,
-  gap: PUBLISH_GAP_RATIO,
-} satisfies PublishStepGapRatio;
 const PUBLISH_COMPLETE_STATUS_BACKGROUND =
   "var(--mantine-color-green-0)";
 const PUBLISH_COMPLETE_STATUS_BORDER =
@@ -155,22 +145,22 @@ const publishTargetOptions: {
 ];
 
 function getPublishStepLayout(
-  availableWidth: number,
-  ratio: PublishStepGapRatio
+  availableWidth: number
 ): PublishStepLayout {
   const stepCount = publishSteps.length;
   const betweenStepGapCount = Math.max(stepCount - 1, 0);
   const outsideGapCount = 2;
-  const totalUnits =
-    stepCount * ratio.step +
+  const totalGapWidth =
     (betweenStepGapCount + outsideGapCount) *
-      ratio.gap;
-  const stepWidth =
-    (availableWidth * ratio.step) / totalUnits;
+    PUBLISH_STEP_GAP;
+  const stepWidth = Math.max(
+    0,
+    (availableWidth - totalGapWidth) / stepCount
+  );
 
   return {
     stepWidth,
-    stepGap: (stepWidth * ratio.gap) / ratio.step,
+    stepGap: PUBLISH_STEP_GAP,
   };
 }
 
@@ -309,10 +299,8 @@ export default function MegamenuPublish({
     useState<PublishStepLayout>(() =>
       getPublishStepLayout(
         320 * publishSteps.length +
-          ((320 * PUBLISH_GAP_RATIO) /
-            PUBLISH_STEP_RATIO) *
-            (publishSteps.length + 1),
-        PUBLISH_STEP_GAP_RATIO
+          PUBLISH_STEP_GAP *
+            (publishSteps.length + 1)
       )
     );
   const [completedStatusMinHeight, setCompletedStatusMinHeight] =
@@ -446,8 +434,7 @@ export default function MegamenuPublish({
     const updateLayout = () => {
       setStepLayout(
         getPublishStepLayout(
-          element.getBoundingClientRect().width,
-          PUBLISH_STEP_GAP_RATIO
+          element.getBoundingClientRect().width
         )
       );
     };
