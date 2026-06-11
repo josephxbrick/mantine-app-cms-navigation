@@ -70,6 +70,7 @@ type PublishStepGapRatio = {
 const PUBLISH_STEP_PENDING_MS = 3350;
 const PUBLISH_STEP_RATIO = 7;
 const PUBLISH_GAP_RATIO = 1;
+const PUBLISH_VERTICAL_PADDING = 32;
 const PUBLISH_STEP_GAP_RATIO = {
   step: PUBLISH_STEP_RATIO,
   gap: PUBLISH_GAP_RATIO,
@@ -159,9 +160,11 @@ function getPublishStepLayout(
 ): PublishStepLayout {
   const stepCount = publishSteps.length;
   const betweenStepGapCount = Math.max(stepCount - 1, 0);
+  const outsideGapCount = 2;
   const totalUnits =
     stepCount * ratio.step +
-    betweenStepGapCount * ratio.gap;
+    (betweenStepGapCount + outsideGapCount) *
+      ratio.gap;
   const stepWidth =
     (availableWidth * ratio.step) / totalUnits;
 
@@ -505,6 +508,8 @@ export default function MegamenuPublish({
       w="100%"
       style={{
         boxSizing: "border-box",
+        paddingBlock: PUBLISH_VERTICAL_PADDING,
+        paddingInline: stepLayout.stepGap,
       }}
     >
       <Group

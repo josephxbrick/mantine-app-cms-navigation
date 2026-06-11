@@ -763,7 +763,11 @@ function ActiveMegamenu({
   return (
     <Paper
       radius={0}
-      px={activeMenuUsesOwnPadding ? 0 : "xl"}
+      px={
+        activeMenuIsPublish || activeMenuUsesOwnPadding
+          ? 0
+          : "xl"
+      }
       bg="white"
       onClick={handleClick}
       style={{
@@ -772,7 +776,10 @@ function ActiveMegamenu({
         left: 0,
         right: 0,
         zIndex: 20,
-        paddingBlock: activeMenuUsesOwnPadding ? 0 : 32,
+        paddingBlock:
+          activeMenuIsPublish || activeMenuUsesOwnPadding
+            ? 0
+            : 32,
         borderBottom:
           "1px solid var(--mantine-color-indigo-2)",
         boxShadow: "0 16px 18px -18px rgba(61,68,109,0.45)",
