@@ -811,7 +811,7 @@ function ScopePicker({
       />
       <ScopeChoice
         choiceRef={pageChoiceRef}
-        label="Page"
+        label="This Page"
         selected={value === "page"}
         disabled={disabled}
         onClick={() => onChange("page")}
