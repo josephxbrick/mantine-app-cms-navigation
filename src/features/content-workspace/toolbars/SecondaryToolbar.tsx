@@ -696,8 +696,54 @@ function ActiveMegamenu({
     return null;
   }
 
+  const activeMenuIsPublish =
+    activeMenuConfig.renderer === "edit-publish";
   const activeMenuUsesOwnPadding =
-    activeMenuConfig.renderer !== "placeholder";
+    activeMenuConfig.renderer !== "placeholder" &&
+    !activeMenuIsPublish;
+  const activeMenuContent =
+    activeMenuConfig.renderer === "edit-view" ? (
+      <MegamenuView
+        selectedMode={selectedViewMode}
+        onSelectMode={onSelectViewMode}
+        showFormIndex={showFormIndex}
+        onToggleFormIndex={onToggleFormIndex}
+        showInContextIndex={showInContextIndex}
+        onToggleInContextIndex={onToggleInContextIndex}
+        showPath={showPath}
+        onToggleShowPath={onToggleShowPath}
+      />
+    ) : activeMenuConfig.renderer === "preview-view" ? (
+      <MegamenuPreviewView
+        selectedDevice={selectedPreviewDevice}
+        onSelectDevice={onSelectPreviewDevice}
+      />
+    ) : activeMenuConfig.renderer ===
+      "preview-advanced" ? (
+      <MegamenuPreviewAdvanced
+        fieldValues={previewAdvancedFieldValues}
+        onFieldChange={onChangePreviewAdvancedField}
+        selectedDevice={selectedPreviewDevice}
+        onSelectDevice={onSelectPreviewDevice}
+        includeBrowserCookies={includeBrowserCookies}
+        onToggleIncludeBrowserCookies={
+          onToggleIncludeBrowserCookies
+        }
+        showAllPages={showAllPages}
+        onToggleShowAllPages={onToggleShowAllPages}
+      />
+    ) : activeMenuConfig.renderer === "edit-actions" ? (
+      <MegamenuActions hideSave={tool === "Folder Content"} />
+    ) : activeMenuConfig.renderer ===
+      "preview-actions" ? (
+      <MegamenuPreviewActions />
+    ) : activeMenuConfig.renderer === "edit-publish" ? (
+      <MegamenuPublish sitePublishTarget={publishTarget} />
+    ) : activeMenuConfig.renderer === "edit-new" ? (
+      <MegamenuNew />
+    ) : (
+      <PlaceholderMegamenu label={activeMenuConfig.label} />
+    );
   const handleClick = (
     event: MouseEvent<HTMLDivElement>
   ) => {
@@ -732,63 +778,11 @@ function ActiveMegamenu({
         boxShadow: "0 16px 18px -18px rgba(61,68,109,0.45)",
       }}
     >
-      <Stack gap="sm">
-        {activeMenuConfig.renderer === "edit-view" ? (
-          <MegamenuView
-            selectedMode={selectedViewMode}
-            onSelectMode={onSelectViewMode}
-            showFormIndex={showFormIndex}
-            onToggleFormIndex={onToggleFormIndex}
-            showInContextIndex={showInContextIndex}
-            onToggleInContextIndex={
-              onToggleInContextIndex
-            }
-            showPath={showPath}
-            onToggleShowPath={onToggleShowPath}
-          />
-        ) : activeMenuConfig.renderer ===
-          "preview-view" ? (
-          <MegamenuPreviewView
-            selectedDevice={selectedPreviewDevice}
-            onSelectDevice={onSelectPreviewDevice}
-          />
-        ) : activeMenuConfig.renderer ===
-          "preview-advanced" ? (
-          <MegamenuPreviewAdvanced
-            fieldValues={previewAdvancedFieldValues}
-            onFieldChange={
-              onChangePreviewAdvancedField
-            }
-            selectedDevice={selectedPreviewDevice}
-            onSelectDevice={onSelectPreviewDevice}
-            includeBrowserCookies={
-              includeBrowserCookies
-            }
-            onToggleIncludeBrowserCookies={
-              onToggleIncludeBrowserCookies
-            }
-            showAllPages={showAllPages}
-            onToggleShowAllPages={onToggleShowAllPages}
-          />
-        ) : activeMenuConfig.renderer ===
-          "edit-actions" ? (
-          <MegamenuActions
-            hideSave={tool === "Folder Content"}
-          />
-        ) : activeMenuConfig.renderer ===
-          "preview-actions" ? (
-          <MegamenuPreviewActions />
-        ) : activeMenuConfig.renderer ===
-          "edit-publish" ? (
-          <MegamenuPublish sitePublishTarget={publishTarget} />
-        ) : activeMenuConfig.renderer === "edit-new" ? (
-          <MegamenuNew />
-        ) : (
-          <PlaceholderMegamenu
-            label={activeMenuConfig.label}
-          />
-        )}
-      </Stack>
+      {activeMenuIsPublish ? (
+        activeMenuContent
+      ) : (
+        <Stack gap="sm">{activeMenuContent}</Stack>
+      )}
     </Paper>
   );
 }
