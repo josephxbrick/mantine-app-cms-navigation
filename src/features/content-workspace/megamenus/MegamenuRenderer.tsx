@@ -19,7 +19,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconChevronDown } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   CSSProperties,
   ReactNode,
@@ -36,7 +36,7 @@ import type {
 
 const MIN_COLUMN_GAP = 40;
 const MAX_COLUMN_GAP = 72;
-const COLUMN_OUTER_PADDING_RATIO = 0.512;
+const WRAPPED_ROW_GAP = 28;
 const VIEWPORT_HORIZONTAL_MARGIN = 32;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
@@ -48,6 +48,7 @@ const COMMAND_ICON_WIDTH = 20;
 const DROPDOWN_ICON_WIDTH = 17;
 const CHECKBOX_MARK_WIDTH = 16;
 const DEFAULT_TEXT_WIDTH_MULTIPLIER = 8;
+const COMMAND_CLICK_FEEDBACK_STEP_MS = 130;
 
 let measurementContext: CanvasRenderingContext2D | null =
   null;
@@ -293,10 +294,10 @@ function ColumnDisplayGroup({
   return (
     <Group
       align="stretch"
-      gap={0}
       style={{
-        paddingInline:
-          columnGap * COLUMN_OUTER_PADDING_RATIO,
+        columnGap,
+        padding: 32,
+        rowGap: WRAPPED_ROW_GAP,
       }}
     >
       {children}
@@ -367,44 +368,28 @@ function MenuColumnSlots({
   return (
     <ColumnDisplayGroup columnGap={columnGap}>
       {slotViews.map(
-        ({ slot, visibleColumn, columnWidth }, index) => {
-          const visibleColumnsBefore = slotViews
-            .slice(0, index)
-            .filter(({ visibleColumn: previousColumn }) =>
-              Boolean(previousColumn)
-            ).length;
-          const hasLeadingGap =
-            Boolean(visibleColumn) &&
-            visibleColumnsBefore > 0;
+        ({ slot, visibleColumn, columnWidth }) => {
+          if (!visibleColumn) {
+            return null;
+          }
 
           if (slot.animated) {
             return (
               <AnimatedColumnSlot
                 key={slot.key}
-                visible={Boolean(visibleColumn)}
-                hasLeadingGap={hasLeadingGap}
-                columnGap={columnGap}
                 columnWidth={columnWidth}
               >
-                {visibleColumn ? (
-                  <MenuColumnView
-                    column={visibleColumn}
-                    {...columnViewProps}
-                  />
-                ) : null}
+                <MenuColumnView
+                  column={visibleColumn}
+                  {...columnViewProps}
+                />
               </AnimatedColumnSlot>
             );
-          }
-
-          if (!visibleColumn) {
-            return null;
           }
 
           return (
             <StaticColumnSlot
               key={slot.key}
-              hasLeadingGap={hasLeadingGap}
-              columnGap={columnGap}
               columnWidth={columnWidth}
             >
               <MenuColumnView
@@ -421,21 +406,16 @@ function MenuColumnSlots({
 
 type StaticColumnSlotProps = {
   children: ReactNode;
-  hasLeadingGap: boolean;
-  columnGap: number;
   columnWidth: number;
 };
 
 function ColumnSlotDisplay({
   children,
-  hasLeadingGap,
-  columnGap,
   columnWidth,
 }: StaticColumnSlotProps) {
   return (
     <Box
       w={columnWidth}
-      ml={hasLeadingGap ? columnGap : 0}
       style={{ flexShrink: 0 }}
     >
       {children}
@@ -450,26 +430,13 @@ function StaticColumnSlot(
 }
 
 function AnimatedColumnSlot({
-  visible,
-  hasLeadingGap,
-  columnGap,
   columnWidth,
   children,
 }: {
-  visible: boolean;
-  hasLeadingGap: boolean;
-  columnGap: number;
   columnWidth: number;
   children: React.ReactNode;
 }) {
-  const expandedWidth =
-    columnWidth + (hasLeadingGap ? columnGap : 0);
-
   const displayGroupProps = {
-    visible,
-    expandedWidth,
-    hasLeadingGap,
-    columnGap,
     columnWidth,
   };
 
@@ -482,38 +449,27 @@ function AnimatedColumnSlot({
 
 type AnimatedColumnDisplayProps = {
   children: ReactNode;
-  visible: boolean;
-  expandedWidth: number;
-  hasLeadingGap: boolean;
-  columnGap: number;
   columnWidth: number;
 };
 
 function AnimatedColumnDisplay({
   children,
-  visible,
-  expandedWidth,
-  hasLeadingGap,
-  columnGap,
   columnWidth,
 }: AnimatedColumnDisplayProps) {
   return (
     <Box
       style={{
-        width: visible ? expandedWidth : 0,
+        width: columnWidth,
         overflow: "hidden",
         flexShrink: 0,
         transition: "width 180ms ease",
       }}
     >
       <Box
-        ml={hasLeadingGap ? columnGap : 0}
         w={columnWidth}
         style={{
-          transform: visible
-            ? "translateX(0)"
-            : "translateX(-12px)",
-          opacity: visible ? 1 : 0,
+          transform: "translateX(0)",
+          opacity: 1,
           transition:
             "transform 180ms ease, opacity 120ms ease",
         }}
@@ -928,6 +884,8 @@ type CommandMenuItemProps = {
   hoverStyle?: CSSProperties;
 };
 
+type CommandClickFeedbackState = "idle" | "active";
+
 export function MegamenuCommandItem({
   children,
   onClick,
@@ -939,6 +897,14 @@ export function MegamenuCommandItem({
   hoverStyle,
 }: CommandMenuItemProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [
+    clickFeedbackState,
+    setClickFeedbackState,
+  ] = useState<CommandClickFeedbackState>("idle");
+  const clickFlashTimeoutsRef = useRef<number[]>([]);
+  const isClickFeedbackActive =
+    clickFeedbackState === "active";
+  const isHighlighted = isHovered;
   const hoverBorder =
     hoverStyle?.border ??
     "1px solid var(--mantine-color-asxBlue-1)";
@@ -948,6 +914,39 @@ export function MegamenuCommandItem({
   const hoverColor =
     hoverStyle?.color ??
     "var(--mantine-color-asxGray-8)";
+  const clickBorder =
+    "1px solid var(--mantine-color-asxBlue-2)";
+  const clickBackground =
+    "var(--mantine-color-asxBlue-1)";
+
+  useEffect(() => {
+    return () => {
+      clickFlashTimeoutsRef.current.forEach((timeoutId) =>
+        window.clearTimeout(timeoutId)
+      );
+    };
+  }, []);
+
+  const clearClickFlashTimeouts = () => {
+    clickFlashTimeoutsRef.current.forEach((timeoutId) =>
+      window.clearTimeout(timeoutId)
+    );
+    clickFlashTimeoutsRef.current = [];
+  };
+
+  const handleClick = () => {
+    setClickFeedbackState("active");
+    clearClickFlashTimeouts();
+
+    clickFlashTimeoutsRef.current = [
+      window.setTimeout(() => {
+        setClickFeedbackState("idle");
+        clickFlashTimeoutsRef.current = [];
+      }, COMMAND_CLICK_FEEDBACK_STEP_MS),
+    ];
+
+    onClick();
+  };
 
   return (
     <UnstyledButton
@@ -955,7 +954,7 @@ export function MegamenuCommandItem({
       data-megamenu-command={
         closeParentMegamenu ? "true" : undefined
       }
-      onClick={onClick}
+      onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
@@ -965,17 +964,21 @@ export function MegamenuCommandItem({
         borderRadius: 8,
         border: selected
           ? "1px solid var(--mantine-color-asxIndigo-2)"
-          : isHovered
+          : isClickFeedbackActive
+            ? clickBorder
+          : isHighlighted
             ? hoverBorder
             : "1px solid transparent",
         background: selected
           ? "var(--mantine-color-asxIndigo-0)"
-          : isHovered
+          : isClickFeedbackActive
+            ? clickBackground
+          : isHighlighted
             ? hoverBackground
             : "transparent",
         color: selected
           ? "var(--mantine-color-asxIndigo-9)"
-          : isHovered
+          : isHighlighted || isClickFeedbackActive
             ? hoverColor
             : "var(--mantine-color-asxGray-8)",
         fontWeight: selected ? 700 : 500,

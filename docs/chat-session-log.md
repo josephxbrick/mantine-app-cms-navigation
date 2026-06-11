@@ -360,3 +360,57 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Verification during session: `npm run build` and `git diff --check` passed after the fix. No additional build/test was run during session-end because it was not requested.
 - Project spec status: already current; it already states the incomplete Publish wizard remains open except for completion or outside click.
 - Existing local demo image artifacts remain uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.
+
+## 2026-06-10 - Recovered Secondary Toolbar Polish
+
+### Summary
+
+- Recovered the lost Codex transcript from `~/.codex/sessions/2026/06/10/rollout-2026-06-10T19-56-16-019eb49b-e6d7-73d1-ad4f-6a77c0f89d15.jsonl`.
+- Added optional icons to secondary toolbar menu tabs and used Tabler `IconRobot` on the Site Edit Publish tab.
+- Renamed the Site Edit Publish tab to `Publish Now`.
+- Optically sized the robot icon to render on a 24px SVG canvas so the glyph reads closer to a 20px icon without changing the fixed tab height.
+- Added delayed hover opening for secondary toolbar megamenu tabs, cleared pending opens on mouse leave, and delayed command dismissal so command rows can show click feedback before the megamenu closes.
+- Refined active megamenu presentation with a white surface, subtler bottom shadow, full computed column padding, wrapped-column row gaps, and click-flash feedback for shared command rows.
+- Updated the Actions Publish target selector styling to use the dropdown-only pill treatment with a white fill and gray stroke.
+- Added explicit cursor styling so the prototype uses the default cursor globally and reserves the column-resize cursor for the workspace splitter.
+- Updated the project spec to capture the changed Publish Now tab, megamenu interaction timing, command feedback, wrapped column spacing, and cursor styling constraint.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/cursor.css`
+- `src/features/app-shell/WorkspaceSplitter.tsx`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuActions.tsx`
+- `src/main.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification from recovered session: targeted `npx eslint src/features/content-workspace/toolbars/SecondaryToolbar.tsx` passed after the icon and label changes. No additional build/test was run for this recovered closeout because it was not requested.
+- Repo-local session skills are currently deleted in the worktree: `.agents/skills/session-end/SKILL.md` and `.agents/skills/session-start/SKILL.md`. Global copies still exist under `/Users/josephbrick/.agents/skills/`.
+- Existing local demo image artifacts remain uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.
+
+## 2026-06-10 - Megamenu Padding Closeout
+
+### Summary
+
+- Finalized standard column megamenu spacing with fixed 32px outer padding on all sides.
+- Kept responsive inter-column gaps at the existing 40px minimum and 72px maximum after testing, then undoing, a smaller minimum gap.
+- Preserved the Publish wizard as its own custom layout while applying the 32px padding rule to standard column megamenus.
+- Confirmed the project spec already captures the fixed 32px megamenu padding rule.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/features/content-workspace/megamenus/MegamenuRenderer.tsx`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification during session: targeted ESLint passed for `src/features/content-workspace/megamenus/MegamenuRenderer.tsx` and `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`. No build was run because this closeout request did not ask for one.
+- Existing local demo image artifacts remain uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.

@@ -56,6 +56,7 @@ import {
   IconChevronDown,
   IconDeviceFloppy,
   IconLogin,
+  IconRobot,
   IconRefresh,
   IconSearch,
   IconUser,
@@ -63,6 +64,7 @@ import {
   IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
+import type { Icon } from "@tabler/icons-react";
 
 import {
   Box,
@@ -85,6 +87,8 @@ import type { WorkspaceDomain } from "../../workspace/types";
 type MenuKey = string | null;
 
 const MEGAMENU_CLOSE_DELAY_MS = 250;
+const MEGAMENU_OPEN_DELAY_MS = 120;
+const MEGAMENU_COMMAND_DISMISS_DELAY_MS = 260;
 const PUBLISH_MENU_KEY = "publish";
 
 type MegamenuRendererKey =
@@ -100,6 +104,7 @@ type MegamenuRendererKey =
 type SecondaryMenu = {
   key: string;
   label: string;
+  icon?: Icon;
   renderer: MegamenuRendererKey;
 };
 
@@ -143,7 +148,8 @@ const editMenus: SecondaryMenu[] = [
   },
   {
     key: "publish",
-    label: "Publish",
+    label: "Publish Now",
+    icon: IconRobot,
     renderer: "edit-publish",
   },
 ];
@@ -393,6 +399,7 @@ type ToolbarMenuTabsProps = {
   onHoverMenu: (
     menu: SecondaryMenu
   ) => void;
+  onLeaveMenu: () => void;
 };
 
 function ToolbarMenuTabs({
@@ -400,6 +407,7 @@ function ToolbarMenuTabs({
   activeMenu,
   onActivateMenu,
   onHoverMenu,
+  onLeaveMenu,
 }: ToolbarMenuTabsProps) {
   return (
     <Group gap="lg" wrap="nowrap">
@@ -410,6 +418,7 @@ function ToolbarMenuTabs({
           active={activeMenu === menu.key}
           onActivateMenu={onActivateMenu}
           onHoverMenu={onHoverMenu}
+          onLeaveMenu={onLeaveMenu}
         />
       ))}
     </Group>
@@ -425,6 +434,7 @@ type ToolbarMenuTabProps = {
   onHoverMenu: (
     menu: SecondaryMenu
   ) => void;
+  onLeaveMenu: () => void;
 };
 
 function ToolbarMenuTab({
@@ -432,11 +442,15 @@ function ToolbarMenuTab({
   active,
   onActivateMenu,
   onHoverMenu,
+  onLeaveMenu,
 }: ToolbarMenuTabProps) {
+  const MenuIcon = menu.icon;
+
   return (
     <UnstyledButton
       onClick={() => onActivateMenu(menu)}
       onMouseEnter={() => onHoverMenu(menu)}
+      onMouseLeave={onLeaveMenu}
       style={{
         height: 52,
         display: "flex",
@@ -449,6 +463,13 @@ function ToolbarMenuTab({
       }}
     >
       <ToolbarMenuTabLabel>
+        {MenuIcon ? (
+          <MenuIcon
+            size={24}
+            stroke={1.5}
+            style={{ flex: "0 0 24px" }}
+          />
+        ) : null}
         <Text>{menu.label}</Text>
         <IconChevronDown size={20} />
       </ToolbarMenuTabLabel>
@@ -686,7 +707,10 @@ function ActiveMegamenu({
       target instanceof Element &&
       target.closest('[data-megamenu-command="true"]')
     ) {
-      onDismiss();
+      window.setTimeout(
+        onDismiss,
+        MEGAMENU_COMMAND_DISMISS_DELAY_MS
+      );
     }
   };
 
@@ -694,7 +718,7 @@ function ActiveMegamenu({
     <Paper
       radius={0}
       px={activeMenuUsesOwnPadding ? 0 : "xl"}
-      bg="gray.0"
+      bg="white"
       onClick={handleClick}
       style={{
         position: "absolute",
@@ -702,10 +726,10 @@ function ActiveMegamenu({
         left: 0,
         right: 0,
         zIndex: 20,
-        paddingBlock: "var(--mantine-spacing-lg)",
+        paddingBlock: activeMenuUsesOwnPadding ? 0 : 32,
         borderBottom:
           "1px solid var(--mantine-color-indigo-2)",
-        boxShadow: "0 12px 28px rgba(61,68,109,0.12)",
+        boxShadow: "0 16px 18px -18px rgba(61,68,109,0.45)",
       }}
     >
       <Stack gap="sm">
@@ -941,14 +965,14 @@ export default function SecondaryToolbar({
     clearHoverTimeout();
     clearCloseTimeout();
 
-    if (activeMenu) {
-      setActiveMenu(menu.key);
-      return;
-    }
-
     hoverTimeoutRef.current = window.setTimeout(() => {
       setActiveMenu(menu.key);
-    }, 200);
+      hoverTimeoutRef.current = null;
+    }, MEGAMENU_OPEN_DELAY_MS);
+  };
+
+  const handleLeaveMenu = () => {
+    clearHoverTimeout();
   };
 
   const handleChangePreviewAdvancedField = (
@@ -973,6 +997,7 @@ export default function SecondaryToolbar({
     activeMenu,
     onActivateMenu: handleActivateMenu,
     onHoverMenu: handleHoverMenu,
+    onLeaveMenu: handleLeaveMenu,
   };
 
   const toolbarActionsProps = {

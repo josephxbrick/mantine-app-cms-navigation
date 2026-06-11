@@ -42,6 +42,7 @@ function DisplayGroup({
 }: DisplayGroupProps) {
   return (
     <Box
+      className="workspace-splitter"
       role="separator"
       aria-orientation="vertical"
       aria-valuemin={min}

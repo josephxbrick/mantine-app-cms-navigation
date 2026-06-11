@@ -208,11 +208,15 @@ function PublishToTargetColumn({
     <Stack gap="sm">
       <ToolbarSelectMenu
         label="Publishing Target"
+        labelSize="md"
         options={publishTargetOptions}
         value={publishTarget}
         onChange={onChangePublishTarget}
+        mode="dropdown-only"
         buttonWidth="100%"
         menuWidth="target"
+        pillFill="white"
+        pillStroke="1px solid var(--mantine-color-asxGray-4)"
         showTriggerIcon={false}
         showMenuIcons={false}
         withinPortal={false}

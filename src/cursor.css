@@ -1,0 +1,10 @@
+*,
+*::before,
+*::after {
+  cursor: default !important;
+}
+
+.workspace-splitter,
+.workspace-splitter * {
+  cursor: col-resize !important;
+}
