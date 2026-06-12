@@ -173,3 +173,26 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Source commit for the behavior change: `cfe630b Show tree tooltips only when truncated`.
 - Latest staging invalidation: `IDFV83BKAQ0PXY5BBYEM7DTDJO`.
 - Verification: `npm run build`, `npm run lint`, and `npm run deploy:stage` passed. `aws cloudfront get-invalidation --distribution-id ES6M0K6KPAGL3 --id IDFV83BKAQ0PXY5BBYEM7DTDJO` returned `Completed`.
+
+## 2026-06-12 - Session Workflow Wrap-Up
+
+### Summary
+
+- Ran the session-start workflow for the project and confirmed the registered `main` and `experiment/major-change` worktrees.
+- Confirmed `main` was current with `origin/main` and preserved pre-existing generated `dist/` changes.
+- Synced the experimental worktree and deployed staging from `experiment/major-change`.
+- Created a personal Codex `session-end` skill outside this repository at `/Users/josephbrick/.codex/skills/session-end`.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+
+### Notes
+
+- Main worktree commit at session start: `461b326`.
+- Experimental worktree commit deployed to staging: `d762188`.
+- Staging deploy command: `npm run deploy:stage` from `/Users/josephbrick/mantine/mantine-app-cms-navigation-experiment`.
+- Latest staging invalidation: `I8P4VIQLD4MQ945YA6RM9UDV82`, confirmed `Completed`.
+- Local Vite servers were identified for `main` at `http://127.0.0.1:5173/` and `experiment/major-change` at `http://127.0.0.1:5175/`.
+- A separate same-remote clone under `/Users/josephbrick/Documents/GitHub/desktop-tutorial/mantine-app-cms-navigation` was identified but not used for project work.
+- Verification for this entry is documentation-only; no source code changed in this repo during the wrap-up.
