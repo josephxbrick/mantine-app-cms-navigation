@@ -24,9 +24,12 @@
  */
 import MegamenuView from "../tools/edit/megamenus/MegamenuView";
 import MegamenuActions from "../tools/edit/megamenus/MegamenuActions";
-import MegamenuPublish, {
-  isPublishWizardComplete,
-} from "../tools/edit/megamenus/MegamenuPublish";
+import MegamenuPublish from "../tools/edit/megamenus/MegamenuPublish";
+import {
+  getPublishWizardMouseAwayCloseDisabledRemainingMs,
+  isPublishWizardMouseAwayCloseDisabled,
+  isPublishWizardRunning,
+} from "../tools/edit/megamenus/publishWizardState";
 import MegamenuNew from "../tools/edit/megamenus/MegamenuNew";
 import MegamenuPreviewActions from "../tools/preview/megamenus/MegamenuPreviewActions";
 import MegamenuPreviewAdvanced from "../tools/preview/megamenus/MegamenuPreviewAdvanced";
@@ -90,6 +93,7 @@ const MEGAMENU_CLOSE_DELAY_MS = 250;
 const MEGAMENU_OPEN_DELAY_MS = 120;
 const MEGAMENU_COMMAND_DISMISS_DELAY_MS = 260;
 const PUBLISH_MENU_KEY = "publish";
+const PUBLISH_CLOSE_CHECK_DELAY_MS = 100;
 
 type MegamenuRendererKey =
   | "edit-view"
@@ -393,6 +397,7 @@ function ToolbarRow({ children }: ToolbarRowProps) {
 type ToolbarMenuTabsProps = {
   menus: SecondaryMenu[];
   activeMenu: MenuKey;
+  disabledMenus: Set<string>;
   onActivateMenu: (
     menu: SecondaryMenu
   ) => void;
@@ -405,6 +410,7 @@ type ToolbarMenuTabsProps = {
 function ToolbarMenuTabs({
   menus,
   activeMenu,
+  disabledMenus,
   onActivateMenu,
   onHoverMenu,
   onLeaveMenu,
@@ -416,6 +422,7 @@ function ToolbarMenuTabs({
           key={menu.key}
           menu={menu}
           active={activeMenu === menu.key}
+          disabled={disabledMenus.has(menu.key)}
           onActivateMenu={onActivateMenu}
           onHoverMenu={onHoverMenu}
           onLeaveMenu={onLeaveMenu}
@@ -428,6 +435,7 @@ function ToolbarMenuTabs({
 type ToolbarMenuTabProps = {
   menu: SecondaryMenu;
   active: boolean;
+  disabled: boolean;
   onActivateMenu: (
     menu: SecondaryMenu
   ) => void;
@@ -440,6 +448,7 @@ type ToolbarMenuTabProps = {
 function ToolbarMenuTab({
   menu,
   active,
+  disabled,
   onActivateMenu,
   onHoverMenu,
   onLeaveMenu,
@@ -449,8 +458,17 @@ function ToolbarMenuTab({
   return (
     <UnstyledButton
       data-optional-click="true"
-      onClick={() => onActivateMenu(menu)}
-      onMouseEnter={() => onHoverMenu(menu)}
+      disabled={disabled}
+      onClick={() => {
+        if (!disabled) {
+          onActivateMenu(menu);
+        }
+      }}
+      onMouseEnter={() => {
+        if (!disabled) {
+          onHoverMenu(menu);
+        }
+      }}
       onMouseLeave={onLeaveMenu}
       style={{
         height: 52,
@@ -459,8 +477,12 @@ function ToolbarMenuTab({
         borderBottom: active
           ? "2px solid var(--mantine-color-indigo-6)"
           : "2px solid transparent",
-        color: "var(--mantine-color-gray-7)",
+        color: disabled
+          ? "var(--mantine-color-gray-7)"
+          : "var(--mantine-color-gray-7)",
         fontWeight: active ? 700 : 500,
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.64 : 1,
       }}
     >
       <ToolbarMenuTabLabel>
@@ -829,6 +851,11 @@ export default function SecondaryToolbar({
 
   const hoverTimeoutRef = useRef<number | null>(null);
   const closeTimeoutRef = useRef<number | null>(null);
+  const publishCloseCheckTimeoutRef = useRef<
+    number | null
+  >(null);
+  const pointerInsideRef = useRef(false);
+  const activeMenuRef = useRef<MenuKey>(null);
   const toolbarContainerRef =
     useRef<HTMLDivElement | null>(null);
 
@@ -879,6 +906,10 @@ export default function SecondaryToolbar({
     showPublishSiteScope,
     setShowPublishSiteScope,
   ] = useState(false);
+  const [
+    publishWizardStateTick,
+    setPublishWizardStateTick,
+  ] = useState(0);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -904,12 +935,82 @@ export default function SecondaryToolbar({
     }
   };
 
+  const clearPublishCloseCheckTimeout = () => {
+    if (publishCloseCheckTimeoutRef.current) {
+      window.clearTimeout(
+        publishCloseCheckTimeoutRef.current
+      );
+      publishCloseCheckTimeoutRef.current = null;
+    }
+  };
+
+  const scheduleCloseTimeout = () => {
+    clearCloseTimeout();
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setActiveMenu(null);
+      closeTimeoutRef.current = null;
+    }, MEGAMENU_CLOSE_DELAY_MS);
+  };
+
+  const schedulePublishCloseCheck = () => {
+    clearPublishCloseCheckTimeout();
+
+    const remainingMs =
+      getPublishWizardMouseAwayCloseDisabledRemainingMs();
+    const checkDelay =
+      remainingMs > 0
+        ? remainingMs
+        : PUBLISH_CLOSE_CHECK_DELAY_MS;
+
+    publishCloseCheckTimeoutRef.current =
+      window.setTimeout(() => {
+        publishCloseCheckTimeoutRef.current = null;
+
+        if (
+          activeMenuRef.current !== PUBLISH_MENU_KEY ||
+          pointerInsideRef.current
+        ) {
+          return;
+        }
+
+        if (isPublishWizardMouseAwayCloseDisabled()) {
+          schedulePublishCloseCheck();
+          return;
+        }
+
+        setActiveMenu(null);
+      }, checkDelay);
+  };
+
   useEffect(() => {
     return () => {
       clearHoverTimeout();
       clearCloseTimeout();
+      clearPublishCloseCheckTimeout();
     };
   }, []);
+
+  useEffect(() => {
+    activeMenuRef.current = activeMenu;
+
+    if (activeMenu !== PUBLISH_MENU_KEY) {
+      clearPublishCloseCheckTimeout();
+    }
+  }, [activeMenu]);
+
+  useEffect(() => {
+    if (activeMenu !== PUBLISH_MENU_KEY) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setPublishWizardStateTick((current) => current + 1);
+    }, 200);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [activeMenu]);
 
   useEffect(() => {
     if (!activeMenu) {
@@ -946,39 +1047,58 @@ export default function SecondaryToolbar({
   }, [activeMenu]);
 
   const handleMouseEnter = () => {
+    pointerInsideRef.current = true;
     clearCloseTimeout();
+    clearPublishCloseCheckTimeout();
   };
 
   const handleMouseLeave = () => {
+    pointerInsideRef.current = false;
     clearHoverTimeout();
     clearCloseTimeout();
 
     if (
       activeMenu === PUBLISH_MENU_KEY &&
-      !isPublishWizardComplete()
+      isPublishWizardMouseAwayCloseDisabled()
     ) {
+      schedulePublishCloseCheck();
       return;
     }
 
-    closeTimeoutRef.current = window.setTimeout(() => {
-      setActiveMenu(null);
-      closeTimeoutRef.current = null;
-    }, MEGAMENU_CLOSE_DELAY_MS);
+    scheduleCloseTimeout();
   };
 
   const handleActivateMenu = (
     menu: SecondaryMenu
   ) => {
+    if (
+      activeMenuRef.current === PUBLISH_MENU_KEY &&
+      menu.key !== PUBLISH_MENU_KEY &&
+      isPublishWizardRunning()
+    ) {
+      return;
+    }
+
     clearHoverTimeout();
     clearCloseTimeout();
+    clearPublishCloseCheckTimeout();
     setActiveMenu(menu.key);
   };
 
   const handleHoverMenu = (
     menu: SecondaryMenu
   ) => {
+    if (
+      activeMenuRef.current === PUBLISH_MENU_KEY &&
+      menu.key !== PUBLISH_MENU_KEY &&
+      isPublishWizardRunning()
+    ) {
+      return;
+    }
+
     clearHoverTimeout();
     clearCloseTimeout();
+    clearPublishCloseCheckTimeout();
 
     hoverTimeoutRef.current = window.setTimeout(() => {
       setActiveMenu(menu.key);
@@ -1006,10 +1126,23 @@ export default function SecondaryToolbar({
     domain === "assets"
       ? toolMenus.filter((menu) => menu.key !== "view")
       : toolMenus;
+  const publishWizardRunning =
+    activeMenu === PUBLISH_MENU_KEY
+      ? isPublishWizardRunning()
+      : false;
+  void publishWizardStateTick;
+  const disabledMenus = new Set(
+    publishWizardRunning
+      ? menus
+          .filter((menu) => menu.key !== PUBLISH_MENU_KEY)
+          .map((menu) => menu.key)
+      : []
+  );
 
   const toolbarMenuTabsProps = {
     menus,
     activeMenu,
+    disabledMenus,
     onActivateMenu: handleActivateMenu,
     onHoverMenu: handleHoverMenu,
     onLeaveMenu: handleLeaveMenu,
@@ -1055,6 +1188,7 @@ export default function SecondaryToolbar({
     onDismiss: () => {
       clearHoverTimeout();
       clearCloseTimeout();
+      clearPublishCloseCheckTimeout();
       setActiveMenu(null);
     },
   };

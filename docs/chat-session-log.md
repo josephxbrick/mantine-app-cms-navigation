@@ -444,3 +444,31 @@ This log tracks project decisions, documentation updates, implementation notes, 
 - Current branch: `experiment/major-change`.
 - Verification during session: targeted ESLint passed for `src/features/content-workspace/megamenus/MegamenuRenderer.tsx` and `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`. No build was run because this closeout request did not ask for one.
 - Existing local demo image artifacts remain uncommitted: `dist/demo/site-edit.local-before-pull.png`, `dist/demo/site-edit.png.png`, `public/demo/site-edit.local-before-pull.png`, and `public/demo/site-edit.png.png`.
+
+## 2026-06-12 - Publish Wizard Clear Results Flow
+
+### Summary
+
+- Added a completed-state Clear Results action to the Publish Now wizard.
+- Kept the Start caption until the clear action is enabled, then changed the button to Clear Results with a 133ms width animation sized to the active caption.
+- Made Clear Results collapse the wizard results over 250ms, reset publish progress, and preserve the chosen scope and publishing target.
+- Limited Publish Now mouse-away close suppression to the active wizard run plus a 1000ms post-completion grace period.
+- Added a post-grace pointer check that closes the Publish megamenu when the pointer is outside at grace expiry.
+- Disabled other secondary toolbar megamenu tabs while the Publish wizard is running and restored them after the publish step completes.
+- Updated the project spec to reflect the Publish wizard clear-results, close timing, and locked-tab behavior.
+
+### Files Updated
+
+- `docs/chat-session-log.md`
+- `docs/project-spec.md`
+- `src/features/content-workspace/toolbars/SecondaryToolbar.tsx`
+- `src/features/content-workspace/tools/edit/megamenus/MegamenuPublish.tsx`
+- `dist/index.html`
+- `dist/assets/index-FYkWLb9g.js`
+
+### Notes
+
+- Current branch: `experiment/major-change`.
+- Verification during session: repeated `npm run build` checks passed after each behavior update.
+- Local experimental Vite server was running at `http://127.0.0.1:5175/`.
+- Staging deploy is expected from the registered experimental worktree, not `main`.

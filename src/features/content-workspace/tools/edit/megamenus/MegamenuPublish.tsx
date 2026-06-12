@@ -37,19 +37,18 @@ import {
   MegamenuCommandItem,
   MegamenuCommandLabel,
 } from "../../../megamenus/MegamenuRenderer";
-
-type PublishStepId = "check-in" | "mark" | "publish";
-type PublishScope = "page" | "descendants" | "site";
-type PublishTarget = "qa" | "staging" | "production";
-
-type PublishFlowState = {
-  completedSteps: Set<PublishStepId>;
-  pendingUntil: Partial<Record<PublishStepId, number>>;
-  checkInScope: PublishScope;
-  markScope: PublishScope;
-  publishTarget: PublishTarget;
-  publishTargetChanged: boolean;
-};
+import {
+  PUBLISH_MOUSE_AWAY_CLOSE_GRACE_MS,
+  isPublishStepId,
+  normalizePublishFlowState,
+  publishFlowState,
+  resetPublishFlowState,
+} from "./publishWizardState";
+import type {
+  PublishScope,
+  PublishStepId,
+  PublishTarget,
+} from "./publishWizardState";
 
 type PublishStep = {
   id: PublishStepId;
@@ -63,10 +62,13 @@ type PublishStepLayout = {
 
 const PUBLISH_STEP_PENDING_MS = 3350;
 const PUBLISH_REVEAL_DURATION_MS = 300;
+const PUBLISH_CLEAR_DURATION_MS = 250;
+const PUBLISH_CLEAR_ENABLE_DELAY_MS = 500;
 const PUBLISH_STEP_START_DELAY_MS = PUBLISH_REVEAL_DURATION_MS;
 const PUBLISH_STEP_GAP = 48;
 const PUBLISH_STEP_MAX_WIDTH = 400;
 const PUBLISH_REVEAL_TRANSITION = `${PUBLISH_REVEAL_DURATION_MS}ms ease-out`;
+const PUBLISH_CLEAR_TRANSITION = `${PUBLISH_CLEAR_DURATION_MS}ms ease-out`;
 const PUBLISH_VERTICAL_PADDING = 32;
 const PUBLISH_COMPLETE_STATUS_BACKGROUND =
   "var(--mantine-color-green-0)";
@@ -84,41 +86,10 @@ const PUBLISH_STEP_TITLE_SECONDARY_COLOR = "asxGray.6";
 const PUBLISH_CONTROL_GAP = 30;
 const PUBLISH_TARGET_CONTROL_MIN_WIDTH = 240;
 const PUBLISH_TARGET_CONTROL_MAX_WIDTH = 400;
-const PUBLISH_START_BUTTON_WIDTH = 100;
+const PUBLISH_START_BUTTON_HORIZONTAL_PADDING = 44;
+const PUBLISH_START_BUTTON_WIDTH_TRANSITION =
+  "width 133ms ease-out";
 const PUBLISH_CONTROLS_MAX_WIDTH = 1200;
-
-const publishFlowState: PublishFlowState = {
-  completedSteps: new Set(),
-  pendingUntil: {},
-  checkInScope: "page",
-  markScope: "page",
-  publishTarget: "production",
-  publishTargetChanged: false,
-};
-
-function normalizePublishFlowState() {
-  const now = Date.now();
-
-  Object.entries(publishFlowState.pendingUntil).forEach(
-    ([stepId, finishTime]) => {
-      if (
-        !isPublishStepId(stepId) ||
-        typeof finishTime !== "number" ||
-        finishTime > now
-      ) {
-        return;
-      }
-
-      delete publishFlowState.pendingUntil[stepId];
-      publishFlowState.completedSteps.add(stepId);
-    }
-  );
-}
-
-export function isPublishWizardComplete() {
-  normalizePublishFlowState();
-  return publishFlowState.completedSteps.has("publish");
-}
 
 const publishSteps: PublishStep[] = [
   {
@@ -333,12 +304,6 @@ function isStepReady(
   return completedSteps.has("mark");
 }
 
-function isPublishStepId(
-  value: string
-): value is PublishStepId {
-  return publishSteps.some((step) => step.id === value);
-}
-
 function isPublishTarget(
   value: string
 ): value is PublishTarget {
@@ -407,6 +372,10 @@ export default function MegamenuPublish({
       publishFlowState.completedSteps.size > 0 ||
       Object.keys(publishFlowState.pendingUntil).length > 0
   );
+  const [clearingResults, setClearingResults] =
+    useState(false);
+  const [clearResultsEnabled, setClearResultsEnabled] =
+    useState(() => completedSteps.has("publish"));
   const [stepLayout, setStepLayout] =
     useState<PublishStepLayout>(() =>
       getPublishStepLayout(
@@ -420,6 +389,7 @@ export default function MegamenuPublish({
   const statusHeightsRef = useRef<
     Partial<Record<PublishStepId, number>>
   >({});
+  const wizardComplete = completedSteps.has("publish");
 
   const scopes: Record<PublishStepId, PublishScope> = {
     "check-in": checkInScope,
@@ -464,7 +434,57 @@ export default function MegamenuPublish({
 
     publishFlowState.markScope = checkInScope;
     setMarkScope(checkInScope);
+
+    if (stepId === "publish") {
+      publishFlowState.runInProgress = false;
+      publishFlowState.mouseAwayCloseDisabledUntil =
+        Date.now() + PUBLISH_MOUSE_AWAY_CLOSE_GRACE_MS;
+    }
   }
+
+  function resetPublishWizard() {
+    const nextScope = checkInScope;
+    const nextPublishTarget = publishTarget;
+    const nextPublishTargetChanged =
+      publishFlowState.publishTargetChanged;
+
+    pendingTimeoutsRef.current.forEach((timeoutId) =>
+      window.clearTimeout(timeoutId)
+    );
+    pendingTimeoutsRef.current = [];
+    pendingUntilRef.current = {};
+    statusHeightsRef.current = {};
+    resetPublishFlowState(
+      nextPublishTarget,
+      nextScope,
+      nextPublishTargetChanged
+    );
+    setCompletedSteps(new Set());
+    setPendingSteps(new Set());
+    setCheckInScope(nextScope);
+    setMarkScope(nextScope);
+    setPublishTarget(nextPublishTarget);
+    setRunStarted(false);
+    setSequenceActive(false);
+    setStatusMinHeight(40);
+    setClearResultsEnabled(false);
+  }
+
+  useEffect(() => {
+    if (!wizardComplete) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setClearResultsEnabled(true);
+    }, PUBLISH_CLEAR_ENABLE_DELAY_MS);
+
+    pendingTimeoutsRef.current.push(timeoutId);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [wizardComplete]);
 
   useEffect(() => {
     Object.entries(pendingUntilRef.current).forEach(
@@ -576,9 +596,25 @@ export default function MegamenuPublish({
     }
 
     setRunStarted(true);
+    publishFlowState.runInProgress = true;
+    publishFlowState.mouseAwayCloseDisabledUntil = 0;
     const timeoutId = window.setTimeout(() => {
       setSequenceActive(true);
     }, PUBLISH_STEP_START_DELAY_MS);
+
+    pendingTimeoutsRef.current.push(timeoutId);
+  };
+
+  const handleClearResults = () => {
+    if (!clearResultsEnabled || clearingResults) {
+      return;
+    }
+
+    setClearingResults(true);
+    const timeoutId = window.setTimeout(() => {
+      resetPublishWizard();
+      setClearingResults(false);
+    }, PUBLISH_CLEAR_DURATION_MS);
 
     pendingTimeoutsRef.current.push(timeoutId);
   };
@@ -645,9 +681,10 @@ export default function MegamenuPublish({
   ]);
 
   const hasRunStarted =
-    runStarted ||
-    completedSteps.size > 0 ||
-    pendingSteps.size > 0;
+    !clearingResults &&
+    (runStarted ||
+      completedSteps.size > 0 ||
+      pendingSteps.size > 0);
   const activeStepId = hasRunStarted
     ? publishSteps.find((step) =>
         pendingSteps.has(step.id)
@@ -680,10 +717,16 @@ export default function MegamenuPublish({
           scope={checkInScope}
           publishTarget={publishTarget}
           showSiteScope={showSiteScope}
-          disabled={hasRunStarted}
+          disabled={
+            wizardComplete
+              ? !clearResultsEnabled
+              : hasRunStarted
+          }
+          mode={clearResultsEnabled ? "clear" : "start"}
           onScopeChange={handleChangeScope}
           onChangePublishTarget={handleChangePublishTarget}
           onStart={handleStartRun}
+          onClearResults={handleClearResults}
         />
         <Box
           style={{
@@ -694,9 +737,21 @@ export default function MegamenuPublish({
               : 0,
             opacity: hasRunStarted ? 1 : 0,
             transition:
-              `grid-template-rows ${PUBLISH_REVEAL_TRANSITION}, ` +
-              `margin-top ${PUBLISH_REVEAL_TRANSITION}, ` +
-              `opacity ${PUBLISH_REVEAL_TRANSITION}`,
+              `grid-template-rows ${
+                clearingResults
+                  ? PUBLISH_CLEAR_TRANSITION
+                  : PUBLISH_REVEAL_TRANSITION
+              }, ` +
+              `margin-top ${
+                clearingResults
+                  ? PUBLISH_CLEAR_TRANSITION
+                  : PUBLISH_REVEAL_TRANSITION
+              }, ` +
+              `opacity ${
+                clearingResults
+                  ? PUBLISH_CLEAR_TRANSITION
+                  : PUBLISH_REVEAL_TRANSITION
+              }`,
           }}
         >
           <Box style={{ minHeight: 0, overflow: "hidden" }}>
@@ -751,9 +806,11 @@ type PublishWizardControlsProps = {
   publishTarget: PublishTarget;
   showSiteScope: boolean;
   disabled: boolean;
+  mode: "start" | "clear";
   onScopeChange: (scope: PublishScope) => void;
   onChangePublishTarget: (value: PublishTarget) => void;
   onStart: () => void;
+  onClearResults: () => void;
 };
 
 function PublishWizardControls({
@@ -761,10 +818,34 @@ function PublishWizardControls({
   publishTarget,
   showSiteScope,
   disabled,
+  mode,
   onScopeChange,
   onChangePublishTarget,
   onStart,
+  onClearResults,
 }: PublishWizardControlsProps) {
+  const buttonLabel =
+    mode === "clear" ? "Clear Results" : "Start";
+  const buttonLabelMeasureRef =
+    useRef<HTMLSpanElement | null>(null);
+  const [buttonWidth, setButtonWidth] = useState<
+    number | undefined
+  >();
+
+  useLayoutEffect(() => {
+    const labelElement = buttonLabelMeasureRef.current;
+
+    if (!labelElement) {
+      return;
+    }
+
+    setButtonWidth(
+      Math.ceil(
+        labelElement.getBoundingClientRect().width
+      ) + PUBLISH_START_BUTTON_HORIZONTAL_PADDING
+    );
+  }, [buttonLabel]);
+
   return (
     <Stack gap={14}>
       <Text fz={18} fw={700} c="asxGray.9">
@@ -815,22 +896,41 @@ function PublishWizardControls({
             onChange={onChangePublishTarget}
           />
         </Stack>
-        <Button
-          color="asxBlue"
-          disabled={disabled}
-          onClick={onStart}
-          h={44}
-          px={22}
-          radius={10}
-          fz="md"
-          fw={700}
-          style={{
-            flexShrink: 0,
-            width: PUBLISH_START_BUTTON_WIDTH,
-          }}
-        >
-          Start
-        </Button>
+        <Box style={{ position: "relative", flexShrink: 0 }}>
+          <Box
+            component="span"
+            ref={buttonLabelMeasureRef}
+            style={{
+              position: "absolute",
+              visibility: "hidden",
+              whiteSpace: "nowrap",
+              fontSize: "var(--mantine-font-size-md)",
+              fontWeight: 700,
+              pointerEvents: "none",
+            }}
+          >
+            {buttonLabel}
+          </Box>
+          <Button
+            color="asxBlue"
+            disabled={disabled}
+            onClick={
+              mode === "clear" ? onClearResults : onStart
+            }
+            h={44}
+            px={22}
+            radius={10}
+            fz="md"
+            fw={700}
+            style={{
+              width: buttonWidth,
+              transition: PUBLISH_START_BUTTON_WIDTH_TRANSITION,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {buttonLabel}
+          </Button>
+        </Box>
       </Box>
     </Stack>
   );
