@@ -448,6 +448,7 @@ function ToolbarMenuTab({
 
   return (
     <UnstyledButton
+      data-optional-click="true"
       onClick={() => onActivateMenu(menu)}
       onMouseEnter={() => onHoverMenu(menu)}
       onMouseLeave={onLeaveMenu}
@@ -589,12 +590,14 @@ type ToolbarActionsProps = {
   showReviewActions: boolean;
   onToggleReviewActions: () => void;
   onTogglePublishingTargetVisibility: () => void;
+  onTogglePublishSiteScope: () => void;
 };
 
 function ToolbarActions({
   showReviewActions,
   onToggleReviewActions,
   onTogglePublishingTargetVisibility,
+  onTogglePublishSiteScope,
 }: ToolbarActionsProps) {
   return (
     <Group gap="md" wrap="nowrap">
@@ -621,6 +624,8 @@ function ToolbarActions({
                 ? onToggleReviewActions
                 : action.id === "secondary-refresh"
                   ? onTogglePublishingTargetVisibility
+                : action.id === "secondary-search"
+                  ? onTogglePublishSiteScope
                 : undefined
             }
           />
@@ -662,6 +667,7 @@ type ActiveMegamenuProps = {
   onToggleIncludeBrowserCookies: () => void;
   showAllPages: boolean;
   onToggleShowAllPages: () => void;
+  showPublishSiteScope: boolean;
   onDismiss: () => void;
 };
 
@@ -686,6 +692,7 @@ function ActiveMegamenu({
   onToggleIncludeBrowserCookies,
   showAllPages,
   onToggleShowAllPages,
+  showPublishSiteScope,
   onDismiss,
 }: ActiveMegamenuProps) {
   const activeMenuConfig =
@@ -738,7 +745,10 @@ function ActiveMegamenu({
       "preview-actions" ? (
       <MegamenuPreviewActions />
     ) : activeMenuConfig.renderer === "edit-publish" ? (
-      <MegamenuPublish sitePublishTarget={publishTarget} />
+      <MegamenuPublish
+        sitePublishTarget={publishTarget}
+        showSiteScope={showPublishSiteScope}
+      />
     ) : activeMenuConfig.renderer === "edit-new" ? (
       <MegamenuNew />
     ) : (
@@ -865,6 +875,10 @@ export default function SecondaryToolbar({
     showReviewActions,
     setShowReviewActions,
   ] = useState(true);
+  const [
+    showPublishSiteScope,
+    setShowPublishSiteScope,
+  ] = useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -1006,6 +1020,8 @@ export default function SecondaryToolbar({
     onToggleReviewActions: () =>
       setShowReviewActions((current) => !current),
     onTogglePublishingTargetVisibility,
+    onTogglePublishSiteScope: () =>
+      setShowPublishSiteScope((current) => !current),
   };
 
   const activeMegamenuProps = {
@@ -1035,6 +1051,7 @@ export default function SecondaryToolbar({
     showAllPages,
     onToggleShowAllPages: () =>
       setShowAllPages((current) => !current),
+    showPublishSiteScope,
     onDismiss: () => {
       clearHoverTimeout();
       clearCloseTimeout();

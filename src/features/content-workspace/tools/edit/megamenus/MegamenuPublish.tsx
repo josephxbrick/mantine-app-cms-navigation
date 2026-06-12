@@ -39,7 +39,7 @@ import {
 } from "../../../megamenus/MegamenuRenderer";
 
 type PublishStepId = "check-in" | "mark" | "publish";
-type PublishScope = "page" | "descendants";
+type PublishScope = "page" | "descendants" | "site";
 type PublishTarget = "qa" | "staging" | "production";
 
 type PublishFlowState = {
@@ -54,7 +54,6 @@ type PublishFlowState = {
 type PublishStep = {
   id: PublishStepId;
   title: string;
-  actionLabel: string;
 };
 
 type PublishStepLayout = {
@@ -63,7 +62,11 @@ type PublishStepLayout = {
 };
 
 const PUBLISH_STEP_PENDING_MS = 3350;
+const PUBLISH_REVEAL_DURATION_MS = 300;
+const PUBLISH_STEP_START_DELAY_MS = PUBLISH_REVEAL_DURATION_MS;
 const PUBLISH_STEP_GAP = 48;
+const PUBLISH_STEP_MAX_WIDTH = 400;
+const PUBLISH_REVEAL_TRANSITION = `${PUBLISH_REVEAL_DURATION_MS}ms ease-out`;
 const PUBLISH_VERTICAL_PADDING = 32;
 const PUBLISH_COMPLETE_STATUS_BACKGROUND =
   "var(--mantine-color-green-0)";
@@ -72,8 +75,17 @@ const PUBLISH_COMPLETE_STATUS_BORDER =
 const PUBLISH_COMPLETE_STATUS_TEXT =
   "var(--mantine-color-asxGray-8)";
 const PUBLISH_COMPLETE_STATUS_VERTICAL_PADDING = 12;
+const PUBLISH_PENDING_STATUS_BACKGROUND =
+  "var(--mantine-color-asxGray-1)";
+const PUBLISH_PENDING_STATUS_BORDER =
+  "1px solid var(--mantine-color-asxGray-4)";
 const PUBLISH_STEP_TITLE_PRIMARY_COLOR = "asxGray.9";
 const PUBLISH_STEP_TITLE_SECONDARY_COLOR = "asxGray.6";
+const PUBLISH_CONTROL_GAP = 30;
+const PUBLISH_TARGET_CONTROL_MIN_WIDTH = 240;
+const PUBLISH_TARGET_CONTROL_MAX_WIDTH = 400;
+const PUBLISH_START_BUTTON_WIDTH = 100;
+const PUBLISH_CONTROLS_MAX_WIDTH = 1200;
 
 const publishFlowState: PublishFlowState = {
   completedSteps: new Set(),
@@ -112,17 +124,14 @@ const publishSteps: PublishStep[] = [
   {
     id: "check-in",
     title: "Check In",
-    actionLabel: "Check In",
   },
   {
     id: "mark",
     title: "Mark for Publish",
-    actionLabel: "Mark",
   },
   {
     id: "publish",
-    title: "Publish",
-    actionLabel: "Publish",
+    title: "Publish Marked Pages",
   },
 ];
 
@@ -159,7 +168,7 @@ function getPublishStepLayout(
   );
 
   return {
-    stepWidth,
+    stepWidth: Math.min(stepWidth, PUBLISH_STEP_MAX_WIDTH),
     stepGap: PUBLISH_STEP_GAP,
   };
 }
@@ -171,6 +180,9 @@ const commandMessages: Record<string, string> = {
   "publish-mark-page": "Mark Page for Publish",
   "publish-mark-descendants":
     "Mark Page and Descendants for Publish",
+  "publish-check-in-site": "Check In Site",
+  "publish-mark-site": "Mark Site for Publish",
+  "publish-site": "Publish Site",
   "publish-page": "Publish",
 };
 
@@ -179,18 +191,26 @@ function getCommandId(
   scope: PublishScope
 ) {
   if (stepId === "check-in") {
+    if (scope === "site") {
+      return "publish-check-in-site";
+    }
+
     return scope === "page"
       ? "publish-check-in-page"
       : "publish-check-in-descendants";
   }
 
   if (stepId === "mark") {
+    if (scope === "site") {
+      return "publish-mark-site";
+    }
+
     return scope === "page"
       ? "publish-mark-page"
       : "publish-mark-descendants";
   }
 
-  return "publish-page";
+  return scope === "site" ? "publish-site" : "publish-page";
 }
 
 function getCompletedStepLabel(
@@ -199,12 +219,20 @@ function getCompletedStepLabel(
   publishTarget: PublishTarget
 ) {
   if (stepId === "check-in") {
+    if (scope === "site") {
+      return "Every page in the site is checked in.";
+    }
+
     return scope === "page"
       ? "This page is checked in."
       : "This page and its children are checked in.";
   }
 
   if (stepId === "mark") {
+    if (scope === "site") {
+      return "Every page in the site is marked.";
+    }
+
     return scope === "page"
       ? "This page is marked."
       : "This page and its children are marked.";
@@ -215,7 +243,79 @@ function getCompletedStepLabel(
       (option) => option.value === publishTarget
     ) ?? publishTargetOptions[0];
 
-  return `Marked pages were published to ${selectedTarget.label}.`;
+  return scope === "site"
+    ? `Every page in the site was published to ${selectedTarget.label}.`
+    : `All marked pages were published to ${selectedTarget.label}.`;
+}
+
+function getPendingStepLabel(
+  stepId: PublishStepId,
+  scope: PublishScope,
+  publishTarget: PublishTarget
+) {
+  if (stepId === "check-in") {
+    if (scope === "site") {
+      return "Checking in every page in the site.";
+    }
+
+    return scope === "page"
+      ? "Checking in this page."
+      : "Checking in this page and its children.";
+  }
+
+  if (stepId === "mark") {
+    if (scope === "site") {
+      return "Marking every page in the site for publish.";
+    }
+
+    return scope === "page"
+      ? "Marking this page for publish."
+      : "Marking this page and its children for publish.";
+  }
+
+  const selectedTarget =
+    publishTargetOptions.find(
+      (option) => option.value === publishTarget
+    ) ?? publishTargetOptions[0];
+
+  return scope === "site"
+    ? `Publishing every page in the site to ${selectedTarget.label}.`
+    : `Publishing all marked pages to ${selectedTarget.label}.`;
+}
+
+function getWaitingStepLabel(
+  stepId: PublishStepId,
+  scope: PublishScope,
+  publishTarget: PublishTarget
+) {
+  if (stepId === "check-in") {
+    if (scope === "site") {
+      return "Every page in the site will be checked in.";
+    }
+
+    return scope === "page"
+      ? "This page will be checked in."
+      : "This page and its children will be checked in.";
+  }
+
+  if (stepId === "mark") {
+    if (scope === "site") {
+      return "Every page in the site will be marked for publish.";
+    }
+
+    return scope === "page"
+      ? "This page will be marked for publish."
+      : "This page and its children will be marked for publish.";
+  }
+
+  const selectedTarget =
+    publishTargetOptions.find(
+      (option) => option.value === publishTarget
+    ) ?? publishTargetOptions[0];
+
+  return scope === "site"
+    ? `Every page in the site will publish to ${selectedTarget.label}.`
+    : `All marked pages will publish to ${selectedTarget.label}.`;
 }
 
 function isStepReady(
@@ -249,10 +349,12 @@ function isPublishTarget(
 
 type MegamenuPublishProps = {
   sitePublishTarget: string;
+  showSiteScope: boolean;
 };
 
 export default function MegamenuPublish({
   sitePublishTarget,
+  showSiteScope,
 }: MegamenuPublishProps) {
   normalizePublishFlowState();
   const stepsContainerRef =
@@ -295,6 +397,16 @@ export default function MegamenuPublish({
     useState<PublishTarget>(
       publishFlowState.publishTarget
     );
+  const [runStarted, setRunStarted] = useState(
+    () =>
+      publishFlowState.completedSteps.size > 0 ||
+      Object.keys(publishFlowState.pendingUntil).length > 0
+  );
+  const [sequenceActive, setSequenceActive] = useState(
+    () =>
+      publishFlowState.completedSteps.size > 0 ||
+      Object.keys(publishFlowState.pendingUntil).length > 0
+  );
   const [stepLayout, setStepLayout] =
     useState<PublishStepLayout>(() =>
       getPublishStepLayout(
@@ -303,44 +415,34 @@ export default function MegamenuPublish({
             (publishSteps.length + 1)
       )
     );
-  const [completedStatusMinHeight, setCompletedStatusMinHeight] =
+  const [statusMinHeight, setStatusMinHeight] =
     useState(40);
-  const completedStatusHeightsRef = useRef<
+  const statusHeightsRef = useRef<
     Partial<Record<PublishStepId, number>>
   >({});
 
   const scopes: Record<PublishStepId, PublishScope> = {
     "check-in": checkInScope,
-    mark: markScope,
-    publish: "page",
+    mark: checkInScope,
+    publish: checkInScope,
   };
 
-  const scopeSetters: Partial<
-    Record<
-      PublishStepId,
-      (scope: PublishScope) => void
-    >
-  > = {
-    "check-in": setCheckInScope,
-    mark: setMarkScope,
-  };
-
-  const handleCompletedStatusHeightChange = (
+  const handleStatusHeightChange = (
     stepId: PublishStepId,
     height: number
   ) => {
-    completedStatusHeightsRef.current[stepId] = height;
+    statusHeightsRef.current[stepId] = height;
 
     const nextMinHeight = Math.max(
       40,
       ...Object.values(
-        completedStatusHeightsRef.current
+        statusHeightsRef.current
       ).filter((value): value is number =>
         typeof value === "number"
       )
     );
 
-    setCompletedStatusMinHeight((current) =>
+    setStatusMinHeight((current) =>
       current === nextMinHeight ? current : nextMinHeight
     );
   };
@@ -360,18 +462,8 @@ export default function MegamenuPublish({
       return next;
     });
 
-    if (
-      stepId === "check-in" &&
-      checkInScope === "descendants" &&
-      markScope !== "descendants"
-    ) {
-      const timeoutId = window.setTimeout(() => {
-        publishFlowState.markScope = "descendants";
-        setMarkScope("descendants");
-      }, 80);
-
-      pendingTimeoutsRef.current.push(timeoutId);
-    }
+    publishFlowState.markScope = checkInScope;
+    setMarkScope(checkInScope);
   }
 
   useEffect(() => {
@@ -463,8 +555,39 @@ export default function MegamenuPublish({
     setPublishTarget(value);
   };
 
-  function completeStep(stepId: PublishStepId) {
-    if (pendingSteps.has(stepId)) {
+  const handleChangeScope = (scope: PublishScope) => {
+    publishFlowState.checkInScope = scope;
+    publishFlowState.markScope = scope;
+    setCheckInScope(scope);
+    setMarkScope(scope);
+  };
+
+  useEffect(() => {
+    if (showSiteScope || checkInScope !== "site") {
+      return;
+    }
+
+    handleChangeScope("page");
+  }, [showSiteScope, checkInScope]);
+
+  const handleStartRun = () => {
+    if (runStarted || completedSteps.has("publish")) {
+      return;
+    }
+
+    setRunStarted(true);
+    const timeoutId = window.setTimeout(() => {
+      setSequenceActive(true);
+    }, PUBLISH_STEP_START_DELAY_MS);
+
+    pendingTimeoutsRef.current.push(timeoutId);
+  };
+
+  function startStep(stepId: PublishStepId) {
+    if (
+      pendingSteps.has(stepId) ||
+      completedSteps.has(stepId)
+    ) {
       return;
     }
 
@@ -489,6 +612,54 @@ export default function MegamenuPublish({
     pendingTimeoutsRef.current.push(timeoutId);
   }
 
+  useEffect(() => {
+    if (
+      !sequenceActive ||
+      completedSteps.has("publish") ||
+      pendingSteps.size > 0
+    ) {
+      return;
+    }
+
+    const nextStep = publishSteps.find(
+      (step) =>
+        !completedSteps.has(step.id) &&
+        isStepReady(step.id, completedSteps)
+    );
+
+    if (!nextStep) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      startStep(nextStep.id);
+    }, 220);
+
+    pendingTimeoutsRef.current.push(timeoutId);
+  }, [
+    completedSteps,
+    pendingSteps,
+    checkInScope,
+    publishTarget,
+    sequenceActive,
+  ]);
+
+  const hasRunStarted =
+    runStarted ||
+    completedSteps.size > 0 ||
+    pendingSteps.size > 0;
+  const activeStepId = hasRunStarted
+    ? publishSteps.find((step) =>
+        pendingSteps.has(step.id)
+      )?.id ??
+      publishSteps.find(
+        (step) =>
+          !completedSteps.has(step.id) &&
+          isStepReady(step.id, completedSteps)
+      )?.id ??
+      null
+    : null;
+
   return (
     <Box
       ref={stepsContainerRef}
@@ -499,51 +670,169 @@ export default function MegamenuPublish({
         paddingInline: stepLayout.stepGap,
       }}
     >
-      <Group
-        align="stretch"
-        wrap="nowrap"
-        style={{ gap: stepLayout.stepGap }}
+      <Box
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        {publishSteps.map((step, index) => {
-          const completed = completedSteps.has(step.id);
-          const pending = pendingSteps.has(step.id);
-          const ready = isStepReady(
-            step.id,
-            completedSteps
-          );
-          const scopeSetter = scopeSetters[step.id];
-
-          return (
-            <Group key={step.id} gap={0} wrap="nowrap">
-              <PublishStepCard
-                step={step}
-                stepNumber={index + 1}
-                stepWidth={stepLayout.stepWidth}
-                completed={completed}
-                pending={pending}
-                ready={ready}
-                scope={scopes[step.id]}
-                publishTarget={publishTarget}
-                completedStatusMinHeight={
-                  completedStatusMinHeight
-                }
-                onScopeChange={scopeSetter}
-                onChangePublishTarget={
-                  handleChangePublishTarget
-                }
-                onCompletedStatusHeightChange={(height) =>
-                  handleCompletedStatusHeightChange(
-                    step.id,
-                    height
-                  )
-                }
-                onComplete={() => completeStep(step.id)}
+        <PublishWizardControls
+          scope={checkInScope}
+          publishTarget={publishTarget}
+          showSiteScope={showSiteScope}
+          disabled={hasRunStarted}
+          onScopeChange={handleChangeScope}
+          onChangePublishTarget={handleChangePublishTarget}
+          onStart={handleStartRun}
+        />
+        <Box
+          style={{
+            display: "grid",
+            gridTemplateRows: hasRunStarted ? "1fr" : "0fr",
+            marginTop: hasRunStarted
+              ? "var(--mantine-spacing-xl)"
+              : 0,
+            opacity: hasRunStarted ? 1 : 0,
+            transition:
+              `grid-template-rows ${PUBLISH_REVEAL_TRANSITION}, ` +
+              `margin-top ${PUBLISH_REVEAL_TRANSITION}, ` +
+              `opacity ${PUBLISH_REVEAL_TRANSITION}`,
+          }}
+        >
+          <Box style={{ minHeight: 0, overflow: "hidden" }}>
+            <Stack gap="xl">
+              <Box
+                aria-hidden="true"
+                h={1}
+                w="100%"
+                bg="asxGray.4"
               />
-            </Group>
-          );
-        })}
-      </Group>
+              <Group
+                align="stretch"
+                wrap="nowrap"
+                style={{ gap: stepLayout.stepGap }}
+              >
+                {publishSteps.map((step, index) => {
+                  const completed = completedSteps.has(step.id);
+                  const pending = pendingSteps.has(step.id);
+                  return (
+                    <Group key={step.id} gap={0} wrap="nowrap">
+                      <PublishStepCard
+                        step={step}
+                        stepNumber={index + 1}
+                        stepWidth={stepLayout.stepWidth}
+                        completed={completed}
+                        pending={pending}
+                        active={activeStepId === step.id}
+                        scope={scopes[step.id]}
+                        publishTarget={publishTarget}
+                        statusMinHeight={statusMinHeight}
+                        onStatusHeightChange={(height) =>
+                          handleStatusHeightChange(
+                            step.id,
+                            height
+                          )
+                        }
+                      />
+                    </Group>
+                  );
+                })}
+              </Group>
+            </Stack>
+          </Box>
+        </Box>
+      </Box>
     </Box>
+  );
+}
+
+type PublishWizardControlsProps = {
+  scope: PublishScope;
+  publishTarget: PublishTarget;
+  showSiteScope: boolean;
+  disabled: boolean;
+  onScopeChange: (scope: PublishScope) => void;
+  onChangePublishTarget: (value: PublishTarget) => void;
+  onStart: () => void;
+};
+
+function PublishWizardControls({
+  scope,
+  publishTarget,
+  showSiteScope,
+  disabled,
+  onScopeChange,
+  onChangePublishTarget,
+  onStart,
+}: PublishWizardControlsProps) {
+  return (
+    <Stack gap={14}>
+      <Text fz={18} fw={700} c="asxGray.9">
+        Publish Now
+      </Text>
+      <Box
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "flex-start",
+          gap: PUBLISH_CONTROL_GAP,
+          width: "100%",
+          maxWidth: PUBLISH_CONTROLS_MAX_WIDTH,
+          flexWrap: "nowrap",
+        }}
+      >
+        <Stack
+          gap={6}
+          style={{
+            flex: "0 0 auto",
+            width: "max-content",
+          }}
+        >
+          <Text fz="md" fw={500} c="asxGray.7">
+            Choose Check-in Scope
+          </Text>
+          <ScopePicker
+            value={scope}
+            showSiteScope={showSiteScope}
+            disabled={disabled}
+            onChange={onScopeChange}
+          />
+        </Stack>
+        <Stack
+          gap={6}
+          style={{
+            flex: "1 1 0",
+            minWidth: PUBLISH_TARGET_CONTROL_MIN_WIDTH,
+            maxWidth: PUBLISH_TARGET_CONTROL_MAX_WIDTH,
+          }}
+        >
+          <Text fz="md" fw={500} c="asxGray.7">
+            Choose Publishing Target
+          </Text>
+          <PublishTargetPicker
+            value={publishTarget}
+            disabled={disabled}
+            onChange={onChangePublishTarget}
+          />
+        </Stack>
+        <Button
+          color="asxBlue"
+          disabled={disabled}
+          onClick={onStart}
+          h={44}
+          px={22}
+          radius={10}
+          fz="md"
+          fw={700}
+          style={{
+            flexShrink: 0,
+            width: PUBLISH_START_BUTTON_WIDTH,
+          }}
+        >
+          Start
+        </Button>
+      </Box>
+    </Stack>
   );
 }
 
@@ -553,14 +842,11 @@ type PublishStepCardProps = {
   stepWidth: number;
   completed: boolean;
   pending: boolean;
-  ready: boolean;
+  active: boolean;
   scope: PublishScope;
   publishTarget: PublishTarget;
-  completedStatusMinHeight: number;
-  onScopeChange?: (scope: PublishScope) => void;
-  onChangePublishTarget: (value: PublishTarget) => void;
-  onCompletedStatusHeightChange: (height: number) => void;
-  onComplete: () => void;
+  statusMinHeight: number;
+  onStatusHeightChange: (height: number) => void;
 };
 
 function PublishStepCard({
@@ -569,32 +855,28 @@ function PublishStepCard({
   stepWidth,
   completed,
   pending,
-  ready,
+  active,
   scope,
   publishTarget,
-  completedStatusMinHeight,
-  onScopeChange,
-  onChangePublishTarget,
-  onCompletedStatusHeightChange,
-  onComplete,
+  statusMinHeight,
+  onStatusHeightChange,
 }: PublishStepCardProps) {
   const tone = completed
     ? "var(--mantine-color-green-6)"
     : pending
       ? "var(--mantine-color-orange-6)"
       : "var(--mantine-color-asxBlue-6)";
-  const isCurrentStep = ready && !completed;
+  const isCurrentStep = active && !completed;
 
   return (
     <Stack
-      gap={20}
+      gap="xl"
       w={stepWidth}
     >
       <Group align="center" gap={12} wrap="nowrap">
         <StepBadge
           completed={completed}
           pending={pending}
-          ready={ready}
           stepNumber={stepNumber}
           tone={tone}
         />
@@ -623,21 +905,7 @@ function PublishStepCard({
         </Stack>
       </Group>
 
-      {onScopeChange ? (
-        <ScopePicker
-          value={scope}
-          disabled={!ready || completed}
-          onChange={onScopeChange}
-        />
-      ) : step.id === "publish" ? (
-        <PublishTargetPicker
-          value={publishTarget}
-          disabled={!ready || completed}
-          onChange={onChangePublishTarget}
-        />
-      ) : null}
-
-      <PublishStepButton
+      <PublishStepStatus
         stepId={step.id}
         label={
           completed
@@ -646,15 +914,22 @@ function PublishStepCard({
                 scope,
                 publishTarget
               )
-            : step.actionLabel
+            : pending || active
+              ? getPendingStepLabel(
+                  step.id,
+                  scope,
+                  publishTarget
+                )
+              : getWaitingStepLabel(
+                  step.id,
+                  scope,
+                  publishTarget
+                )
         }
         completed={completed}
-        minHeight={completedStatusMinHeight}
-        disabled={!ready || pending}
-        onCompletedHeightChange={
-          onCompletedStatusHeightChange
-        }
-        onClick={onComplete}
+        active={active}
+        minHeight={statusMinHeight}
+        onStatusHeightChange={onStatusHeightChange}
       />
     </Stack>
   );
@@ -663,7 +938,6 @@ function PublishStepCard({
 type StepBadgeProps = {
   completed: boolean;
   pending: boolean;
-  ready: boolean;
   stepNumber: number;
   tone: string;
 };
@@ -671,11 +945,10 @@ type StepBadgeProps = {
 function StepBadge({
   completed,
   pending,
-  ready,
   stepNumber,
   tone,
 }: StepBadgeProps) {
-  const outlined = !completed && !pending && !ready;
+  const outlined = !completed && !pending;
 
   return (
     <Box
@@ -706,12 +979,14 @@ function StepBadge({
 
 type ScopePickerProps = {
   value: PublishScope;
+  showSiteScope: boolean;
   disabled: boolean;
   onChange: (scope: PublishScope) => void;
 };
 
 function ScopePicker({
   value,
+  showSiteScope,
   disabled,
   onChange,
 }: ScopePickerProps) {
@@ -720,11 +995,17 @@ function ScopePicker({
     useRef<HTMLButtonElement | null>(null);
   const descendantsChoiceRef =
     useRef<HTMLButtonElement | null>(null);
+  const siteChoiceRef =
+    useRef<HTMLButtonElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] =
     useState<CSSProperties>({
       left: 3,
       width: "calc(50% - 3px)",
     });
+  const [indicatorReady, setIndicatorReady] =
+    useState(false);
+  const indicatorMeasuredRef = useRef(false);
+  const indicatorReadyFrameRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
     const updateIndicator = () => {
@@ -732,7 +1013,11 @@ function ScopePicker({
       const selectedChoice =
         value === "page"
           ? pageChoiceRef.current
-          : descendantsChoiceRef.current;
+          : value === "descendants"
+            ? descendantsChoiceRef.current
+            : showSiteScope
+              ? siteChoiceRef.current
+              : pageChoiceRef.current;
 
       if (!container || !selectedChoice) {
         return;
@@ -743,10 +1028,31 @@ function ScopePicker({
       const selectedRect =
         selectedChoice.getBoundingClientRect();
 
-      setIndicatorStyle({
+      const nextIndicatorStyle = {
         left: selectedRect.left - containerRect.left,
         width: selectedRect.width,
-      });
+      };
+
+      if (!indicatorMeasuredRef.current) {
+        indicatorMeasuredRef.current = true;
+        setIndicatorReady(false);
+        setIndicatorStyle(nextIndicatorStyle);
+
+        if (indicatorReadyFrameRef.current !== null) {
+          window.cancelAnimationFrame(
+            indicatorReadyFrameRef.current
+          );
+        }
+
+        indicatorReadyFrameRef.current =
+          window.requestAnimationFrame(() => {
+            indicatorReadyFrameRef.current = null;
+            setIndicatorReady(true);
+          });
+        return;
+      }
+
+      setIndicatorStyle(nextIndicatorStyle);
     };
 
     updateIndicator();
@@ -764,18 +1070,24 @@ function ScopePicker({
 
     return () => {
       resizeObserver?.disconnect();
+      if (indicatorReadyFrameRef.current !== null) {
+        window.cancelAnimationFrame(
+          indicatorReadyFrameRef.current
+        );
+      }
       window.removeEventListener(
         "resize",
         updateIndicator
       );
     };
-  }, [value]);
+  }, [value, showSiteScope]);
 
   return (
     <Box
       ref={containerRef}
       style={{
         width: "100%",
+        maxWidth: "max-content",
         padding: 3,
         borderRadius: 10,
         background: disabled
@@ -783,8 +1095,8 @@ function ScopePicker({
           : "rgba(255, 255, 255, 0.4)",
         border: "1px solid var(--mantine-color-asxGray-5)",
         position: "relative",
-        display: "grid",
-        gridTemplateColumns: "minmax(max-content, 1fr) minmax(max-content, 1fr)",
+        display: "flex",
+        alignItems: "center",
       }}
     >
       <Box
@@ -804,8 +1116,9 @@ function ScopePicker({
           boxShadow: disabled
             ? "none"
             : "0 1px 4px rgba(15, 23, 42, 0.1)",
-          transition:
-            "left 180ms ease, width 180ms ease",
+          transition: indicatorReady
+            ? "left 133ms ease-out, width 133ms ease-out"
+            : "none",
           pointerEvents: "none",
         }}
       />
@@ -823,6 +1136,25 @@ function ScopePicker({
         disabled={disabled}
         onClick={() => onChange("descendants")}
       />
+      <Box
+        style={{
+          display: "grid",
+          gridTemplateColumns: showSiteScope ? "1fr" : "0fr",
+          opacity: showSiteScope ? 1 : 0,
+          transition:
+            "grid-template-columns 220ms ease-out, opacity 220ms ease-out",
+        }}
+      >
+        <Box style={{ minWidth: 0, overflow: "hidden" }}>
+          <ScopeChoice
+            choiceRef={siteChoiceRef}
+            label="Site"
+            selected={value === "site"}
+            disabled={disabled || !showSiteScope}
+            onClick={() => onChange("site")}
+          />
+        </Box>
+      </Box>
     </Box>
   );
 }
@@ -849,7 +1181,7 @@ function ScopeChoice({
       onClick={onClick}
       style={{
         minHeight: 36,
-        paddingInline: 12,
+        paddingInline: "var(--mantine-spacing-xl)",
         borderRadius: 8,
         border: "1px solid transparent",
         background: "transparent",
@@ -860,13 +1192,13 @@ function ScopeChoice({
           : selected
             ? "var(--mantine-color-asxBlue-8)"
             : "var(--mantine-color-asxGray-7)",
-        fontSize: 14,
+        fontSize: "var(--mantine-font-size-md)",
         fontWeight: 400,
         textAlign: "center",
         cursor: disabled ? "default" : "pointer",
         position: "relative",
         zIndex: 1,
-        flex: "1 1 0",
+        flex: "0 0 auto",
         minWidth: "max-content",
       }}
     >
@@ -917,7 +1249,7 @@ function PublishTargetPicker({
             borderRadius: 10,
             background: "white",
             border:
-              "1px solid var(--mantine-color-asxGray-4)",
+              "1px solid var(--mantine-color-asxGray-5)",
             color: disabled
               ? "var(--mantine-color-asxGray-6)"
               : "var(--mantine-color-asxGray-8)",
@@ -925,7 +1257,7 @@ function PublishTargetPicker({
           }}
         >
           <Group justify="space-between" wrap="nowrap">
-            <Text fz={14} fw={400}>
+            <Text fz="md" fw={400}>
               {selected.label}
             </Text>
             <IconChevronDown size={18} stroke={1.6} />
@@ -957,38 +1289,36 @@ function PublishTargetPicker({
   );
 }
 
-type PublishStepButtonProps = {
+type PublishStepStatusProps = {
   stepId: PublishStepId;
   label: string;
   completed: boolean;
+  active: boolean;
   minHeight: number;
-  disabled: boolean;
-  onCompletedHeightChange: (height: number) => void;
-  onClick: () => void;
+  onStatusHeightChange: (height: number) => void;
 };
 
-function PublishStepButton({
+function PublishStepStatus({
   stepId,
   label,
   completed,
+  active,
   minHeight,
-  disabled,
-  onCompletedHeightChange,
-  onClick,
-}: PublishStepButtonProps) {
-  const completedStatusContentRef =
+  onStatusHeightChange,
+}: PublishStepStatusProps) {
+  const statusContentRef =
     useRef<HTMLDivElement | null>(null);
   const showPublishDetailsLink =
     completed && stepId === "publish";
 
   useLayoutEffect(() => {
-    if (!completed || !completedStatusContentRef.current) {
+    if (!statusContentRef.current) {
       return;
     }
 
-    const element = completedStatusContentRef.current;
+    const element = statusContentRef.current;
     const updateHeight = () => {
-      onCompletedHeightChange(
+      onStatusHeightChange(
         Math.ceil(
           element.scrollHeight +
             PUBLISH_COMPLETE_STATUS_VERTICAL_PADDING
@@ -1008,97 +1338,80 @@ function PublishStepButton({
     return () => {
       resizeObserver?.disconnect();
     };
-  }, [completed, label, onCompletedHeightChange]);
+  }, [label, onStatusHeightChange]);
 
-  if (completed) {
-    return (
+  return (
+    <Group
+      justify="center"
+      h={minHeight}
+      w="100%"
+      px={8}
+      py={6}
+      style={{
+        borderRadius: 8,
+        border: completed
+          ? PUBLISH_COMPLETE_STATUS_BORDER
+          : PUBLISH_PENDING_STATUS_BORDER,
+        background: completed
+          ? PUBLISH_COMPLETE_STATUS_BACKGROUND
+          : PUBLISH_PENDING_STATUS_BACKGROUND,
+        color: completed
+          ? PUBLISH_COMPLETE_STATUS_TEXT
+          : "var(--mantine-color-asxGray-8)",
+        fontSize: "var(--mantine-font-size-md)",
+        fontWeight: active || completed ? 500 : 400,
+        lineHeight: 1.2,
+        overflow: "hidden",
+        opacity: 1,
+        transition:
+          "height 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, opacity 150ms ease-out",
+      }}
+    >
       <Group
-        justify="center"
-        h={minHeight}
+        ref={statusContentRef}
+        gap={6}
+        align="flex-start"
+        wrap="nowrap"
         w="100%"
-        px={8}
-        py={6}
-        style={{
-          borderRadius: 8,
-          border: PUBLISH_COMPLETE_STATUS_BORDER,
-          background: PUBLISH_COMPLETE_STATUS_BACKGROUND,
-          color: PUBLISH_COMPLETE_STATUS_TEXT,
-          fontSize: 15,
-          fontWeight: 500,
-          lineHeight: 1.2,
-          overflow: "hidden",
-          transition: "height 150ms ease-out",
-        }}
+        style={{ minWidth: 0 }}
       >
-        <Group
-          ref={completedStatusContentRef}
-          gap={6}
-          align="flex-start"
-          wrap="nowrap"
-          w="100%"
-          style={{ minWidth: 0 }}
-        >
+        {completed ? (
           <IconCheck
             size={17}
             stroke={2.4}
             style={{ flexShrink: 0 }}
           />
-          <Box
-            style={{
-              flex: 1,
-              minWidth: 0,
-              textAlign: "left",
-              overflowWrap: "anywhere",
-            }}
-          >
-            <Box component="span">{label}</Box>
-            {showPublishDetailsLink ? (
-              <UnstyledButton
-                onClick={() =>
-                  console.log("View publish details")
-                }
-                style={{
-                  display: "block",
-                  marginTop: 4,
-                  color:
-                    "var(--mantine-color-asxBlue-8)",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  textDecoration: "underline",
-                  textUnderlineOffset: 2,
-                }}
-              >
-                View publish details
-              </UnstyledButton>
-            ) : null}
-          </Box>
-        </Group>
+        ) : null}
+        <Box
+          style={{
+            flex: 1,
+            minWidth: 0,
+            textAlign: "left",
+            overflowWrap: "anywhere",
+          }}
+        >
+          <Box component="span">{label}</Box>
+          {showPublishDetailsLink ? (
+            <UnstyledButton
+              onClick={() =>
+                console.log("View publish details")
+              }
+              style={{
+                display: "block",
+                marginTop: 4,
+                color: "var(--mantine-color-asxBlue-8)",
+                fontSize: "var(--mantine-font-size-md)",
+                fontWeight: 500,
+                lineHeight: 1.5,
+                textDecoration: "underline",
+                textUnderlineOffset: 2,
+              }}
+            >
+              View publish details
+            </UnstyledButton>
+          ) : null}
+        </Box>
       </Group>
-    );
-  }
-
-  return (
-    <Button
-      variant="light"
-      color="asxBlue"
-      disabled={disabled}
-      onClick={onClick}
-      fullWidth
-      radius={8}
-      size="sm"
-      c="asxGray.8"
-      fz={15}
-      fw={500}
-      styles={{
-        root: {
-          height: minHeight,
-          border: "1px solid var(--mantine-color-asxBlue-2)",
-          transition: "height 150ms ease-out",
-        },
-      }}
-    >
-      {label}
-    </Button>
+    </Group>
   );
 }

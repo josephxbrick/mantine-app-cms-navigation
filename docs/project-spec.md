@@ -86,19 +86,19 @@ Tree node labels truncate with an ellipsis when clipped and expose the full node
 
 The secondary toolbar supports tool-specific megamenu tabs for Site and Assets workflows. Site Edit and Folder Content expose View, New, Actions, and a Publish Now menu marked with a robot icon. Site Preview exposes View, Preview Settings, Actions, and Publish menus.
 
-Column-based megamenus size columns to fit their widest header or item, including selected radio and checkbox font weight. They use responsive inter-column spacing and a fixed 32px outer padding, with additional row gap support when columns wrap. Radio and checkbox selected rows share the Site tree selected-row border/background treatment while retaining their own control affordances. Command/action rows use 20px icons with tighter vertical padding so command, radio, and checkbox rows align visually. Command rows briefly flash selected feedback before dismissing their parent megamenu. Megamenus use a short hover delay before opening, a short mouse-away grace period before closing, and clicking a command row closes the active megamenu after the feedback delay. The Publish megamenu has its own guided wizard layout and remains open while incomplete when the user mouses away; it closes only after completion or when the user clicks elsewhere.
+Column-based megamenus measure their visible columns before rendering and use the widest measured column as the shared column width, including selected radio and checkbox font weight. Megamenu configs can cap the maximum number of columns per row; when a cap is lower than the column count, leftover columns render below an in-flow horizontal delimiter instead of continuing to wrap. Edit > Actions and Preview > Actions use a three-column cap; other megamenus allow natural wrapping. Radio and checkbox selected rows share the Site tree selected-row border/background treatment while retaining their own control affordances. Command/action rows use 20px icons with tighter vertical padding so command, radio, and checkbox rows align visually. Command rows briefly flash selected feedback before dismissing their parent megamenu. Megamenus use a short hover delay before opening, a short mouse-away grace period before closing, and clicking a command row closes the active megamenu after the feedback delay. The Publish megamenu has its own guided wizard layout and remains open while incomplete when the user mouses away; it closes only after completion or when the user clicks elsewhere.
 
-The Site Edit Actions megamenu includes Mark for Publish and Publish columns. Mark for Publish exposes commands to mark or unmark the current page or the current page and children. Publish exposes a Publishing Target dropdown followed by commands for publishing the current page, the current page and children, or the site. The Publish column sizes to its longest command label, and its dropdown fills that measured column width without closing the parent megamenu when a target is selected. Site Edit Actions also includes a Versioning column for Check In, Undo Checkout, and Rollback.
+The Site Edit Actions megamenu includes Mark for Publish and Publish columns. Mark for Publish exposes commands to mark or unmark the current page or the current page and children. Publish exposes a Publishing Target dropdown followed by commands for publishing the current page, the current page and children, or the site. The Publish column sizes to its longest command label, and its dropdown fills that measured column width without closing the parent megamenu when a target is selected. Site Edit Actions also includes a Check-in State column for Check In, Undo Checkout, and Rollback.
 
-The Site Preview Actions megamenu includes the same Mark for Publish, Publish, and Versioning columns as Site Edit Actions.
+The Site Preview Actions megamenu includes the same Mark for Publish, Publish, and Check-in State columns as Site Edit Actions.
 
-The Publish megamenu presents a three-step guided page publishing flow:
+The Publish megamenu presents an automated three-step guided publishing flow:
 
-1. Check in the current page, or the current page and its descendants.
-2. Mark the current page for publish, or the current page and its descendants.
-3. Publish to the selected target.
+1. Check in the current page, the current page and its descendants, or the whole site.
+2. Mark the current page for publish, the current page and its descendants, or the whole site.
+3. Publish marked pages to the selected target, or publish the whole site when Site scope is selected.
 
-Each publish step starts numbered, enters a timed spinner state after action, and then shows a completed check state with plain-language status text. Page vs Page & Children choices use a custom toggle control rather than native browser inputs. Completed status boxes and incomplete action buttons share the tallest status height and animate height changes at 150ms ease-out so wrapped status messages keep the wizard controls aligned. The Publish completed state includes a subtle View publish details link. The Publish step includes a target picker aligned with the step controls and defaults to the Publishing Target selected in Site Settings unless changed in the wizard. Wizard progress is preserved while switching tabs in the running app, but resets on browser refresh.
+The wizard starts with a compact Publish Now label and control row. Users choose check-in scope, choose a publishing target, and press Start once. The delimiter and step row fade in, then the sequence runs automatically after the reveal delay. Each publish step starts numbered, enters a timed active state with plain-language status text, and then shows a completed check state. The scope toggle defaults to Page and can reveal a Site option for demos by clicking the secondary toolbar Search icon; revealing Site does not select it automatically. Status boxes share the tallest wrapped height across steps so the wizard controls stay aligned. Publish messaging refers to all marked pages because other pages may already be marked outside the wizard. The Publish completed state includes a subtle View publish details link. The target picker defaults to the Publishing Target selected in Site Settings unless changed in the wizard. Wizard progress is preserved while switching tabs in the running app, but resets on browser refresh.
 
 The right side of the secondary toolbar includes compact action controls for Refresh, Save, and Search. Refresh toggles the Publishing Target dropdown visibility in the Site tree Options panel. A review-only control group containing Check in and Assign to is visible by default and can be toggled on and off with the Save icon.
 
@@ -130,10 +130,10 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Site Edit and Preview Actions megamenus expose Mark for Publish and Publish command columns.
 - Clicking a command row in a normal megamenu closes the active megamenu.
 - Normal megamenus close after a short mouse-away grace period; the incomplete Publish wizard remains open on mouse-away and closes by outside click or after the wizard is complete.
-- Users can complete the guided Publish flow by checking in, marking for publish, and publishing from left to right.
-- Users can choose whether Check In and Mark for Publish apply to the page only or to the page and descendants.
+- Users can start the guided Publish flow once and watch Check In, Mark for Publish, and Publish run automatically from left to right.
+- Users can choose whether Check In and Mark for Publish apply to the page only, the page and descendants, or the whole site when the demo Site option is revealed.
 - Users can choose a publish target in the final Publish step, defaulting to the Site Settings publishing target unless overridden in the wizard.
-- Users can see publish completion status text and a View publish details link after publishing.
+- Users can see publish progress and completion status text, plus a View publish details link after publishing.
 - The secondary toolbar Assign to action can open a dropdown for assigning to self, a user, or a group.
 - The secondary toolbar shows review-only Check in and Assign to controls by default, and the Save icon toggles them on and off.
 
@@ -153,7 +153,7 @@ The Assign to toolbar action opens a small dropdown aligned beneath the action i
 - Keep feature code organized by shell, left panel, content workspace, toolbars, trees, and workspace types.
 - Keep local component extraction consistent with the project's DisplayGroup convention.
 - Keep shared megamenu item types and renderers reusable across primary toolbar menus, secondary toolbar menus, toolbar action dropdowns, and custom toolbar dropdown menus.
-- Keep cursor styling explicit for the prototype shell: default cursor globally, with resize cursors only on intentional resize affordances such as the workspace splitter.
+- Keep interaction styling explicit for the prototype shell: clickable controls use the pointer cursor, optional-hover megamenu tabs keep the default cursor, resize affordances such as the workspace splitter use resize cursors, and text selection is disabled except inside editable text inputs.
 - Validate meaningful changes with `npm run build`.
 
 ## Deployment

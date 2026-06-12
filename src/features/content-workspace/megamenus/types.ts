@@ -103,6 +103,7 @@ export type MegamenuColumn = {
 export type MegamenuConfig = {
   id: string;
   columns: MegamenuColumn[];
+  maxColumnsPerRow?: number;
 };
 
 export type MegamenuRadioValues = Record<string, string | undefined>;

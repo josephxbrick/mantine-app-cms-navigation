@@ -1,7 +1,77 @@
-*,
-*::before,
-*::after {
-  cursor: default !important;
+:where(*) {
+  user-select: none;
+}
+
+:where(
+  input,
+  textarea,
+  [contenteditable="true"],
+  [contenteditable=""]
+),
+:where(
+  input,
+  textarea,
+  [contenteditable="true"],
+  [contenteditable=""]
+) * {
+  user-select: text;
+}
+
+:where(
+  a[href],
+  button:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  label[for],
+  select:not(:disabled),
+  summary,
+  [role="button"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  [tabindex]:not([tabindex="-1"]):not([aria-disabled="true"])
+),
+:where(
+  a[href],
+  button:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  label[for],
+  select:not(:disabled),
+  summary,
+  [role="button"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  [tabindex]:not([tabindex="-1"]):not([aria-disabled="true"])
+) * {
+  cursor: pointer;
+}
+
+:where(
+  button:disabled,
+  [aria-disabled="true"]
+),
+:where(
+  button:disabled,
+  [aria-disabled="true"]
+) * {
+  cursor: default;
+}
+
+[data-optional-click="true"],
+[data-optional-click="true"] * {
+  cursor: default;
 }
 
 .workspace-splitter,

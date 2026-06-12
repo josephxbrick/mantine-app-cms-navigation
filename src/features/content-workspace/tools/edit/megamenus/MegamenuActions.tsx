@@ -171,7 +171,7 @@ const actionColumns: MegamenuColumn[] = [
   },
   {
     id: "publishing-actions",
-    header: "Versioning",
+    header: "Check-in State",
     items: [
       {
         type: "command",
@@ -343,6 +343,7 @@ function getActionConfig(
   return {
     id: "edit-actions",
     columns: [...columns, ...publishingActionColumns],
+    maxColumnsPerRow: 3,
   };
 }
 

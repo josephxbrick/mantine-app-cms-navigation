@@ -4,7 +4,7 @@
  * Imports:
  * - Box, Button, Group, Select, Stack, Text, TextInput, UnstyledButton, from "@mantine/core" provides Mantine UI primitives, theme helpers, component types, or styling utilities used in this file.
  * - IconChevronDown from "@tabler/icons-react" provides icon components used by dropdown-style megamenu actions.
- * - useEffect, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
+ * - useEffect, useLayoutEffect, useRef, useState from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { CSSProperties, ReactNode } from "react" provides React hooks, refs, component helpers, or React-only types used in this file.
  * - type { MegamenuCheckboxValues, MegamenuColumn, MegamenuConfig, MegamenuFieldValues, MegamenuItem, MegamenuRadioValues, } from "./types" provides shared data types used by this feature.
  */
@@ -19,7 +19,12 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconChevronDown } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import type {
   CSSProperties,
   ReactNode,
@@ -36,8 +41,9 @@ import type {
 
 const MIN_COLUMN_GAP = 40;
 const MAX_COLUMN_GAP = 72;
-const WRAPPED_ROW_GAP = 28;
+const WRAPPED_ROW_GAP = 44;
 const VIEWPORT_HORIZONTAL_MARGIN = 32;
+const COLUMN_GROUP_PADDING = 32;
 const COLUMN_HEADER_GAP = 12;
 const COLUMN_ITEM_GAP = 4;
 const ITEM_PADDING = "8px 10px";
@@ -49,6 +55,7 @@ const DROPDOWN_ICON_WIDTH = 17;
 const CHECKBOX_MARK_WIDTH = 16;
 const DEFAULT_TEXT_WIDTH_MULTIPLIER = 8;
 const COMMAND_CLICK_FEEDBACK_STEP_MS = 130;
+const DEFAULT_MAX_COLUMNS_PER_ROW = Number.MAX_SAFE_INTEGER;
 
 let measurementContext: CanvasRenderingContext2D | null =
   null;
@@ -274,8 +281,9 @@ type ColumnSlot = {
 };
 
 type ColumnDisplayGroupProps = {
-  children: ReactNode;
   columnGap: number;
+  rows: ReactNode[][];
+  wrapRows: boolean;
 };
 
 type InlineMenuItemDisplayProps = {
@@ -288,21 +296,179 @@ type MegamenuColumnLayoutProps = {
 };
 
 function ColumnDisplayGroup({
-  children,
   columnGap,
+  rows,
+  wrapRows,
 }: ColumnDisplayGroupProps) {
+  const groupRef = useRef<HTMLDivElement | null>(null);
+  const delimiterTops =
+    useWrappedColumnDelimiterTops(groupRef);
+
   return (
-    <Group
-      align="stretch"
-      style={{
-        columnGap,
-        padding: 32,
-        rowGap: WRAPPED_ROW_GAP,
-      }}
-    >
-      {children}
-    </Group>
+    <Box pos="relative">
+      <Box
+        ref={groupRef}
+        style={{
+          padding: COLUMN_GROUP_PADDING,
+          display: "flex",
+          flexDirection: wrapRows ? "row" : "column",
+          flexWrap: wrapRows ? "wrap" : "nowrap",
+          alignItems: "stretch",
+          columnGap,
+          rowGap: WRAPPED_ROW_GAP,
+        }}
+      >
+        {wrapRows
+          ? rows.flat()
+          : rows.map((row, rowIndex) => (
+            <Group
+              key={rowIndex}
+              align="stretch"
+              wrap="nowrap"
+              style={{
+                columnGap,
+                flexShrink: 0,
+              }}
+            >
+              {row}
+            </Group>
+          ))}
+      </Box>
+      {delimiterTops.map((delimiterTop) => (
+        <Box
+          key={delimiterTop}
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: COLUMN_GROUP_PADDING,
+            right: COLUMN_GROUP_PADDING,
+            top: delimiterTop,
+            height: 1,
+            background:
+              "var(--mantine-color-asxGray-4)",
+            pointerEvents: "none",
+          }}
+        />
+      ))}
+    </Box>
   );
+}
+
+function useWrappedColumnDelimiterTops(
+  groupRef: React.RefObject<HTMLDivElement | null>
+) {
+  const [delimiterTops, setDelimiterTops] = useState<
+    number[]
+  >([]);
+
+  useLayoutEffect(() => {
+    const groupElement = groupRef.current;
+
+    if (!groupElement) {
+      setDelimiterTops([]);
+      return;
+    }
+
+    const updateDelimiterTops = () => {
+      const groupRect =
+        groupElement.getBoundingClientRect();
+      const columnElements = Array.from(
+        groupElement.children
+      ).filter(
+        (child): child is HTMLElement =>
+          child instanceof HTMLElement &&
+          child.offsetParent !== null
+      );
+
+      if (columnElements.length < 2) {
+        setDelimiterTops([]);
+        return;
+      }
+
+      const rows = columnElements.reduce<
+        {
+          top: number;
+          bottom: number;
+        }[]
+      >((rowGroups, element) => {
+        const elementRect =
+          element.getBoundingClientRect();
+        const existingRow = rowGroups.find(
+          (row) =>
+            Math.abs(row.top - elementRect.top) < 1
+        );
+
+        if (existingRow) {
+          existingRow.bottom = Math.max(
+            existingRow.bottom,
+            elementRect.bottom
+          );
+          return rowGroups;
+        }
+
+        rowGroups.push({
+          top: elementRect.top,
+          bottom: elementRect.bottom,
+        });
+        return rowGroups;
+      }, []);
+
+      rows.sort((firstRow, secondRow) =>
+        firstRow.top - secondRow.top
+      );
+
+      const nextDelimiterTops = rows
+        .slice(1)
+        .map((row, rowIndex) =>
+          Math.round(
+            (rows[rowIndex].bottom + row.top) / 2 -
+              groupRect.top
+          )
+        );
+
+      setDelimiterTops((currentDelimiterTops) =>
+        currentDelimiterTops.length ===
+          nextDelimiterTops.length &&
+        currentDelimiterTops.every(
+          (delimiterTop, index) =>
+            delimiterTop === nextDelimiterTops[index]
+        )
+          ? currentDelimiterTops
+          : nextDelimiterTops
+      );
+    };
+
+    updateDelimiterTops();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateDelimiterTops);
+
+      return () =>
+        window.removeEventListener(
+          "resize",
+          updateDelimiterTops
+        );
+    }
+
+    const resizeObserver = new ResizeObserver(
+      updateDelimiterTops
+    );
+    resizeObserver.observe(groupElement);
+    Array.from(groupElement.children).forEach((child) => {
+      resizeObserver.observe(child);
+    });
+    window.addEventListener("resize", updateDelimiterTops);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener(
+        "resize",
+        updateDelimiterTops
+      );
+    };
+  });
+
+  return delimiterTops;
 }
 
 type MenuColumnSlotsProps = {
@@ -314,6 +480,7 @@ type MenuColumnSlotsProps = {
   onCheckboxChange: (itemId: string) => void;
   onFieldChange: (itemId: string, value: string) => void;
   onCommand: (itemId: string) => void;
+  maxColumnsPerRow: number;
 };
 
 function MenuColumnSlots({
@@ -325,6 +492,7 @@ function MenuColumnSlots({
   onCheckboxChange,
   onFieldChange,
   onCommand,
+  maxColumnsPerRow,
 }: MenuColumnSlotsProps) {
   const columnViewProps = {
     radioValues,
@@ -356,51 +524,72 @@ function MenuColumnSlots({
   const visibleColumnCount = slotViews.filter(
     ({ visibleColumn }) => Boolean(visibleColumn)
   ).length;
-  const totalColumnWidth = slotViews.reduce(
-    (total, { columnWidth }) => total + columnWidth,
+  const sharedColumnWidth = slotViews.reduce(
+    (widest, { columnWidth }) =>
+      Math.max(widest, columnWidth),
     0
   );
+  const shouldForceColumnRows =
+    maxColumnsPerRow < visibleColumnCount;
+  const layoutColumnCount = shouldForceColumnRows
+    ? Math.min(maxColumnsPerRow, visibleColumnCount)
+    : visibleColumnCount;
+  const totalColumnWidth =
+    layoutColumnCount * sharedColumnWidth;
   const columnGap = useResponsiveColumnGap(
     totalColumnWidth,
-    visibleColumnCount
+    layoutColumnCount
   );
+  const visibleSlotViews = slotViews.filter(
+    ({ visibleColumn }) => Boolean(visibleColumn)
+  );
+  const renderColumnSlot = ({
+    slot,
+    visibleColumn,
+  }: (typeof visibleSlotViews)[number]) => {
+    if (!visibleColumn) {
+      return null;
+    }
+
+    if (slot.animated) {
+      return (
+        <AnimatedColumnSlot
+          key={slot.key}
+          columnWidth={sharedColumnWidth}
+        >
+          <MenuColumnView
+            column={visibleColumn}
+            {...columnViewProps}
+          />
+        </AnimatedColumnSlot>
+      );
+    }
+
+    return (
+      <StaticColumnSlot
+        key={slot.key}
+        columnWidth={sharedColumnWidth}
+      >
+        <MenuColumnView
+          column={visibleColumn}
+          {...columnViewProps}
+        />
+      </StaticColumnSlot>
+    );
+  };
+  const columnSlotViews = visibleSlotViews.map(
+    renderColumnSlot
+  );
+  const rows = shouldForceColumnRows
+    ? chunkItems(columnSlotViews, maxColumnsPerRow)
+    : [columnSlotViews];
 
   return (
-    <ColumnDisplayGroup columnGap={columnGap}>
-      {slotViews.map(
-        ({ slot, visibleColumn, columnWidth }) => {
-          if (!visibleColumn) {
-            return null;
-          }
-
-          if (slot.animated) {
-            return (
-              <AnimatedColumnSlot
-                key={slot.key}
-                columnWidth={columnWidth}
-              >
-                <MenuColumnView
-                  column={visibleColumn}
-                  {...columnViewProps}
-                />
-              </AnimatedColumnSlot>
-            );
-          }
-
-          return (
-            <StaticColumnSlot
-              key={slot.key}
-              columnWidth={columnWidth}
-            >
-              <MenuColumnView
-                column={visibleColumn}
-                {...columnViewProps}
-              />
-            </StaticColumnSlot>
-          );
-        }
-      )}
-    </ColumnDisplayGroup>
+    <ColumnDisplayGroup
+      columnGap={columnGap}
+      rows={rows}
+      wrapRows={!shouldForceColumnRows}
+    />
   );
 }
 
@@ -478,6 +667,26 @@ function AnimatedColumnDisplay({
       </Box>
     </Box>
   );
+}
+
+function chunkItems<T>(items: T[], chunkSize: number) {
+  const chunks: T[][] = [];
+  const normalizedChunkSize = Math.max(
+    1,
+    Math.floor(chunkSize)
+  );
+
+  for (
+    let index = 0;
+    index < items.length;
+    index += normalizedChunkSize
+  ) {
+    chunks.push(
+      items.slice(index, index + normalizedChunkSize)
+    );
+  }
+
+  return chunks;
 }
 
 type MenuColumnViewProps = {
@@ -1128,6 +1337,9 @@ export function MegamenuRenderer({
     onCheckboxChange,
     onFieldChange,
     onCommand,
+    maxColumnsPerRow:
+      config.maxColumnsPerRow ??
+      DEFAULT_MAX_COLUMNS_PER_ROW,
   };
 
   return <MenuColumnSlots {...menuColumnSlotsProps} />;
